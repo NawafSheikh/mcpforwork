@@ -15,6 +15,10 @@ export default defineConfig({
     },
   },
   server: { port: 5180 },
-  build: { target: "es2022", sourcemap: false },
+  build: {
+    target: "es2022",
+    sourcemap: false,
+    rollupOptions: { output: { manualChunks: { charts: ["recharts"], react: ["react", "react-dom"] } } },
+  },
   test: { environment: "jsdom", globals: false },
 });

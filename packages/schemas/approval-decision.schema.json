@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcpforwork.com/schemas/approval-decision.schema.json",
+  "$comment": "Ported from mcpforwork-d365-control-plane, 28 Aug 2026; browser build digests may be fnv1a64.",
+  "title": "MCP for Work Mutation Approval Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approvalId",
+    "tenantId",
+    "decidedBy",
+    "decision",
+    "decidedAt"
+  ],
+  "properties": {
+    "approvalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "decidedBy": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "decision": {
+      "enum": ["APPROVE", "DENY"]
+    },
+    "decidedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

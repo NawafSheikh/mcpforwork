@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcpforwork.com/schemas/approval-request.schema.json",
+  "$comment": "Ported from mcpforwork-d365-control-plane, 28 Aug 2026; browser build digests may be fnv1a64.",
+  "title": "MCP for Work Mutation Approval Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approvalId",
+    "tenantId",
+    "operationId",
+    "argumentDigest",
+    "requestedBy",
+    "requestedAt",
+    "expiresAt",
+    "status",
+    "decidedBy",
+    "decidedAt",
+    "consumedAt"
+  ],
+  "properties": {
+    "approvalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "argumentDigest": {
+      "type": "string",
+      "pattern": "^(sha256:[a-f0-9]{64}|fnv1a64:[a-f0-9]{16})$"
+    },
+    "requestedBy": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "requestedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "PENDING"
+    },
+    "decidedBy": {
+      "type": "null"
+    },
+    "decidedAt": {
+      "type": "null"
+    },
+    "consumedAt": {
+      "type": "null"
+    }
+  }
+}

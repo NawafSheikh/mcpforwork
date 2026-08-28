@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mcpforwork.com/schemas/audit-event.schema.json",
+  "$comment": "Ported from mcpforwork-d365-control-plane, 28 Aug 2026; browser build digests may be fnv1a64.",
+  "title": "MCP for Work Redacted Audit Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "tenantId",
+    "principalId",
+    "action",
+    "outcome",
+    "requestId",
+    "timestamp",
+    "details"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,127}$"
+    },
+    "tenantId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "principalId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "action": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "outcome": {
+      "enum": ["ALLOW", "DENY", "ERROR"]
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,127}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "details": {
+      "description": "Recursively redacted and bounded event metadata.",
+      "type": ["object", "array", "string", "number", "boolean", "null"]
+    }
+  }
+}

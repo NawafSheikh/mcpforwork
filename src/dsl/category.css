@@ -1,0 +1,87 @@
+/* MCP for Work: category card styles, imported by styles.css. Owner A1. */
+
+/* ---------- category card ---------- */
+
+.mfw-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mfw-cat__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mfw-cat__name {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 640;
+  color: var(--mfw-ink);
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+button.mfw-cat__name {
+  cursor: pointer;
+}
+
+button.mfw-cat__name:hover,
+button.mfw-cat__name:focus-visible {
+  color: var(--mfw-accent);
+  outline: none;
+}
+
+.mfw-cat--selected {
+  border-color: var(--mfw-accent);
+  box-shadow: inset 0 0 0 1px var(--mfw-accent);
+}
+
+.mfw-cat__desc {
+  color: var(--mfw-mute);
+  font-size: 12.5px;
+}
+
+.mfw-cat__badge {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--mfw-warn);
+  border: 1px solid var(--mfw-border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  background: var(--mfw-soft);
+}
+
+.mfw-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mfw-pill {
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 3px 9px;
+  border: 1px solid var(--mfw-border);
+  background: var(--mfw-soft);
+  color: var(--mfw-mute);
+}
+
+.mfw-pill--on {
+  color: var(--mfw-ok);
+  border-color: rgba(79, 209, 197, 0.4);
+}
+
+.mfw-cat__slot {
+  border-top: 1px solid var(--mfw-border);
+  padding-top: 10px;
+}
+

@@ -1,0 +1,372 @@
+@import "./category.css";
+
+/* MCP for Work: DSL renderer styles. Owner A1 (src/dsl).
+   Tokens live in a cascade layer, so any unlayered rule the shell writes wins
+   over these defaults, whatever the import order turns out to be. */
+
+@layer mfw-tokens {
+  :root {
+    --mfw-bg: #0b0e14;
+    --mfw-card: #141a26;
+    --mfw-ink: #e9edf6;
+    --mfw-mute: #8b93a7;
+    --mfw-accent: #5eb0ff;
+    --mfw-ok: #4fd1c5;
+    --mfw-warn: #f6c177;
+    --mfw-danger: #ff6b81;
+    --mfw-border: rgba(233, 237, 246, 0.1);
+    --mfw-soft: rgba(233, 237, 246, 0.04);
+    --mfw-radius: 12px;
+  }
+}
+
+.mfw-dsl {
+  color: var(--mfw-ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.mfw-dsl *,
+.mfw-dsl *::before,
+.mfw-dsl *::after {
+  box-sizing: border-box;
+}
+
+.mfw-dsl h2,
+.mfw-dsl h3,
+.mfw-dsl h4,
+.mfw-dsl p {
+  margin: 0;
+}
+
+/* ---------- surfaces ---------- */
+
+.mfw-surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--mfw-border);
+  border-radius: 14px;
+  background: var(--mfw-bg);
+}
+
+.mfw-card {
+  border: 1px solid var(--mfw-border);
+  border-radius: var(--mfw-radius);
+  background: var(--mfw-card);
+  padding: 14px 16px;
+}
+
+/* ---------- header ---------- */
+
+.mfw-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mfw-head__title {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+
+.mfw-head__meta {
+  color: var(--mfw-mute);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 3px;
+}
+
+.mfw-head__source {
+  color: var(--mfw-mute);
+  font-size: 12px;
+  border: 1px solid var(--mfw-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: var(--mfw-soft);
+}
+
+/* ---------- KPIs ---------- */
+
+.mfw-kpis {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.mfw-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mfw-kpi__label {
+  color: var(--mfw-mute);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.mfw-kpi__value {
+  font-size: 26px;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+
+.mfw-kpi__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 18px;
+}
+
+.mfw-kpi__hint {
+  color: var(--mfw-mute);
+  font-size: 12px;
+}
+
+.mfw-delta {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--mfw-soft);
+}
+
+.mfw-delta--up {
+  color: var(--mfw-ok);
+}
+
+.mfw-delta--down {
+  color: var(--mfw-danger);
+}
+
+.mfw-delta--flat {
+  color: var(--mfw-mute);
+}
+
+/* ---------- chart grid ---------- */
+
+.mfw-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .mfw-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mfw-grid > .mfw-chart--table {
+    grid-column: 1 / -1;
+  }
+}
+
+.mfw-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mfw-chart__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mfw-chart__title {
+  font-size: 14px;
+  font-weight: 620;
+}
+
+.mfw-chart__note {
+  color: var(--mfw-mute);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.mfw-chart__body {
+  height: 220px;
+  min-width: 0;
+}
+
+.mfw-chart--table .mfw-chart__body {
+  height: auto;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.mfw-edit {
+  flex: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--mfw-mute);
+  background: var(--mfw-soft);
+  border: 1px solid var(--mfw-border);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.mfw-edit:hover,
+.mfw-edit:focus-visible {
+  color: var(--mfw-ink);
+  border-color: var(--mfw-accent);
+  outline: none;
+}
+
+/* ---------- table ---------- */
+
+.mfw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mfw-table th,
+.mfw-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--mfw-border);
+  white-space: nowrap;
+}
+
+.mfw-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--mfw-mute);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background: var(--mfw-card);
+}
+
+.mfw-table td.mfw-num {
+  text-align: right;
+}
+
+.mfw-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- lists and empty states ---------- */
+
+.mfw-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mfw-notes__label {
+  color: var(--mfw-mute);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.mfw-notes li {
+  color: var(--mfw-ink);
+  font-size: 13px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.mfw-notes li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mfw-accent);
+}
+
+.mfw-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 22px 16px;
+  border: 1px dashed var(--mfw-border);
+  border-radius: var(--mfw-radius);
+  background: var(--mfw-soft);
+}
+
+.mfw-empty__title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mfw-empty__hint {
+  color: var(--mfw-mute);
+  font-size: 12px;
+}
+
+.mfw-empty--inline {
+  height: 100%;
+  border-style: solid;
+}
+
+/* ---------- agent update pulse (CSS only, no timers) ---------- */
+
+.mfw-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  animation: mfw-pulse 1.5s ease-out 1;
+}
+
+@keyframes mfw-pulse {
+  0% {
+    box-shadow: inset 0 0 0 1px var(--mfw-accent), 0 0 0 0 rgba(94, 176, 255, 0.45);
+  }
+
+  70% {
+    box-shadow: inset 0 0 0 1px var(--mfw-accent), 0 0 0 10px rgba(94, 176, 255, 0);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(94, 176, 255, 0), 0 0 0 0 rgba(94, 176, 255, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mfw-pulse {
+    animation: none;
+    box-shadow: inset 0 0 0 1px var(--mfw-accent);
+  }
+}
+
+.mfw-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

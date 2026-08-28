@@ -1,0 +1,88 @@
+/** One monitor: schedule, next run, policy summary, run history, policy editor. */
+import { useCallback, useState } from "react";
+import type { Monitor, MonitorRun } from "../../types";
+import { runMonitorNow } from "../adapters/monitors";
+import { describePolicyText } from "../adapters/policy";
+import { useShell, useWorkspace } from "../context";
+import { formatClock, formatRelative } from "../lib/format";
+import { useToast } from "../Toasts";
+import { PolicyEditor } from "./PolicyEditor";
+
+function RunHistory({ runs }: { readonly runs: readonly MonitorRun[] }): JSX.Element {
+  if (runs.length === 0) return <p className="mfw-muted">No runs reported yet.</p>;
+  return (
+    <ol className="mfw-runs">
+      {runs.map((run) => (
+        <li className="mfw-run" key={run.id}>
+          <span className="mfw-run-when">{formatRelative(run.startedAt)}</span>
+          <span className="mfw-run-body">
+            {run.findings.map((finding) => (
+              <span className="mfw-run-finding" key={finding}>
+                {finding}
+              </span>
+            ))}
+            <span className="mfw-muted">{run.draftIds.length} draft(s) from this run</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function MonitorFacts({ monitor }: { readonly monitor: Monitor }): JSX.Element {
+  return (
+    <dl className="mfw-facts">
+      <div>
+        <dt>Next run</dt>
+        <dd>{formatClock(monitor.nextRunAt)}</dd>
+      </div>
+      <div>
+        <dt>Last run</dt>
+        <dd>{monitor.lastRunAt ? formatRelative(monitor.lastRunAt) : "never"}</dd>
+      </div>
+    </dl>
+  );
+}
+
+export function MonitorCard({ monitor }: { readonly monitor: Monitor }): JSX.Element {
+  const { store } = useShell();
+  const workspace = useWorkspace();
+  const push = useToast();
+  const [showPolicy, setShowPolicy] = useState(false);
+
+  const runs = [...workspace.runs].filter((run) => run.monitorId === monitor.id).reverse().slice(0, 3);
+
+  const onRunNow = useCallback(async () => {
+    await runMonitorNow(store, monitor.id);
+    push(`${monitor.name} reported back.`, "ok");
+  }, [store, monitor.id, monitor.name, push]);
+
+  return (
+    <article className="mfw-card mfw-monitor">
+      <header className="mfw-monitor-head">
+        <div>
+          <h3 className="mfw-monitor-name">{monitor.name}</h3>
+          <p className="mfw-muted">
+            {monitor.category} | {monitor.schedule} | runs {monitor.runner}
+          </p>
+        </div>
+        <span className={`mfw-chip mfw-chip-${monitor.status}`}>{monitor.status}</span>
+      </header>
+      <MonitorFacts monitor={monitor} />
+      <p className="mfw-policy-summary">{describePolicyText(monitor.policy)}</p>
+      {monitor.policy.notes ? <p className="mfw-muted">{monitor.policy.notes}</p> : null}
+      <RunHistory runs={runs} />
+      <div className="mfw-row-actions">
+        {workspace.mode === "demo" ? (
+          <button type="button" className="mfw-btn" onClick={onRunNow}>
+            Run now
+          </button>
+        ) : null}
+        <button type="button" className="mfw-btn mfw-btn-ghost" onClick={() => setShowPolicy((open) => !open)}>
+          {showPolicy ? "Hide policy" : "Edit policy"}
+        </button>
+      </div>
+      {showPolicy ? <PolicyEditor monitor={monitor} /> : null}
+    </article>
+  );
+}
