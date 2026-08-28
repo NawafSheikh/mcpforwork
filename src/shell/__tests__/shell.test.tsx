@@ -38,14 +38,17 @@ describe("shell", () => {
   it("renders the empty board", () => {
     const html = shell(<App />);
     expect(html).toContain("MCP for Work");
-    expect(html).toContain("group them into categories");
+    expect(html).toContain("group them into");
     expect(html).toContain("WebMCP not available");
   });
 
   it("renders the sample board through the dsl", () => {
     const html = shell(<App />, sampleWorkspace(new Date()));
     expect(html).toContain("mfw-dsl");
-    expect(html).toContain("Dashboard for");
+    // The board opens on the overview, with the categories as domain cards;
+    // a single dashboard renders once a category is selected.
+    expect(html).toContain("Workspace overview");
+    expect(html).toContain("Invoices");
   });
 
   it("renders monitors, drafts and a held clause", () => {
@@ -62,11 +65,11 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 15 tools", () => {
+  it("publishes all 18 tools", () => {
     const store = createWorkspaceStore({ mode: "demo", persist: false });
     const bundle = createWebmcp({ store, handlers: { ...monitorHandlers, seed_demo_workspace: seedDemoHandler } });
-    expect(bundle.definitions.length).toBe(15);
-    expect(TOOL_NAMES.length).toBe(15);
+    expect(bundle.definitions.length).toBe(18);
+    expect(TOOL_NAMES.length).toBe(18);
   });
 
   it("leaves no tool without a handler", () => {

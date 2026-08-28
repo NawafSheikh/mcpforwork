@@ -1,7 +1,14 @@
 /** Persistent agent activity rail, wide screens only (CSS hides it when narrow). */
+import type { AuditEvent } from "../types";
 import { useWorkspace } from "./context";
 import { actorIcon, describeToolEvent, formatRelative } from "./lib/format";
 import { RAIL_EVENT_COUNT } from "./lib/constants";
+
+/** Sub-agents name themselves; anything that did not is plain ChatGPT. */
+export function callerName(event: AuditEvent): string {
+  const caller = event.caller?.trim();
+  return caller && caller.length > 0 ? caller : "ChatGPT";
+}
 
 export function AgentRail(): JSX.Element {
   const workspace = useWorkspace();
@@ -22,7 +29,8 @@ export function AgentRail(): JSX.Element {
               <span className="mfw-rail-body">
                 <span className="mfw-rail-text">{describeToolEvent(event)}</span>
                 <span className="mfw-rail-meta">
-                  {formatRelative(event.at)}
+                  <span className="mfw-chip mfw-caller">{callerName(event)}</span>
+                  {` ${formatRelative(event.at)}`}
                   {event.ok ? "" : " | failed"}
                 </span>
               </span>

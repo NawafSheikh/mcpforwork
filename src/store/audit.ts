@@ -2,6 +2,7 @@
  * Audit helpers for the workspace store.
  * Every tool call leaves one AuditEvent: who, which tool, a deterministic hash of the
  * arguments and a short preview. Hashing keeps the rail readable without storing payloads.
+ * The optional caller is the sub-agent's own label, so parallel workers stay apart in the rail.
  */
 
 import { LIMITS, type Actor, type AuditEvent, type Workspace } from "../types";
@@ -52,10 +53,19 @@ export function stableStringify(value: unknown, depth = 0): string {
 
 export interface AuditInput {
   readonly actor: Actor;
+  /** Self-reported name of the agent or sub-agent behind the call. Display only. */
+  readonly caller?: string;
   readonly tool?: string;
   readonly args?: unknown;
   readonly result?: string;
   readonly ok: boolean;
+}
+
+/** The caller is agent supplied, so it is trimmed and capped before it is stored. */
+function cleanCaller(caller: string | undefined): string | undefined {
+  if (typeof caller !== "string") return undefined;
+  const text = caller.trim();
+  return text.length > 0 ? truncate(text, LIMITS.maxCallerChars) : undefined;
 }
 
 let sequence = 0;
@@ -70,6 +80,7 @@ export function makeAuditEvent(input: AuditInput): AuditEvent {
     id: `ev_${sequence.toString(36)}_${fnv1aHex(`${at}:${input.tool ?? ""}:${serialized}`)}`,
     at,
     actor: input.actor,
+    caller: cleanCaller(input.caller),
     tool: input.tool,
     argsHash: hash,
     argsPreview: serialized === "" ? undefined : truncate(serialized, PREVIEW_CHARS),

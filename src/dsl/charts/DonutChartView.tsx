@@ -3,14 +3,16 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { ChartPoint } from "../../types";
 import { formatTooltipValue } from "../format";
-import { LEGEND_STYLE, TOOLTIP_STYLE, colorAt } from "./palette";
+import { colorAt } from "./palette";
 import { LABEL_KEY, VALUE_KEY, toSliceData } from "./series";
+import { useChartTheme } from "./theme";
 
 export interface DonutChartViewProps {
   readonly points: readonly ChartPoint[];
 }
 
 export function DonutChartView({ points }: DonutChartViewProps) {
+  const theme = useChartTheme();
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
@@ -26,17 +28,17 @@ export function DonutChartView({ points }: DonutChartViewProps) {
           isAnimationActive={false}
         >
           {points.map((point, index) => (
-            <Cell key={`${point.label}-${index}`} fill={colorAt(index)} />
+            <Cell key={`${point.label}-${index}`} fill={colorAt(index, theme.colors)} />
           ))}
         </Pie>
-        <Tooltip {...TOOLTIP_STYLE} formatter={(value) => formatTooltipValue(value)} />
+        <Tooltip {...theme.tooltip} formatter={(value) => formatTooltipValue(value)} />
         <Legend
           layout="vertical"
           align="right"
           verticalAlign="middle"
           iconSize={8}
           iconType="circle"
-          wrapperStyle={LEGEND_STYLE}
+          wrapperStyle={theme.legend}
         />
       </PieChart>
     </ResponsiveContainer>

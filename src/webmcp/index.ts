@@ -1,5 +1,5 @@
 /**
- * One import for the shell: build the registry, get the 15 definitions, register them.
+ * One import for the shell: build the registry, get the 18 definitions, register them.
  * A3 and A5 pass their own handlers in; anything they have not shipped yet answers
  * "not wired yet" instead of breaking the page.
  */
@@ -31,6 +31,7 @@ export function createWebmcp(options: WebmcpOptions): WebmcpBundle {
 }
 
 export { workspaceHandlers } from "./handlers";
+export { feedbackHandlers, FEEDBACK_NOTICE, noticeTarget } from "./feedbackTools";
 export { createToolDefinitions, TOOL_DESCRIPTIONS } from "./definitions";
 export { createToolRegistry, describeIssues } from "./registry";
 export type {

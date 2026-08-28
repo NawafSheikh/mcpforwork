@@ -10,9 +10,9 @@ export interface EmptyStateProps {
 
 export function EmptyState({ title, hint, inline = false }: EmptyStateProps) {
   return (
-    <div className={inline ? "mfw-empty mfw-empty--inline" : "mfw-empty"}>
-      <p className="mfw-empty__title">{title}</p>
-      {hint ? <p className="mfw-empty__hint">{hint}</p> : null}
+    <div className={inline ? "mfw-blank mfw-blank--inline" : "mfw-blank"}>
+      <p className="mfw-blank__title">{title}</p>
+      {hint ? <p className="mfw-blank__hint">{hint}</p> : null}
     </div>
   );
 }

@@ -11,14 +11,17 @@ export interface CategoryCardProps {
   readonly category: Category;
   readonly selected?: boolean;
   readonly onSelect?: (name: string) => void;
+  /** Chip rendered before the name, so a grid of cards reads as designed. */
+  readonly icon?: ReactNode;
   readonly children?: ReactNode;
 }
 
-export function CategoryCard({ category, selected = false, onSelect, children }: CategoryCardProps) {
+export function CategoryCard({ category, selected = false, onSelect, icon, children }: CategoryCardProps) {
   const className = selected ? "mfw-dsl mfw-card mfw-cat mfw-cat--selected" : "mfw-dsl mfw-card mfw-cat";
   return (
     <article className={className} aria-label={`Category ${category.name}`}>
       <div className="mfw-cat__top">
+        {icon}
         {onSelect ? (
           <button type="button" className="mfw-cat__name" onClick={() => onSelect(category.name)}>
             {category.name}

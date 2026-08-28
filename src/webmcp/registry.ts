@@ -2,13 +2,22 @@
  * Tool registry: the one door between the agent and the workspace.
  * Every call is validated with zod, rate limited, run against a snapshot, audited and
  * truncated. Nothing here throws at the agent: failures come back as plain sentences
- * it can act on.
+ * it can act on. The optional caller is peeled off here, so handlers never see it and
+ * every audit event carries the name of the sub-agent that made the call.
  */
 
 import type { z } from "zod";
 import { LIMITS, type Workspace, type WorkspaceStore } from "../types";
 import { appendAudit, makeAuditEvent, truncate } from "../store/audit";
-import { TOOL_NAMES, isToolName, toolSchemas, type ToolInputs, type ToolName } from "./schemas";
+import { withFeedbackNotice } from "./feedbackTools";
+import {
+  TOOL_NAMES,
+  callerSchema,
+  isToolName,
+  toolSchemas,
+  type ToolInputs,
+  type ToolName,
+} from "./schemas";
 
 export interface HandlerResult {
   /** The workspace the tool wants next. Omit for read only tools. */
@@ -74,6 +83,20 @@ export function describeIssues(name: string, error: z.ZodError): string {
   return `Invalid input for ${name}: ${issues.join("; ")}${more}. Fix these fields and call again; see the tool schema for the shapes.`;
 }
 
+/** The agent names itself; we validate it like any other input and never act on it. */
+function readCaller(input: unknown): string | undefined {
+  if (typeof input !== "object" || input === null) return undefined;
+  const parsed = callerSchema.safeParse((input as { caller?: unknown }).caller);
+  return parsed.success ? parsed.data : undefined;
+}
+
+/** Handlers are written against their own fields, so caller never reaches them. */
+function withoutCaller(data: unknown): unknown {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) return data;
+  const { caller: _caller, ...rest } = data as Record<string, unknown>;
+  return rest;
+}
+
 function createRateLimiter(max: number, windowMs: number, now: () => number) {
   let stamps: readonly number[] = [];
   return {
@@ -112,29 +135,36 @@ export function createToolRegistry(opts: RegistryOptions): ToolRegistry {
     args: unknown,
     result: string,
     ok: boolean,
+    caller?: string,
     next?: Workspace,
   ): Promise<string> => {
     const text = truncate(result, LIMITS.toolOutputChars);
-    const event = makeAuditEvent({ actor: "agent", tool: name, args, result: text, ok });
+    const event = makeAuditEvent({ actor: "agent", caller, tool: name, args, result: text, ok });
     await opts.store.update((current) => appendAudit(next ?? current, event));
     return text;
   };
 
   const execute = async (name: string, input: unknown, ctx?: ToolCallContext): Promise<string> => {
     if (ctx?.signal?.aborted) return abortedText(name);
-    if (!isToolName(name)) return record(name, input, unknownText(name), false);
-    if (!limiter.take()) return record(name, input, rateLimitText(maxCalls), false);
+    const caller = readCaller(input);
+    if (!isToolName(name)) return record(name, input, unknownText(name), false, caller);
+    if (!limiter.take()) return record(name, input, rateLimitText(maxCalls), false, caller);
     const schema: z.ZodTypeAny = toolSchemas[name];
     const parsed = schema.safeParse(input ?? {});
-    if (!parsed.success) return record(name, input, describeIssues(name, parsed.error), false);
+    if (!parsed.success) {
+      return record(name, input, describeIssues(name, parsed.error), false, caller);
+    }
+    const args = withoutCaller(parsed.data);
     // One cast: the map is keyed by tool name, the value was just validated by that key.
     const handler = opts.handlers[name] as unknown as ToolHandler<unknown> | undefined;
-    if (!handler) return record(name, parsed.data, notWiredText(name), false);
+    if (!handler) return record(name, args, notWiredText(name), false, caller);
     try {
-      const outcome = await handler(parsed.data, opts.store.get());
-      return await record(name, parsed.data, outcome.result, true, outcome.next);
+      const before = opts.store.get();
+      const raw = await handler(args, before);
+      const outcome = withFeedbackNotice(name, args, before, raw);
+      return await record(name, args, outcome.result, true, caller, outcome.next);
     } catch (error) {
-      return record(name, parsed.data, failureText(name, error), false);
+      return record(name, args, failureText(name, error), false, caller);
     }
   };
 

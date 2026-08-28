@@ -1,5 +1,6 @@
 /** Single page app. Tabs are React state, so the registered site tools never unload. */
 import { useState } from "react";
+import { SharedBoard } from "./share/SharedBoard";
 import { AgentRail } from "./shell/AgentRail";
 import { Header } from "./shell/Header";
 import { TabBar } from "./shell/TabBar";
@@ -17,9 +18,27 @@ function TabPanel({ tab }: { readonly tab: TabId }): JSX.Element {
   return <BoardTab />;
 }
 
-export function App(): JSX.Element {
-  const [tab, setTab] = useState<TabId>("board");
+/**
+ * A shared snapshot: the board only, read only, with no monitors tab, no approve path,
+ * no audit trail and no registered tools. It is somebody else's board, quoted.
+ */
+function SnapshotApp(): JSX.Element {
+  return (
+    <ToastProvider>
+      <div className="mfw-app">
+        <Header snapshot />
+        <div className="mfw-body">
+          <main className="mfw-main">
+            <SharedBoard />
+          </main>
+        </div>
+      </div>
+    </ToastProvider>
+  );
+}
 
+function WorkspaceApp(): JSX.Element {
+  const [tab, setTab] = useState<TabId>("board");
   return (
     <ToastProvider>
       <ToolToastBridge />
@@ -40,4 +59,8 @@ export function App(): JSX.Element {
       </div>
     </ToastProvider>
   );
+}
+
+export function App({ snapshot = false }: { readonly snapshot?: boolean }): JSX.Element {
+  return snapshot ? <SnapshotApp /> : <WorkspaceApp />;
 }

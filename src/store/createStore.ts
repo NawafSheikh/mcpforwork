@@ -77,6 +77,7 @@ export function coerceWorkspace(raw: unknown, mode: WorkspaceMode): Workspace | 
     monitors: raw.monitors as Workspace["monitors"],
     runs: raw.runs as readonly MonitorRun[],
     drafts: raw.drafts as Workspace["drafts"],
+    feedback: isRecord(raw.feedback) ? (raw.feedback as Workspace["feedback"]) : {},
     audit: capAudit(raw.audit as readonly AuditEvent[]),
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : base.updatedAt,
   };

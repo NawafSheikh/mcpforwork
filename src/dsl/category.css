@@ -1,4 +1,5 @@
-/* MCP for Work: category card styles, imported by styles.css. Owner A1. */
+/* MCP for Work: category card styles, imported by styles.css.
+   Owner A1, retokenised for the light default by A7. */
 
 /* ---------- category card ---------- */
 
@@ -6,6 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-shadow: var(--mfw-shadow);
 }
 
 .mfw-cat__top {
@@ -15,15 +17,31 @@
   gap: 10px;
 }
 
+.mfw-cat__icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--mfw-surface-2);
+  border: 1px solid var(--mfw-border-soft);
+  font-size: 16px;
+  line-height: 1;
+}
+
 .mfw-cat__name {
+  flex: 1 1 auto;
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 640;
-  color: var(--mfw-ink);
+  color: var(--mfw-text);
   text-align: left;
   background: none;
   border: none;
   padding: 0;
+  min-width: 0;
 }
 
 button.mfw-cat__name {
@@ -42,7 +60,7 @@ button.mfw-cat__name:focus-visible {
 }
 
 .mfw-cat__desc {
-  color: var(--mfw-mute);
+  color: var(--mfw-muted);
   font-size: 12.5px;
 }
 
@@ -54,10 +72,10 @@ button.mfw-cat__name:focus-visible {
   white-space: nowrap;
   font-size: 11px;
   color: var(--mfw-warn);
-  border: 1px solid var(--mfw-border);
+  border: 1px solid var(--mfw-border-soft);
   border-radius: 999px;
   padding: 2px 9px;
-  background: var(--mfw-soft);
+  background: var(--mfw-surface-2);
 }
 
 .mfw-pills {
@@ -66,22 +84,21 @@ button.mfw-cat__name:focus-visible {
   flex-wrap: wrap;
 }
 
-.mfw-pill {
+.mfw-dsl .mfw-pill {
   font-size: 11px;
   border-radius: 999px;
   padding: 3px 9px;
-  border: 1px solid var(--mfw-border);
-  background: var(--mfw-soft);
-  color: var(--mfw-mute);
+  border: 1px solid var(--mfw-border-soft);
+  background: var(--mfw-surface-2);
+  color: var(--mfw-muted);
 }
 
-.mfw-pill--on {
+.mfw-dsl .mfw-pill--on {
   color: var(--mfw-ok);
-  border-color: rgba(79, 209, 197, 0.4);
+  border-color: color-mix(in srgb, var(--mfw-ok) 40%, transparent);
 }
 
 .mfw-cat__slot {
-  border-top: 1px solid var(--mfw-border);
+  border-top: 1px solid var(--mfw-border-soft);
   padding-top: 10px;
 }
-

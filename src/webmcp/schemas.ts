@@ -54,17 +54,28 @@ export const draftInputSchema = z.object({
   fields: z.record(z.union([z.string().max(120), z.number()])).optional(),
 });
 
+export const feedbackTargetSchema = z.object({
+  kind: z.enum(["dashboard", "overview", "draft", "monitor"]),
+  id: z.string().min(1).max(80),
+});
+
 const categoryName = z.string().min(1).max(60);
-const emptyInput = z.object({});
+
+/** Every tool accepts the same optional caller so parallel sub-agents can name themselves. */
+export const callerSchema = z.string().min(1).max(LIMITS.maxCallerChars).optional();
+
+const tool = <T extends z.ZodRawShape>(shape: T) => z.object({ ...shape, caller: callerSchema });
+
+const emptyInput = tool({});
 
 export const toolSchemas = {
   get_workspace: emptyInput,
-  create_category: z.object({
+  create_category: tool({
     name: categoryName,
     description: z.string().max(300).optional(),
     provenance: z.string().max(200).optional(),
   }),
-  upsert_dataset_summary: z.object({
+  upsert_dataset_summary: tool({
     category: categoryName,
     counts: z.record(z.number()).optional(),
     sums: z.record(z.number()).optional(),
@@ -72,7 +83,7 @@ export const toolSchemas = {
     period: z.string().max(60).optional(),
     rowCount: z.number().int().min(0).optional(),
   }),
-  upsert_dashboard: z.object({
+  upsert_dashboard: tool({
     category: categoryName,
     title: z.string().max(80).optional(),
     kpis: z.array(kpiSchema).min(1).max(LIMITS.maxKpis),
@@ -80,44 +91,53 @@ export const toolSchemas = {
     notes: z.array(z.string().max(160)).max(6).optional(),
     source: z.string().max(120).optional(),
   }),
-  get_dashboard: z.object({ category: categoryName }),
-  compose_overview: z.object({
+  get_dashboard: tool({ category: categoryName }),
+  compose_overview: tool({
     title: z.string().min(1).max(80),
     kpis: z.array(kpiSchema).min(1).max(6),
     charts: z.array(chartSchema).max(LIMITS.maxCharts).optional(),
     highlights: z.array(z.string().max(160)).max(6).optional(),
   }),
-  register_monitor: z.object({
+  register_monitor: tool({
     name: z.string().min(1).max(60),
     category: categoryName,
     schedule: z.string().min(1).max(80),
     policy: policySchema,
     runner: z.enum(["local", "cloud"]),
   }),
-  report_monitor_run: z.object({
+  report_monitor_run: tool({
     monitorId: z.string().min(1).max(60),
     findings: z.array(z.string().max(200)).max(20).default([]),
     drafts: z.array(draftInputSchema).max(20).default([]),
   }),
   list_monitors: emptyInput,
-  get_run_log: z.object({
+  get_run_log: tool({
     monitorId: z.string().max(60).optional(),
     limit: z.number().int().min(1).max(20).optional(),
   }),
-  approve_draft: z.object({
+  approve_draft: tool({
     draftId: z.string().min(1).max(60),
     note: z.string().max(200).optional(),
   }),
-  decline_draft: z.object({
+  decline_draft: tool({
     draftId: z.string().min(1).max(60),
     reason: z.string().max(200).optional(),
   }),
-  set_policy: z.object({
+  set_policy: tool({
     monitorId: z.string().min(1).max(60),
     policy: policySchema,
   }),
+  list_feedback: tool({
+    target: feedbackTargetSchema.optional(),
+    includeResolved: z.boolean().optional(),
+  }),
+  resolve_feedback: tool({
+    feedbackId: z.string().min(1).max(60),
+    resolution: z.string().min(1).max(200),
+  }),
+  share_board: emptyInput,
   seed_demo_workspace: emptyInput,
-  clear_workspace: z.object({
+  clear_workspace: tool({
     confirm: z.literal(true),
   }),
 } as const;
@@ -137,6 +157,7 @@ export type ChartInput = z.infer<typeof chartSchema>;
 export type PolicyInput = z.infer<typeof policySchema>;
 export type ThresholdInput = z.infer<typeof thresholdSchema>;
 export type DraftInput = z.infer<typeof draftInputSchema>;
+export type FeedbackTargetInput = z.infer<typeof feedbackTargetSchema>;
 
 export type GetWorkspaceInput = ToolInputs["get_workspace"];
 export type CreateCategoryInput = ToolInputs["create_category"];
@@ -151,5 +172,8 @@ export type GetRunLogInput = ToolInputs["get_run_log"];
 export type ApproveDraftInput = ToolInputs["approve_draft"];
 export type DeclineDraftInput = ToolInputs["decline_draft"];
 export type SetPolicyInput = ToolInputs["set_policy"];
+export type ListFeedbackInput = ToolInputs["list_feedback"];
+export type ResolveFeedbackInput = ToolInputs["resolve_feedback"];
+export type ShareBoardInput = ToolInputs["share_board"];
 export type SeedDemoWorkspaceInput = ToolInputs["seed_demo_workspace"];
 export type ClearWorkspaceInput = ToolInputs["clear_workspace"];

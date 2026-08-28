@@ -1,0 +1,134 @@
+/* Chart cards, the chart grid and the DSL table. Imported by styles.css.
+   Colours come from the --mfw-* tokens only, so both themes work. */
+
+/* ---------- chart grid ---------- */
+
+.mfw-dsl-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 860px) {
+  .mfw-dsl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mfw-dsl-grid > .mfw-chart--table {
+    grid-column: 1 / -1;
+  }
+}
+
+.mfw-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  box-shadow: var(--mfw-shadow);
+}
+
+.mfw-chart__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mfw-chart__heading {
+  min-width: 0;
+}
+
+.mfw-chart__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.mfw-chart__title {
+  font-size: 14.5px;
+  font-weight: 640;
+  color: var(--mfw-text);
+}
+
+.mfw-chart__note {
+  color: var(--mfw-muted);
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+.mfw-chart__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mfw-chart__body {
+  height: 220px;
+  min-width: 0;
+}
+
+.mfw-chart--table .mfw-chart__body {
+  height: auto;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.mfw-edit {
+  flex: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--mfw-muted);
+  background: var(--mfw-surface-2);
+  border: 1px solid var(--mfw-border-soft);
+  border-radius: var(--mfw-radius-sm);
+  padding: 4px 10px;
+}
+
+.mfw-edit:hover,
+.mfw-edit:focus-visible {
+  color: var(--mfw-accent);
+  border-color: var(--mfw-accent);
+  outline: none;
+}
+
+/* ---------- table ---------- */
+
+.mfw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mfw-text);
+}
+
+.mfw-table th,
+.mfw-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--mfw-border-soft);
+  white-space: nowrap;
+}
+
+.mfw-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--mfw-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--mfw-surface);
+}
+
+.mfw-table td.mfw-num {
+  text-align: right;
+}
+
+.mfw-table tbody tr:last-child td {
+  border-bottom: none;
+}

@@ -9,6 +9,7 @@
 import { LIMITS, type Workspace } from "../types";
 import { demoClock } from "./clock";
 import { sampleCategories } from "./sampleCategories";
+import { sampleFeedback } from "./sampleFeedback";
 import {
   sampleAudit,
   sampleDrafts,
@@ -18,6 +19,12 @@ import {
 } from "./sampleOps";
 
 export { DEMO_PROVENANCE } from "./sampleCategories";
+export {
+  DEMO_FEEDBACK_DRAFT,
+  DEMO_FEEDBACK_INVOICES,
+  DEMO_FEEDBACK_OVERVIEW,
+  DEMO_FEEDBACK_TICKETS,
+} from "./sampleFeedback";
 export {
   CLAUSE_AMOUNT,
   CLAUSE_REQUIRE_HUMAN_PAY,
@@ -43,7 +50,7 @@ export function sampleWorkspace(now: Date): Workspace {
     monitors: sampleMonitors(clock),
     runs: sampleRuns(clock),
     drafts: sampleDrafts(clock),
-    feedback: {},
+    feedback: sampleFeedback(clock),
     audit: sampleAudit(clock),
     updatedAt: clock.nowIso,
   };
@@ -81,6 +88,7 @@ export function seedDemoHandler(input: unknown, ws: Workspace): SeedDemoOutcome 
   const categoryCount = Object.keys(next.categories).length;
   const monitorCount = Object.keys(next.monitors).length;
   const draftCount = Object.keys(next.drafts).length;
+  const noteCount = Object.keys(next.feedback).length;
   return {
     next,
     result:
@@ -90,8 +98,10 @@ export function seedDemoHandler(input: unknown, ws: Workspace): SeedDemoOutcome 
       monitorCount +
       " monitors, " +
       next.runs.length +
-      " runs and " +
+      " runs, " +
       draftCount +
-      " drafts (2 held). All data is synthetic. Call get_workspace to see it.",
+      " drafts (2 held) and " +
+      noteCount +
+      " notes (3 open). All data is synthetic. Call get_workspace or list_feedback to see it.",
   };
 }

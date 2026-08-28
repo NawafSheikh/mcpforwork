@@ -1,0 +1,62 @@
+/* Share snapshot, share button and the ChatGPT path popover.
+   Colours come from the --mfw-* tokens only, so light and dark both work. */
+
+.mfw-shared { display: flex; flex-direction: column; gap: var(--mfw-gap); }
+
+.mfw-share-banner {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--mfw-border);
+  border-left: 3px solid var(--mfw-accent);
+  border-radius: var(--mfw-radius-sm);
+  background: var(--mfw-accent-soft);
+  color: var(--mfw-text);
+  font-weight: 600;
+}
+
+.mfw-share-facts { margin: 0; color: var(--mfw-muted); font-size: 13px; }
+
+.mfw-share-wrap { position: relative; display: inline-flex; }
+
+.mfw-share-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  width: min(380px, 88vw);
+  padding: 14px 16px;
+  border: 1px solid var(--mfw-border);
+  border-radius: var(--mfw-radius);
+  background: var(--mfw-surface);
+  box-shadow: var(--mfw-shadow);
+  text-align: left;
+}
+
+.mfw-share-pop h4 { margin: 0 0 8px; }
+.mfw-share-pop ol { display: flex; flex-direction: column; gap: 6px; counter-reset: step; }
+.mfw-share-pop li {
+  counter-increment: step;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--mfw-text);
+}
+.mfw-share-pop li::before { content: counter(step) ". "; color: var(--mfw-muted); }
+.mfw-share-pop-note { margin: 10px 0 0; font-size: 12px; color: var(--mfw-muted); }
+
+.mfw-share-error {
+  margin: 0;
+  max-width: 320px;
+  color: var(--mfw-danger);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mfw-theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+}

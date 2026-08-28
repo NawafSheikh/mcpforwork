@@ -1,5 +1,5 @@
 /**
- * One chart in its own card: title, optional note, optional edit affordance,
+ * One chart in its own card: title, optional note, optional human controls,
  * and a 220px body that dispatches on the chart kind.
  */
 
@@ -7,33 +7,43 @@ import type { ReactNode } from "react";
 import type { Chart } from "../types";
 import { BarChartView, DonutChartView, LineChartView, TableView } from "./charts";
 import { EmptyState } from "./EmptyState";
+import { chartCaption } from "./insights";
 import "./styles.css";
 
 export interface ChartCardProps {
   readonly chart: Chart;
   readonly chartId: string;
   readonly onEdit?: (chartId: string) => void;
+  /** Controls on the header row: reorder, delete, ask the agent. */
+  readonly actions?: ReactNode;
+  /** Row under the header: kind switcher and sort toggle. */
+  readonly toolbar?: ReactNode;
 }
 
-export function ChartCard({ chart, chartId, onEdit }: ChartCardProps) {
+export function ChartCard({ chart, chartId, onEdit, actions, toolbar }: ChartCardProps) {
+  const caption = chartCaption(chart);
   return (
     <article className={`mfw-card mfw-chart mfw-chart--${chart.kind}`} data-chart-id={chartId}>
       <header className="mfw-chart__head">
-        <div>
+        <div className="mfw-chart__heading">
           <h3 className="mfw-chart__title">{chart.title}</h3>
-          {chart.note ? <p className="mfw-chart__note">{chart.note}</p> : null}
+          {caption ? <p className="mfw-chart__note">{caption}</p> : null}
         </div>
-        {onEdit ? (
-          <button
-            type="button"
-            className="mfw-edit"
-            onClick={() => onEdit(chartId)}
-            aria-label={`Edit ${chart.title}`}
-          >
-            Edit
-          </button>
-        ) : null}
+        <div className="mfw-chart__actions">
+          {onEdit ? (
+            <button
+              type="button"
+              className="mfw-edit"
+              onClick={() => onEdit(chartId)}
+              aria-label={`Edit ${chart.title}`}
+            >
+              Edit
+            </button>
+          ) : null}
+          {actions}
+        </div>
       </header>
+      {toolbar ? <div className="mfw-chart__toolbar">{toolbar}</div> : null}
       <div className="mfw-chart__body">{renderBody(chart)}</div>
     </article>
   );

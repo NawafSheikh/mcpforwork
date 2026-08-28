@@ -8,7 +8,9 @@
 
 import { LIMITS, type Category, type Chart, type DashboardSpec, type DatasetSummary, type OverviewSpec, type TopItem, type Workspace } from "../types";
 import { clampDashboard, clampOverview } from "../dsl/validate";
+import { openFeedback } from "../feedback/store";
 import { workspaceSummary } from "../store/selectors";
+import { feedbackHandlers } from "./feedbackTools";
 import type { HandlerMap, ToolHandler } from "./registry";
 import type {
   ClearWorkspaceInput,
@@ -49,11 +51,11 @@ function atCategoryCap(ws: Workspace, name: string): boolean {
 
 const capText = `Refused: this workspace already holds ${LIMITS.maxCategories} categories. Reuse one or call clear_workspace first.`;
 
-/** get_workspace answers must fit LIMITS.toolOutputChars and stay valid JSON. */
-function summaryText(ws: Workspace): string {
+/** get_workspace answers must fit the budget left over after the feedback line. */
+function summaryText(ws: Workspace, budget: number): string {
   const full = workspaceSummary(ws);
   const direct = JSON.stringify(full);
-  if (direct.length <= LIMITS.toolOutputChars) return direct;
+  if (direct.length <= budget) return direct;
   const lean = {
     ...full,
     categories: full.categories.slice(0, LIST_PREVIEW).map((item) => ({
@@ -65,7 +67,7 @@ function summaryText(ws: Workspace): string {
     truncated: true,
   };
   const leanText = JSON.stringify(lean);
-  if (leanText.length <= LIMITS.toolOutputChars) return leanText;
+  if (leanText.length <= budget) return leanText;
   return JSON.stringify({
     mode: full.mode,
     categories: full.categories.length,
@@ -124,7 +126,16 @@ function describeSummary(summary: DatasetSummary): string {
   return parts.length > 0 ? parts.join(", ") : "no aggregates";
 }
 
-const getWorkspace: ToolHandler<GetWorkspaceInput> = (_input, ws) => ({ result: summaryText(ws) });
+/** The one line that makes an agent stop and read before it rebuilds someone's board. */
+function openFeedbackLine(ws: Workspace): string {
+  const count = openFeedback(ws).length;
+  return count === 0 ? "" : ` Open feedback: ${count}. Call list_feedback before editing.`;
+}
+
+const getWorkspace: ToolHandler<GetWorkspaceInput> = (_input, ws) => {
+  const tail = openFeedbackLine(ws);
+  return { result: `${summaryText(ws, LIMITS.toolOutputChars - tail.length)}${tail}` };
+};
 
 const createCategory: ToolHandler<CreateCategoryInput> = (input, ws) => {
   if (atCategoryCap(ws, input.name)) return { result: capText };
@@ -216,8 +227,9 @@ const clearWorkspace: ToolHandler<ClearWorkspaceInput> = (_input, ws) => {
   return { next, result: `Workspace cleared: ${removed} removed. The audit trail was kept.` };
 };
 
-/** The seven tools A2 owns. A3 and A5 spread their own maps on top of this one. */
+/** The workspace, dashboard and feedback tools. A3 and A5 spread their maps on top. */
 export const workspaceHandlers: HandlerMap = {
+  ...feedbackHandlers,
   get_workspace: getWorkspace,
   create_category: createCategory,
   upsert_dataset_summary: upsertDatasetSummary,

@@ -1,158 +1,167 @@
 # Video script: MCP for Work
 
-**Target length: 2 minutes 40 seconds.** Screen recording of ChatGPT desktop with the
-built-in browser open on the console, voiceover recorded separately and cut to the shots.
+**Target length: 2 minutes 50 seconds.** Two segments. The first is cut from the
+screenshots of the real ChatGPT desktop run on 28 August 2026, because that run is the
+evidence and it is 41 minutes long, so it cannot be shown live. The second is a live take
+against the sample workspace, where everything happens in seconds.
+
+Sources:
+
+- Real-run segment: `competitions/webmcp/video/shots_realrun.json` (8 shots, about 108
+  seconds), rendered by `build_video.py` from the screenshots in
+  `competitions/webmcp/e2e_screens_20260828/`. The narration below matches that file. If
+  you edit one, edit the other.
+- Test report with every quote used here: `CHATGPT_DESKTOP_TEST_20260828.md`.
+- Live segment: the deployed page in demo mode, **Load sample workspace** pressed once.
 
 Rules for the recording:
 
-- One take of the real product. No mock-ups, no sped-up fake typing.
-- Sign in to nothing on camera. The whole video runs in demo mode plus one real agent
-  conversation, so nothing personal appears.
-- Every mailbox screen shown is the synthetic sample: Acme Test Ltd, Sample Supplies GmbH,
-  Example Recruiting. Say the word "synthetic" out loud once, early.
-- Model must be GPT-5.6 Sol or Terra. Show the model picker for half a second in shot 1 so
-  a judge can verify it.
-- Keep the cursor still while a tool call is running. The tool-call chips are the proof.
-
-Timings are cumulative. Total spoken words: roughly 380, which is a comfortable pace for
-2:40 with the pauses noted below.
+- Nothing is staged. The first segment is real screenshots of a real run against a real
+  mailbox; the second is the real product in demo mode.
+- No mailbox content is ever on screen. The real-run frames show the agent's reasoning and
+  the board, never a subject line or an address.
+- The sample workspace is synthetic (Acme Test Ltd, Sample Supplies GmbH, Example
+  Recruiting). Say the word "synthetic" out loud once, in shot B1.
+- Model must be GPT-5.6 Sol or Terra. The real-run frames already carry 5.6 Sol Ultra.
+- Keep the cursor still while a tool call is running. The chips are the proof.
 
 ---
 
-## Shot 1: the claim (0:00 to 0:15)
+# Segment A: the real run (0:00 to 1:48)
 
-**On screen.** The console at rest in the ChatGPT desktop built-in browser. Empty board.
-Zoom the address bar so the Site tools indicator and the tool count are legible, then the
-status pill in the page header reading the same count.
+## A1: the page inside ChatGPT (0:00 to 0:13)
 
-**Spoken.**
-"This page has no AI in it. It never reads my mail, and it never calls a model. It just
-exposes fifteen typed tools. The intelligence comes from my own ChatGPT, which is already
-sitting right here."
+**On screen.** `20260828_180136` mcpforwork.com loaded in the ChatGPT desktop side panel,
+header pill reading "Site tools on: 15 registered".
 
----
+**Spoken.** "This is MCP for Work, opened inside ChatGPT desktop's built-in browser. The
+page registers fifteen site tools. Your own ChatGPT is the analyst. The page is the board
+and the guardrails."
 
-## Shot 2: the connector pull (0:15 to 0:40)
+*(The page now registers eighteen: notes and sharing were added after this run. Say
+fifteen, because that is what the frame shows.)*
 
-**On screen.** Type the prompt into ChatGPT. Let the Gmail connector chip appear, then the
-first `create_category` tool-call chip. Do not cut away while it works.
+## A2: the site tools popover (0:13 to 0:24)
 
-**Prompt typed on camera.**
-"Read my last fifty Gmail threads, group them into categories, and build a dashboard for
-each one on this page."
+**On screen.** `20260828_180200` address bar popover: "Available site tools (15), 4 read,
+11 write".
 
-**Spoken.**
-"One sentence. It uses its own Gmail connector to read the threads, on its side, and then
-it starts calling the tools on the page. Note what is crossing the boundary: not my email.
-Counts, sums, top-N lists. The page has nowhere to put a raw message."
+**Spoken.** "Site tools in the address bar: fifteen available, four read, eleven write.
+Every write is validated, rate limited and audited on the page."
 
----
+## A3: one prompt (0:24 to 0:39)
 
-## Shot 3: categories appear (0:40 to 1:00)
+**On screen.** `20260828_180406` the trace line "MCP webmcp:mcpforwork.com:get_workspace
+on Browser use".
 
-**On screen.** Four category cards animate in: Invoices, Recruiters, Customer tickets,
-Newsletters. Hover one so the provenance line is readable: "from Gmail, last 50 threads,
-synthetic sample". The audit rail on the right fills with `create_category` entries.
+**Spoken.** "One prompt: look at my last fifty Gmail threads, group them, and build a
+dashboard for each on this page. ChatGPT reads the mail through its own connector and
+calls get workspace on the page."
 
-**Spoken.**
-"Four categories. I did not name them and I did not pick them; the agent decided what my
-work actually looks like. Every card carries the line that says where it came from. This
-run is synthetic sample data, and the card says so."
+## A4: the work fans out (0:39 to 0:52)
 
----
+**On screen.** `20260828_182632` two live sub-agent chips, `Classify 1 25` and
+`Classify 26 50`, running side by side.
 
-## Shot 4: parallel dashboards (1:00 to 1:25)
+**Spoken.** "The work fans out. Two sub agents classify threads in parallel while a
+reviewer checks for count drift and privacy leaks before anything is written."
 
-**On screen.** Four `upsert_dashboard` chips land, ideally overlapping if subagents are
-running in parallel. Dashboards fill in behind them: KPIs then charts. Land on the
-Invoices dashboard, full width. Let the bar chart and the outstanding KPI sit for two
-seconds without narration.
+## A5: it asks before it writes (0:52 to 1:05)
 
-**Spoken.**
-"Four dashboards, built at once, one per category. Bar, line, donut, table. This is the
-dashboard DSL: the agent sends up to four KPIs and four charts, the page validates every
-field and renders it. Nine thousand one hundred and twenty euro outstanding, six open
-invoices, and I have not configured a single thing."
+**On screen.** `20260828_183647` the consent question. Zoom the last line so the words are
+legible.
 
----
+**Spoken.** "Before writing, ChatGPT asks. Only de-identified aggregates go to the page:
+no addresses, no subjects, no bodies. That is the contract the tools enforce."
 
-## Shot 5: the overview (1:25 to 1:40)
+*Hold one beat on the sentence "It will not receive your email address, sender names,
+subjects, URLs, IDs, snippets, or message bodies."*
 
-**On screen.** Type "Make an overview." `compose_overview` chip, then the overview tab
-renders across all four categories.
+## A6: the board (1:05 to 1:18)
 
-**Spoken.**
-"Now roll it up. The agent picks which numbers deserve the top of the page, because it is
-the one that saw the data."
+**On screen.** `20260828_184018` six category dashboards and the overview, KPIs legible.
 
----
+**Spoken.** "Six category dashboards and an overview, built through upsert dashboard and
+compose overview. Fifty threads, totals verified by a readback."
 
-## Shot 6: register a monitor (1:40 to 2:05)
+## A7: the refusal (1:18 to 1:34)
 
-**On screen.** Type the monitor prompt. `register_monitor` chip. Cut to the Monitors tab:
-the monitor card shows the schedule, the next run, and the policy clauses rendered as
-chips: `threshold: amount > 5000`, `requireHumanFor: pay`, `max 2 auto actions per run`.
-Then show the scheduled-task prompt the tool handed back, in the ChatGPT reply.
+**On screen.** `20260828_184849` the reply refusing bulk approval.
 
-**Prompt typed on camera.**
-"Watch the Invoices category every morning at eight, and hold anything over five thousand
-euro for me."
+**Spoken.** "Then the guardrail. Asked to approve every draft, ChatGPT is refused by the
+policy: the seven thousand two hundred euro invoice exceeds five thousand, and pay always
+needs a human. Approved drafts: zero."
 
-**Spoken.**
-"This is the part that keeps working after I close the tab. It registers a monitor here,
-and it hands me back the exact prompt for a ChatGPT scheduled task that runs on my own
-machine every morning. My rule is now on the page, in writing, where I can read it."
+*This is the shot the judges remember. One full second of silence after "zero".*
+
+## A8: the rail (1:34 to 1:48)
+
+**On screen.** `20260828_184904` the Activity rail, newest calls with arguments and
+results.
+
+**Spoken.** "Every call lands in the activity rail with its arguments and result. Humans
+keep the approve button. Agents keep the work moving."
 
 ---
 
-## Shot 7: the run (2:05 to 2:20)
+# Segment B: live, on the sample workspace (1:48 to 2:50)
 
-**On screen.** Press **Run now**. The run log fills in: two findings, two drafts. One
-draft card is green and labelled auto, one is amber and labelled **held**, with the clause
-`threshold:amount>5000` printed on it. Point the cursor at the clause.
+Cut to a live window. Demo mode, empty board, no login anywhere on camera.
 
-**Spoken.**
-"Run it. It found an invoice from Acme Test Ltd for six thousand three hundred euro. It
-did not pay it. It held it, and it printed the clause that held it."
+## B1: a finished board in one second (1:48 to 2:03)
 
----
+**On screen.** Press **Load sample workspace**. Four categories, dashboards, an overview,
+two monitors and the draft queue appear at once. Hover a provenance line.
 
-## Shot 8: the refusal (2:20 to 2:33)
+**Spoken.** "You do not need an agent to look at this. One button loads a synthetic sample
+board, so a judge can read the whole thing in a second, with no account, no connector and
+no tokens spent."
 
-**On screen.** Type "Approve the Acme invoice draft." The `approve_draft` chip appears and
-comes back refused. Zoom the reply text so the clause name is legible:
-`Refused: clause threshold:amount>5000. A human can approve it from the Monitors tab.`
+## B2: the feedback loop (2:03 to 2:23)
 
-**Spoken.**
-"Watch what happens when I ask the agent to approve it anyway. Refused, by clause name.
-That is not the model choosing to be careful. It is a function on the page that returns
-false, and the agent cannot talk its way past it."
+**On screen.** Type a note on the Invoices dashboard: "Split the outstanding bar by ageing
+bucket." Then ask ChatGPT: "Read my notes on this board and act on them." Chips land in
+order: `list_feedback`, `upsert_dashboard`, `resolve_feedback`. The chart changes and the
+note flips to resolved with the agent's one-line resolution under it.
 
-Hold one full second of silence on the refusal text. This is the shot the judges remember.
+**Spoken.** "A dashboard is rarely right first time, and I am the one who knows why. I
+leave a note on the chart. The agent reads my notes back through list feedback, rebuilds
+that chart, and closes the note with a line saying what it changed. We are editing the
+same object, in turns."
 
----
+## B3: caller attribution and the human decision (2:23 to 2:38)
 
-## Shot 9: the human approves (2:33 to 2:40)
+**On screen.** The Activity rail with caller labels visible on the agent's calls. Then
+click **Approve** on the held Acme Test Ltd draft in the Monitors tab. The rail writes a
+new line with actor **human** directly beneath the agent's refused line. Freeze on the two
+lines together.
 
-**On screen.** Click **Approve** on the same held card in the Monitors tab. The card flips
-to approved. The audit rail writes a new line with actor **human** directly beneath the
-refused line with actor **agent**. Freeze on those two lines together.
+**Spoken.** "Every call can name its own caller, so parallel sub-agents are visible, not
+anonymous. And when the policy holds something, I approve it myself. One click, logged as
+me, not as the agent."
 
-**Spoken.**
-"So I approve it. One click, logged as me, not as the agent. The agent proposes. The human
-decides. That is the whole idea."
+## B4: share a snapshot (2:38 to 2:50)
 
-**End card, 1 second.** `MCP for Work` and the deployed URL.
+**On screen.** Press **Share**, "Link copied" appears, paste into a second window. The
+board opens read only with the banner: "Shared snapshot. Open mcpforwork.com in ChatGPT
+desktop to work on your own board."
+
+**Spoken.** "And the whole board fits in a link. The state rides in the URL fragment,
+which browsers never send to a server, so a snapshot needs no account and no backend. The
+agent proposes. The human decides."
+
+**End card, 1 second.** `MCP for Work` and mcpforwork.com.
 
 ---
 
 ## Recording checklist
 
-- [ ] Model picker visible once, showing Sol or Terra.
-- [ ] Site tools indicator and tool count legible at least once.
-- [ ] At least six tool-call chips visible on camera, unedited.
-- [ ] Provenance line readable in shot 3.
-- [ ] Clause text readable in shots 7 and 8.
-- [ ] Audit rail showing `agent` refused and `human` approved, adjacent, in shot 9.
+- [ ] Real-run frames unedited, in the order in `shots_realrun.json`.
+- [ ] Consent sentence legible in A5.
+- [ ] Clause text legible in A7, with the pause after "zero".
+- [ ] Word "synthetic" spoken in B1.
+- [ ] Three chips visible in B2: `list_feedback`, `upsert_dashboard`, `resolve_feedback`.
+- [ ] Rail showing a caller label, and `agent` refused directly above `human` approved.
+- [ ] Share banner legible in B4.
 - [ ] No real name, real address, real company or real inbox in any frame.
 - [ ] Under 3 minutes, per the challenge rules.

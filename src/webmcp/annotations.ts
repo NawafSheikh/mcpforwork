@@ -14,12 +14,15 @@ export const READ_ONLY_TOOLS: readonly ToolName[] = [
   "get_dashboard",
   "list_monitors",
   "get_run_log",
+  "list_feedback",
+  "share_board",
 ];
 
 export const UNTRUSTED_CONTENT_TOOLS: readonly ToolName[] = [
   "get_workspace",
   "get_dashboard",
   "get_run_log",
+  "list_feedback",
 ];
 
 export function annotationsFor(name: string, base?: ToolAnnotations): ToolAnnotations {

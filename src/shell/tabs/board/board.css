@@ -1,0 +1,345 @@
+@import "./nav.css";
+
+/* Board layout and the human controls that sit on top of the DSL. Owner A7.
+   Colours come from the --mfw-* tokens only, so light (default) and
+   html[data-theme="dark"] both work with no value hardcoded here. */
+
+.mfw-board2 {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mfw-gap, 16px);
+  align-items: start;
+}
+
+.mfw-board2__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mfw-gap, 16px);
+}
+
+.mfw-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mfw-gap, 16px);
+  min-width: 0;
+}
+
+/* ---------- domain cards on the overview ---------- */
+
+.mfw-domains {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--mfw-gap, 16px);
+}
+
+.mfw-domain__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mfw-domain__count {
+  font-size: 11.5px;
+  color: var(--mfw-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.mfw-domain__spacer {
+  flex: 1 1 auto;
+}
+
+.mfw-domain__link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mfw-accent);
+  cursor: pointer;
+}
+
+.mfw-domain__link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- panes ---------- */
+
+.mfw-pane__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mfw-pane__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mfw-pane__main {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.mfw-pane__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mfw-pane__title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- inline editing ---------- */
+
+/* Size, weight and colour stay with the heading class this button carries
+   (.mfw-head__title or .mfw-banner__title); only the button chrome is reset,
+   so bundle order between the two stylesheets cannot shrink the title. */
+.mfw-titlebtn {
+  border: none;
+  background: none;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border-radius: var(--mfw-radius-sm, 8px);
+  font-family: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: text;
+}
+
+.mfw-titlebtn:hover {
+  background: var(--mfw-accent-soft);
+}
+
+.mfw-banner__title.mfw-titlebtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.mfw-titleinput {
+  width: 100%;
+  max-width: 460px;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border: 1px solid var(--mfw-accent);
+  border-radius: var(--mfw-radius-sm, 8px);
+  background: var(--mfw-surface);
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+.mfw-banner__title.mfw-titleinput {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+
+.mfw-titleinput:focus {
+  outline: 2px solid var(--mfw-accent);
+  outline-offset: 1px;
+}
+
+/* ---------- buttons ---------- */
+
+.mfw-ask,
+.mfw-keep,
+.mfw-pinbtn,
+.mfw-icobtn {
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: var(--mfw-radius-sm, 8px);
+  border: 1px solid var(--mfw-border-soft);
+  background: var(--mfw-surface-2);
+  color: var(--mfw-text);
+  padding: 5px 10px;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.mfw-ask {
+  color: var(--mfw-accent);
+  border-color: color-mix(in srgb, var(--mfw-accent) 40%, transparent);
+  background: var(--mfw-accent-soft);
+  font-weight: 600;
+}
+
+.mfw-banner__actions .mfw-ask {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.mfw-ask--small {
+  padding: 3px 8px;
+  font-size: 11.5px;
+}
+
+.mfw-keep {
+  color: var(--mfw-ok);
+  border-color: color-mix(in srgb, var(--mfw-ok) 40%, transparent);
+  font-weight: 600;
+}
+
+.mfw-pinbtn--on {
+  color: var(--mfw-warn);
+  border-color: color-mix(in srgb, var(--mfw-warn) 45%, transparent);
+}
+
+.mfw-icobtn {
+  padding: 3px 7px;
+  color: var(--mfw-muted);
+  line-height: 1.2;
+}
+
+.mfw-icobtn:hover:not(:disabled),
+.mfw-pinbtn:hover,
+.mfw-keep:hover,
+.mfw-ask:hover {
+  border-color: var(--mfw-accent);
+}
+
+.mfw-icobtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mfw-icobtn--danger:hover:not(:disabled) {
+  color: var(--mfw-danger);
+  border-color: var(--mfw-danger);
+}
+
+.mfw-ask:focus-visible,
+.mfw-keep:focus-visible,
+.mfw-pinbtn:focus-visible,
+.mfw-icobtn:focus-visible,
+.mfw-seg__btn:focus-visible,
+.mfw-domain__link:focus-visible {
+  outline: 2px solid var(--mfw-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- segmented view switchers ---------- */
+
+.mfw-seg {
+  display: inline-flex;
+  border: 1px solid var(--mfw-border-soft);
+  border-radius: 999px;
+  background: var(--mfw-surface-2);
+  padding: 2px;
+  gap: 2px;
+}
+
+.mfw-seg__btn {
+  border: none;
+  background: none;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--mfw-muted);
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.mfw-seg__btn--on {
+  color: var(--mfw-accent);
+  background: var(--mfw-surface);
+  font-weight: 640;
+  box-shadow: 0 1px 2px rgba(20, 38, 60, 0.08);
+}
+
+/* ---------- aggregates and notes ---------- */
+
+.mfw-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mfw-summary__body {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.mfw-summary__meta {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--mfw-muted);
+}
+
+.mfw-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mfw-feedback__label {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mfw-muted);
+}
+
+.mfw-feedback__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mfw-muted);
+}
+
+/* ---------- undo toast ---------- */
+
+.mfw-undo {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--mfw-border);
+  border-radius: 999px;
+  background: var(--mfw-surface);
+  box-shadow: var(--mfw-shadow);
+  font-size: 13px;
+  color: var(--mfw-text);
+  max-width: calc(100vw - 32px);
+}
+
+.mfw-undo__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mfw-undo__btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 650;
+  color: var(--mfw-accent);
+  cursor: pointer;
+}
+
+.mfw-undo__close {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--mfw-muted);
+  cursor: pointer;
+}

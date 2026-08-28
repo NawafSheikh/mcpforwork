@@ -155,7 +155,26 @@ const draft: JsonSchema = object(
 
 const categoryName = text(60, "Category name, for example Invoices. Case sensitive, used as the key.", 1);
 
-export const jsonSchemas: Record<ToolName, JsonSchema> = {
+const feedbackTarget: JsonSchema = object(
+  {
+    kind: {
+      type: "string",
+      enum: ["dashboard", "overview", "draft", "monitor"],
+      description: "What the note is attached to.",
+    },
+    id: text(80, "Category name for a dashboard, the word overview, or a draft or monitor id.", 1),
+  },
+  ["kind", "id"],
+);
+
+/** The one field every tool shares, so parallel sub-agents show up by name in the rail. */
+const caller: JsonSchema = text(
+  LIMITS.maxCallerChars,
+  "Name of the agent or sub-agent making this call, shown in the activity rail.",
+  1,
+);
+
+const baseSchemas: Record<ToolName, JsonSchema> = {
   get_workspace: EMPTY,
   create_category: object(
     {
@@ -265,6 +284,21 @@ export const jsonSchemas: Record<ToolName, JsonSchema> = {
     { monitorId: text(60, "Id returned by register_monitor.", 1), policy },
     ["monitorId", "policy"],
   ),
+  list_feedback: object({
+    target: feedbackTarget,
+    includeResolved: {
+      type: "boolean",
+      description: "Include notes already resolved. Default false, open notes only.",
+    },
+  }),
+  resolve_feedback: object(
+    {
+      feedbackId: text(60, "Id from list_feedback.", 1),
+      resolution: text(200, "What you changed in response. Shown to the human who left the note.", 1),
+    },
+    ["feedbackId", "resolution"],
+  ),
+  share_board: EMPTY,
   seed_demo_workspace: EMPTY,
   clear_workspace: object(
     {
@@ -277,3 +311,13 @@ export const jsonSchemas: Record<ToolName, JsonSchema> = {
     ["confirm"],
   ),
 };
+
+/** caller is added once here so no tool can forget it. */
+function withCaller(schema: JsonSchema): JsonSchema {
+  const properties = (schema.properties ?? {}) as Record<string, JsonSchema>;
+  return { ...schema, properties: { ...properties, caller } };
+}
+
+export const jsonSchemas: Record<ToolName, JsonSchema> = Object.fromEntries(
+  Object.entries(baseSchemas).map(([name, schema]) => [name, withCaller(schema)]),
+) as Record<ToolName, JsonSchema>;
