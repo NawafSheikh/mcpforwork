@@ -39,6 +39,14 @@ export interface PersistentWorkspaceStore extends WorkspaceStore {
   /** True while IndexedDB is usable; false means memory only. */
   isPersistent(): boolean;
   flush(): Promise<void>;
+  /**
+   * Point persistence at a different key and write the current board there at once.
+   * Joining a room mid-session needs this: without it the board keeps saving under the
+   * key it booted with, and a reload of the room URL reads a board frozen at join time.
+   * A no-op when the key is unchanged, so re-keying to the key already in use cannot
+   * clobber a hydration that is still in flight.
+   */
+  rekey(nextKey: string): Promise<void>;
   dispose(): void;
 }
 
@@ -88,9 +96,9 @@ function normalize(ws: Workspace, at: string): Workspace {
 }
 
 export function createWorkspaceStore(opts: CreateStoreOptions): PersistentWorkspaceStore {
-  const key = opts.key ?? workspaceKey(opts.mode);
   const debounceMs = opts.debounceMs ?? DEBOUNCE_MS;
-  const persistence = createPersistence(key, opts.persist !== false, opts.onError);
+  let key = opts.key ?? workspaceKey(opts.mode);
+  let persistence = createPersistence(key, opts.persist !== false, opts.onError);
   const listeners = new Set<(ws: Workspace) => void>();
 
   let current = opts.initial ?? emptyWorkspace(opts.mode);
@@ -147,8 +155,18 @@ export function createWorkspaceStore(opts: CreateStoreOptions): PersistentWorksp
 
   const ready = hydrate();
 
+  const rekey = async (nextKey: string): Promise<void> => {
+    if (disposed || nextKey === key) return;
+    cancelTimer();
+    key = nextKey;
+    persistence = createPersistence(key, opts.persist !== false, opts.onError);
+    await persistence.save(current);
+  };
+
   return {
-    key,
+    get key(): string {
+      return key;
+    },
     mode: opts.mode,
     ready,
     isPersistent: () => persistence.available,
@@ -170,6 +188,7 @@ export function createWorkspaceStore(opts: CreateStoreOptions): PersistentWorksp
       return value;
     },
     flush,
+    rekey,
     dispose(): void {
       disposed = true;
       cancelTimer();

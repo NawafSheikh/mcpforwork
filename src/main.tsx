@@ -26,7 +26,7 @@ import { registerTools, type WebmcpStatusStore } from "./shell/adapters/webmcp";
 import { ShellProvider } from "./shell/context";
 import { initTheme } from "./shell/lib/theme";
 /** Snapshots need a store that never persists, which the shell adapter does not expose. */
-import { createPersistence, createWorkspaceStore } from "./store";
+import { createWorkspaceStore } from "./store";
 import type { Workspace, WorkspaceMode, WorkspaceStore } from "./types";
 import "./styles/app.css";
 
@@ -83,11 +83,12 @@ function startRooms(store: WorkspaceStore, slug: string | null): void {
     agent: false, // The header flips this from the WebMCP status once tools register.
     onRoom: (opened: string) => {
       window.history.replaceState(null, "", roomJoinUrl(opened));
-      // The page already booted on this slug, so the store is keyed there and may still be
-      // hydrating from it: writing back now would overwrite the saved board with an empty
-      // one. Only a room opened mid-session needs the current board copied across.
-      if (opened === slug) return;
-      void createPersistence(roomStoreKey(opened), true).save(store.get());
+      // Move persistence to the room key rather than copying the board once: a one-shot
+      // copy saves the board as it looked the instant the room opened, and every later
+      // edit keeps going to the old key, so reloading the room URL reads back an empty
+      // board. rekey is a no-op when the page already booted on this slug, so a
+      // hydration still in flight is never clobbered.
+      void (store as { rekey?: (next: string) => Promise<void> }).rekey?.(roomStoreKey(opened));
     },
   });
   if (slug !== null) joinRoom(slug);

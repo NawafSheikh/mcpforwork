@@ -26,6 +26,8 @@ import { coerceMessage } from "./wire";
 const HEARTBEAT_MS = 25_000;
 const RECONNECT_MS = 1_000;
 const RECONNECT_MAX_MS = 15_000;
+/** Two refused sockets is enough to stop calling it "connecting" and start calling it broken. */
+const FAILED_ATTEMPTS_BEFORE_ERROR = 2;
 /** One broadcast event name for the whole protocol; our own `t` field does the routing. */
 const EVENT = "mfw";
 
@@ -130,6 +132,7 @@ export function createSupabaseTransport(
   let ref = 0;
   let attempts = 0;
   let stopped = false;
+  let everOpen = false;
   let heartbeat: ReturnType<typeof setInterval> | null = null;
   let retry: ReturnType<typeof setTimeout> | null = null;
 
@@ -184,6 +187,7 @@ export function createSupabaseTransport(
     socket = created;
     created.onopen = (): void => {
       attempts = 0;
+      everOpen = true;
       push(joinFrame(topic, nextRef()));
       heartbeat = setInterval(() => push(heartbeatFrame(nextRef())), HEARTBEAT_MS);
       setStatus("open");
@@ -198,7 +202,12 @@ export function createSupabaseTransport(
     created.onclose = (): void => {
       socket = null;
       clearTimers();
-      setStatus(stopped ? "closed" : "connecting");
+      // A socket that has never once opened is not "connecting", it is refused: a wrong
+      // URL, a dead project, or a Content Security Policy without wss: in connect-src.
+      // Saying "connecting" forever made a blocked relay look exactly like an empty room,
+      // which is how a CSP block survived a live test. It reconnects either way.
+      const refused = !everOpen && attempts >= FAILED_ATTEMPTS_BEFORE_ERROR;
+      setStatus(stopped ? "closed" : refused ? "error" : "connecting");
       scheduleReconnect();
     };
   }
