@@ -1,7 +1,8 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
-const base = process.env.VITE_BASE ?? "/";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const base = ((globalThis as any).process?.env?.VITE_BASE as string | undefined) ?? "/";
 
 export default defineConfig({
   plugins: [react()],
