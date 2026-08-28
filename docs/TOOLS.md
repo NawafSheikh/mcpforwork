@@ -24,8 +24,14 @@ set `untrustedContentHint: true`. All read tools set `readOnlyHint: true`.
 | approve_draft | no | {draftId, note?} | policy check first; refuses out-of-policy and names the clause; else marks approved by agent | "Approved ..." or "Refused: clause <name>: <reason>. A human can approve it from the Monitors tab." |
 | decline_draft | no | {draftId, reason?} | mark declined | confirmation |
 | set_policy | no | {monitorId, policy: Policy} | replace policy; UI shows a diff | confirmation with diff summary |
+| list_feedback | yes | {target?: {kind, id}, includeResolved?: boolean} | none | JSON list of open feedback left by humans on dashboards, the overview, drafts and monitors, newest first. Agent calls this before editing anything. (untrustedContentHint) |
+| resolve_feedback | no | {feedbackId, resolution: string(..200)} | mark resolved by agent | confirmation |
+| share_board | yes | {} | none | a read-only snapshot URL of the current board (state compressed into the URL fragment, never sent to a server) |
 | seed_demo_workspace | no | {} | demo mode only: load the sample workspace | confirmation |
 | clear_workspace | no | {confirm: true} | wipe categories, overview, monitors, runs, drafts (audit kept) | confirmation |
+
+## Common optional field on EVERY tool
+`caller?: string(..40)`: the agent or sub-agent names itself ("Classify 1-25"). Stored on the audit event and shown in the Agent activity rail so parallel workers are visible. Never trusted for anything else.
 
 ## Zod shapes (source of truth lives in src/webmcp/schemas.ts)
 

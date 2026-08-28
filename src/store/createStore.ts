@@ -51,6 +51,7 @@ export function emptyWorkspace(mode: WorkspaceMode, at: string = new Date().toIS
     monitors: {},
     runs: [],
     drafts: {},
+    feedback: {},
     audit: [],
     updatedAt: at,
   };

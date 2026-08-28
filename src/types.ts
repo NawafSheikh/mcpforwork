@@ -153,11 +153,34 @@ export interface AuditEvent {
   readonly id: string;
   readonly at: ISODate;
   readonly actor: Actor;
+  /** Optional self-reported label of the agent or sub-agent that made the call ("Classify 1-25"). */
+  readonly caller?: string;
   readonly tool?: string;
   readonly argsHash?: string;
   readonly argsPreview?: string;
   readonly result?: string;
   readonly ok: boolean;
+}
+
+/* ---------- Feedback (humans and agents editing the same objects in turns) ---------- */
+
+export type FeedbackTargetKind = "dashboard" | "overview" | "draft" | "monitor";
+
+export interface FeedbackTarget {
+  readonly kind: FeedbackTargetKind;
+  /** category name for dashboards, "overview", draft id, or monitor id */
+  readonly id: string;
+}
+
+export interface Feedback {
+  readonly id: string;
+  readonly target: FeedbackTarget;
+  readonly text: string;
+  readonly author: Actor;
+  readonly createdAt: ISODate;
+  readonly resolvedAt?: ISODate;
+  readonly resolvedBy?: Actor;
+  readonly resolution?: string;
 }
 
 /* ---------- Workspace (the whole board) ---------- */
@@ -173,6 +196,7 @@ export interface Workspace {
   readonly monitors: Readonly<Record<string, Monitor>>;
   readonly runs: readonly MonitorRun[];
   readonly drafts: Readonly<Record<string, DraftAction>>;
+  readonly feedback: Readonly<Record<string, Feedback>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -213,4 +237,8 @@ export const LIMITS = {
   maxCategories: 24,
   maxAuditEvents: 500,
   maxToolCallsPerMinute: 60,
+  maxFeedbackItems: 200,
+  maxFeedbackChars: 500,
+  maxCallerChars: 40,
+  maxShareBytes: 60000,
 } as const;

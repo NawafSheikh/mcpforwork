@@ -43,6 +43,7 @@ export function sampleWorkspace(now: Date): Workspace {
     monitors: sampleMonitors(clock),
     runs: sampleRuns(clock),
     drafts: sampleDrafts(clock),
+    feedback: {},
     audit: sampleAudit(clock),
     updatedAt: clock.nowIso,
   };
