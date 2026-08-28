@@ -2,6 +2,30 @@
    The --mfw-* variables below are the canonical set; src/dsl guards its own defaults. */
 
 :root {
+  /* Light is the default look (the Dashboardify lineage). Dark lives under html[data-theme="dark"]. */
+  --mfw-bg: #f6f8fb;
+  --mfw-bg-soft: #eef2f7;
+  --mfw-surface: #ffffff;
+  --mfw-surface-2: #f3f6fa;
+  --mfw-border: #d8e0ea;
+  --mfw-border-soft: #e6ebf2;
+  --mfw-text: #14263c;
+  --mfw-muted: #5b6b7e;
+  --mfw-accent: #2f6fed;
+  --mfw-accent-soft: rgba(47, 111, 237, 0.1);
+  --mfw-ok: #1f9d6b;
+  --mfw-warn: #b47d0e;
+  --mfw-danger: #d64545;
+  --mfw-radius: 12px;
+  --mfw-radius-sm: 8px;
+  --mfw-shadow: 0 1px 2px rgba(20, 38, 60, 0.06), 0 8px 24px rgba(20, 38, 60, 0.08);
+  --mfw-gap: 16px;
+  --mfw-max-width: 1520px;
+  --mfw-font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mfw-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+html[data-theme="dark"] {
   --mfw-bg: #0b0f14;
   --mfw-bg-soft: #10161d;
   --mfw-surface: #131a22;
@@ -15,13 +39,7 @@
   --mfw-ok: #47c08a;
   --mfw-warn: #e2b03c;
   --mfw-danger: #ef6a6a;
-  --mfw-radius: 12px;
-  --mfw-radius-sm: 8px;
   --mfw-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.18);
-  --mfw-gap: 16px;
-  --mfw-max-width: 1520px;
-  --mfw-font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --mfw-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -96,7 +114,7 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   color: var(--mfw-muted);
 }
 
-.mfw-badge-live { color: var(--mfw-ok); border-color: rgba(71, 192, 138, 0.4); }
+.mfw-badge-live { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 40%, transparent); }
 
 .mfw-header-right { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
@@ -114,8 +132,8 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 }
 
 .mfw-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
-.mfw-header .mfw-pill-ok { color: var(--mfw-ok); border-color: rgba(71, 192, 138, 0.35); }
-.mfw-header .mfw-pill-warn { color: var(--mfw-warn); border-color: rgba(226, 176, 60, 0.35); }
+.mfw-header .mfw-pill-ok { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 35%, transparent); }
+.mfw-header .mfw-pill-warn { color: var(--mfw-warn); border-color: color-mix(in srgb, var(--mfw-warn) 35%, transparent); }
 
 /* ---------- buttons and tabs ---------- */
 
@@ -133,7 +151,7 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 
 .mfw-btn:hover { border-color: var(--mfw-accent); }
 .mfw-btn:focus-visible { outline: 2px solid var(--mfw-accent); outline-offset: 2px; }
-.mfw-btn-primary { background: var(--mfw-accent-soft); border-color: rgba(90, 169, 255, 0.45); color: var(--mfw-accent); }
+.mfw-btn-primary { background: var(--mfw-accent-soft); border-color: color-mix(in srgb, var(--mfw-accent) 45%, transparent); color: var(--mfw-accent); }
 .mfw-btn-ghost { background: transparent; color: var(--mfw-muted); }
 
 .mfw-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 14px 0 18px; border-bottom: 1px solid var(--mfw-border-soft); }
@@ -203,7 +221,7 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 }
 
 .mfw-actor-agent { color: var(--mfw-accent); background: var(--mfw-accent-soft); }
-.mfw-actor-human { color: var(--mfw-ok); background: rgba(71, 192, 138, 0.12); }
+.mfw-actor-human { color: var(--mfw-ok); background: color-mix(in srgb, var(--mfw-ok) 12%, transparent); }
 
 /* ---------- board extras (src/dsl owns the dashboards themselves) ---------- */
 
@@ -222,10 +240,10 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   white-space: nowrap;
 }
 
-.mfw-chip-pending { color: var(--mfw-warn); border-color: rgba(226, 176, 60, 0.4); }
-.mfw-chip-held { color: var(--mfw-danger); border-color: rgba(239, 106, 106, 0.45); }
-.mfw-chip-auto, .mfw-chip-active { color: var(--mfw-accent); border-color: rgba(90, 169, 255, 0.4); }
-.mfw-chip-approved { color: var(--mfw-ok); border-color: rgba(71, 192, 138, 0.4); }
+.mfw-chip-pending { color: var(--mfw-warn); border-color: color-mix(in srgb, var(--mfw-warn) 40%, transparent); }
+.mfw-chip-held { color: var(--mfw-danger); border-color: color-mix(in srgb, var(--mfw-danger) 45%, transparent); }
+.mfw-chip-auto, .mfw-chip-active { color: var(--mfw-accent); border-color: color-mix(in srgb, var(--mfw-accent) 40%, transparent); }
+.mfw-chip-approved { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 40%, transparent); }
 .mfw-chip-declined { color: var(--mfw-muted); }
 
 /* ---------- empty state ---------- */
@@ -329,7 +347,7 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   cursor: pointer;
 }
 
-.mfw-filter-on { color: var(--mfw-accent); border-color: rgba(90, 169, 255, 0.45); background: var(--mfw-accent-soft); }
+.mfw-filter-on { color: var(--mfw-accent); border-color: color-mix(in srgb, var(--mfw-accent) 45%, transparent); background: var(--mfw-accent-soft); }
 .mfw-events { display: flex; flex-direction: column; }
 .mfw-event { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--mfw-border-soft); }
 .mfw-event-bad .mfw-event-tool { color: var(--mfw-danger); }
