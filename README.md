@@ -108,8 +108,7 @@ overlays sit on top of the address bar and hide the Site tools icon; dismiss the
 Then try, in order:
 
 - "What is on this board?" (calls `get_workspace`)
-- The starter prompt from the header: "Read the subject, sender and date of my last 30
-  Gmail threads (no bodies), group them into 4 to 6 categories, and on this page call
+- The starter prompt from the header: "Read my last 30 Gmail threads, group them into 4 to 6 categories, and on this page call
   create_category, upsert_dataset_summary and upsert_dashboard for each, then
   compose_overview. Pass caller on every call."
 - "Register a monitor on the Invoices category every morning at 08:00 that holds anything
