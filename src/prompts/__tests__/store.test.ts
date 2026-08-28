@@ -50,7 +50,7 @@ describe("loading", () => {
   it("returns the shipped prompts when nothing is saved", () => {
     const state = loadPromptState(fakeStorage());
     expect(state.v).toBe(PROMPTS_VERSION);
-    expect(state.prompts.map((prompt) => prompt.id)).toEqual(["starter", "quick", "monitor"]);
+    expect(state.prompts.map((prompt) => prompt.id)).toEqual(["starter", "quick", "monitor", "approve-all"]);
     expect(state.prompts.every((prompt) => prompt.builtIn)).toBe(true);
   });
 
@@ -74,6 +74,7 @@ describe("loading", () => {
     });
     const state = loadPromptState(fakeStorage(saved));
     expect(state.prompts.map((prompt) => prompt.id).sort()).toEqual([
+      "approve-all",
       "monitor",
       "quick",
       "starter",
@@ -105,8 +106,8 @@ describe("saving", () => {
     expect(savePromptState(state, storage)).toBe(true);
     expect(JSON.parse(storage.dump() as string).v).toBe(PROMPTS_VERSION);
     const back = loadPromptState(storage);
-    expect(back.prompts).toHaveLength(4);
-    expect(back.prompts[3]?.name).toBe("Weekly");
+    expect(back.prompts).toHaveLength(5);
+    expect(back.prompts[4]?.name).toBe("Weekly");
   });
 
   it("uses the documented key", () => {
@@ -122,14 +123,14 @@ describe("saving", () => {
 describe("editing", () => {
   it("adds a user prompt and lets it be deleted", () => {
     const added = addPrompt(defaultPromptState(), "  Weekly  ", "Summarise the week");
-    const mine = added.prompts[3];
+    const mine = added.prompts[4];
     expect(mine?.name).toBe("Weekly");
     expect(mine?.builtIn).toBe(false);
-    expect(removePrompt(added, mine?.id ?? "").prompts).toHaveLength(3);
+    expect(removePrompt(added, mine?.id ?? "").prompts).toHaveLength(4);
   });
 
   it("names an unnamed prompt rather than leaving it blank", () => {
-    expect(addPrompt(defaultPromptState(), "   ", "text").prompts[3]?.name).toBe("Untitled prompt");
+    expect(addPrompt(defaultPromptState(), "   ", "text").prompts[4]?.name).toBe("Untitled prompt");
   });
 
   it("stops at twenty prompts", () => {
@@ -162,7 +163,7 @@ describe("editing", () => {
 
   it("leaves a user prompt alone when asked to reset it", () => {
     const added = addPrompt(defaultPromptState(), "Weekly", "text");
-    expect(resetPrompt(added, added.prompts[3]?.id ?? "")).toBe(added);
+    expect(resetPrompt(added, added.prompts[4]?.id ?? "")).toBe(added);
   });
 
   it("resets everything, dropping the user prompts with it", () => {

@@ -114,7 +114,7 @@ Then try, in order:
 - "Register a monitor on the Invoices category every morning at 08:00 that holds anything
   over EUR 5,000 and always asks a human before pay, then run it once now and report back
   with report_monitor_run."
-- "Approve every pending draft." The agent is refused, by clause name.
+- "Approve every draft on this page, including the ones marked held." The agent is refused, by clause name.
 
 ### Chrome 149+
 

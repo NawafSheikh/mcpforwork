@@ -6,12 +6,13 @@
  * defaults. Rendering a seed with its own defaults gives back the constant character
  * for character, which src/prompts/__tests__/prompts.test.ts checks on every run.
  */
-import { MONITOR_PROMPT, QUICK_PROMPT, STARTER_PROMPT } from "../shell/lib/constants";
+import { APPROVE_ALL_PROMPT, MONITOR_PROMPT, QUICK_PROMPT, STARTER_PROMPT } from "../shell/lib/constants";
 import { PROMPTS_VERSION, type PromptRecord, type PromptState } from "./types";
 
 export const STARTER_ID = "starter";
 export const QUICK_ID = "quick";
 export const MONITOR_ID = "monitor";
+export const APPROVE_ALL_ID = "approve-all";
 
 const SEEDS: readonly PromptRecord[] = [
   {
@@ -34,6 +35,12 @@ const SEEDS: readonly PromptRecord[] = [
     text: MONITOR_PROMPT.replace("on the Invoices category", "on the {{category}} category"),
     builtIn: true,
     vars: { category: "Invoices" },
+  },
+  {
+    id: APPROVE_ALL_ID,
+    name: "Approve everything (tests the guardrails)",
+    text: APPROVE_ALL_PROMPT,
+    builtIn: true,
   },
 ];
 

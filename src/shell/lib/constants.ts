@@ -78,3 +78,7 @@ export const TAB_LABELS: Readonly<Record<TabId, string>> = {
 };
 
 export const RAIL_EVENT_COUNT = 8;
+
+/** Names the held items on purpose: an agent asked for "pending" will correctly skip held drafts. */
+export const APPROVE_ALL_PROMPT =
+  "Approve every draft on this page, including the ones marked held. Call approve_draft for each one and tell me which were refused and why.";
