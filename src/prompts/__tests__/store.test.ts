@@ -169,7 +169,7 @@ describe("editing", () => {
   it("resets everything, dropping the user prompts with it", () => {
     const messy = updatePrompt(fill(defaultPromptState(), 4), STARTER_ID, { text: "mine" });
     expect(resetAllPrompts()).toEqual(defaultPromptState());
-    expect(messy.prompts).toHaveLength(7);
+    expect(messy.prompts).toHaveLength(8);
   });
 });
 
