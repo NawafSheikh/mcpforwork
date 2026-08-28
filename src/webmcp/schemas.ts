@@ -59,7 +59,12 @@ export const feedbackTargetSchema = z.object({
   id: z.string().min(1).max(80),
 });
 
-const categoryName = z.string().min(1).max(60);
+const RESERVED_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+const categoryName = z
+  .string()
+  .min(1)
+  .max(60)
+  .refine((value) => !RESERVED_KEYS.has(value.trim()), { message: "that name is reserved" });
 
 /** Every tool accepts the same optional caller so parallel sub-agents can name themselves. */
 export const callerSchema = z.string().min(1).max(LIMITS.maxCallerChars).optional();

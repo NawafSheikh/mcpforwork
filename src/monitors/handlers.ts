@@ -12,7 +12,7 @@ import type { HandlerMap } from "../webmcp/registry";
 import { readNumber, readString, readStrings } from "./handlerTypes";
 import type { HandlerFn, HandlerResult } from "./handlerTypes";
 import { readDrafts, readPolicy } from "./inputs";
-import {
+import { capJsonArray,
   applyRun,
   autosInRun,
   capOutput,
@@ -117,20 +117,18 @@ export const report_monitor_run: HandlerFn = (input, ws) => {
 };
 
 export const list_monitors: HandlerFn = (_input, ws) => ({
-  result: capOutput(
-    JSON.stringify(
-      Object.values(ws.monitors).map((monitor) => ({
-        id: monitor.id,
-        name: monitor.name,
-        category: monitor.category,
-        schedule: monitor.schedule,
-        runner: monitor.runner,
-        status: monitor.status,
-        lastRunAt: monitor.lastRunAt ?? null,
-        nextRunAt: monitor.nextRunAt ?? null,
-        policy: describePolicy(monitor.policy),
-      })),
-    ),
+  result: capJsonArray(
+    Object.values(ws.monitors).map((monitor) => ({
+      id: monitor.id,
+      name: monitor.name,
+      category: monitor.category,
+      schedule: monitor.schedule,
+      runner: monitor.runner,
+      status: monitor.status,
+      lastRunAt: monitor.lastRunAt ?? null,
+      nextRunAt: monitor.nextRunAt ?? null,
+      policy: describePolicy(monitor.policy),
+    })),
   ),
 });
 
@@ -161,7 +159,7 @@ export const get_run_log: HandlerFn = (input, ws) => {
           : [];
       }),
     }));
-  return { result: capOutput(JSON.stringify(runs)) };
+  return { result: capJsonArray(runs) };
 };
 
 function settleDraft(

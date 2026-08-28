@@ -65,6 +65,8 @@ function mountWorkspace(root: Root): void {
     () => {
       stopScheduler();
       controller.abort();
+      // Best effort: pagehide gives no second chance, so a failed flush has no recovery path.
+      void (store as { flush?: () => Promise<void> }).flush?.().catch(() => undefined);
     },
     { once: true },
   );

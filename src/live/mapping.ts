@@ -8,6 +8,7 @@
  * here is deliberately narrow and optional, and is marked "verify against live API".
  */
 import type { Monitor, Policy } from "../types";
+import { policySchema } from "../webmcp/schemas";
 
 /* ---------- endpoint paths (verified present in coc/routes.py) ---------- */
 
@@ -146,7 +147,9 @@ export function configToPolicy(config: Record<string, unknown> | null | undefine
   if (!config) return null;
   const stored = config.policy;
   if (stored && typeof stored === "object" && "maxAutoActionsPerRun" in stored) {
-    return stored as Policy;
+    // The only policy input that arrives from outside the page: validate like every tool input.
+    const parsed = policySchema.safeParse(stored);
+    return parsed.success ? (parsed.data as Policy) : null;
   }
   const cap = config.max_auto_actions_per_run;
   if (typeof cap === "number") {

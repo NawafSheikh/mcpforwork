@@ -147,8 +147,8 @@ export function createToolRegistry(opts: RegistryOptions): ToolRegistry {
   const execute = async (name: string, input: unknown, ctx?: ToolCallContext): Promise<string> => {
     if (ctx?.signal?.aborted) return abortedText(name);
     const caller = readCaller(input);
-    if (!isToolName(name)) return record(name, input, unknownText(name), false, caller);
     if (!limiter.take()) return record(name, input, rateLimitText(maxCalls), false, caller);
+    if (!isToolName(name)) return record(name, input, unknownText(name), false, caller);
     const schema: z.ZodTypeAny = toolSchemas[name];
     const parsed = schema.safeParse(input ?? {});
     if (!parsed.success) {

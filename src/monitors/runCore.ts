@@ -218,6 +218,17 @@ export function withAudit(ws: Workspace, event: AuditEvent): Workspace {
   };
 }
 
+/** JSON array replies drop whole trailing items instead of truncating mid-string. */
+export function capJsonArray(items: readonly unknown[]): string {
+  const kept = [...items];
+  let text = JSON.stringify(kept);
+  while (text.length > LIMITS.toolOutputChars && kept.length > 0) {
+    kept.pop();
+    text = JSON.stringify(kept);
+  }
+  return text;
+}
+
 /** Every tool reply stays inside LIMITS.toolOutputChars. */
 export function capOutput(text: string): string {
   return text.length > LIMITS.toolOutputChars
