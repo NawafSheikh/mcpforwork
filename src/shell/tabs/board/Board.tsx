@@ -10,6 +10,7 @@ import { useWorkspace } from "../../context";
 import { EmptyState } from "../EmptyState";
 import { CategoryNav, OVERVIEW_ID } from "./CategoryNav";
 import { CategoryPane } from "./CategoryPane";
+import { DropPanel } from "./DropPanel";
 import { OverviewPane } from "./OverviewPane";
 import { UndoToast } from "./UndoToast";
 import { sortPinnedFirst, usePinned } from "./pinned";
@@ -41,7 +42,16 @@ export function Board({ readOnly = false }: BoardProps): JSX.Element {
     [edits, toggle],
   );
 
-  if (categories.length === 0 && !workspace.overview) return <EmptyState />;
+  // A cold board still takes a file: dropping a CSV is a fine first move, with or without
+  // an agent attached. The panel hides itself in readOnly, so a snapshot stays a snapshot.
+  if (categories.length === 0 && !workspace.overview) {
+    return (
+      <>
+        <EmptyState />
+        <DropPanel readOnly={readOnly} />
+      </>
+    );
+  }
 
   const current = categories.find((category) => category.name === selected);
 

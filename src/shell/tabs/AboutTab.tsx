@@ -1,4 +1,5 @@
 /** About: what this is, how it works, what it refuses to do, and how to open it. */
+import { chooseTransport } from "../../rooms";
 import { CHATGPT_STEPS, CHATGPT_STEPS_NOTE } from "../lib/constants";
 
 export function AboutTab(): JSX.Element {
@@ -38,6 +39,18 @@ export function AboutTab(): JSX.Element {
         in the URL fragment, which browsers never send to a server, so a snapshot needs no account
         and no backend.
       </p>
+      <h4>Sharing a board as a room</h4>
+      <p>
+        Press Invite to room and this board gets a short slug in the address bar. Everyone who
+        opens that link works on the same board, and each change shows up on the other side in
+        about a second. A room is unlisted, not private: the slug is the whole access control, so
+        anyone holding the link can read and write, and the audit rail is shared on purpose so the
+        people in a room see one trail. Drop a CSV or XLSX on the board and the file is parsed here
+        instead: the rows sit in memory until the tab closes, and the agent only ever sees the
+        column profile and the aggregates it asks for.
+      </p>
+      <p className="mfw-muted">{chooseTransport().note}</p>
+
       <h4>Opening this page in ChatGPT desktop</h4>
       <ol className="mfw-setup">
         {CHATGPT_STEPS.map((step) => (

@@ -2,12 +2,23 @@
  * Bootstrap: one store, one root, and one decision made before anything renders.
  *
  * A URL with a #share= fragment is a read-only snapshot of somebody else's board, so it
- * gets an in-memory store, no scheduler and, above all, no registered site tools: a
- * visitor's agent must never be handed write tools pointed at a stranger's snapshot.
+ * gets an in-memory store, no scheduler, no room and, above all, no registered site tools:
+ * a visitor's agent must never be handed write tools pointed at a stranger's snapshot.
+ *
+ * A ?room= slug is the opposite: a live shared board. The fragment is checked first, so a
+ * snapshot link never joins anything even when both are present.
  */
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { App } from "./App";
+import {
+  configureRooms,
+  currentRoomSlug,
+  joinRoom,
+  leaveRoom,
+  roomJoinUrl,
+  roomStoreKey,
+} from "./rooms";
 import { hasShareFragment, readShareFromLocation } from "./share";
 import { createStore } from "./shell/adapters/store";
 import { startScheduler } from "./shell/adapters/monitors";
@@ -15,7 +26,7 @@ import { registerTools, type WebmcpStatusStore } from "./shell/adapters/webmcp";
 import { ShellProvider } from "./shell/context";
 import { initTheme } from "./shell/lib/theme";
 /** Snapshots need a store that never persists, which the shell adapter does not expose. */
-import { createWorkspaceStore } from "./store";
+import { createPersistence, createWorkspaceStore } from "./store";
 import type { Workspace, WorkspaceMode, WorkspaceStore } from "./types";
 import "./styles/app.css";
 
@@ -53,17 +64,49 @@ function mount(
   );
 }
 
+/**
+ * A room-scoped board persists under its own key, so two rooms and the local board never
+ * overwrite each other. src/rooms never touches IndexedDB: the store owns its key, so
+ * re-keying on the way into a room happens here.
+ */
+function storeFor(mode: WorkspaceMode, slug: string | null): WorkspaceStore {
+  return slug === null
+    ? createStore({ mode })
+    : createWorkspaceStore({ mode, key: roomStoreKey(slug) });
+}
+
+/** Rooms, for the visitor's own board only. A #share snapshot never reaches this. */
+function startRooms(store: WorkspaceStore, slug: string | null): void {
+  configureRooms({
+    store,
+    label: "Guest",
+    agent: false, // The header flips this from the WebMCP status once tools register.
+    onRoom: (opened: string) => {
+      window.history.replaceState(null, "", roomJoinUrl(opened));
+      // The page already booted on this slug, so the store is keyed there and may still be
+      // hydrating from it: writing back now would overwrite the saved board with an empty
+      // one. Only a room opened mid-session needs the current board copied across.
+      if (opened === slug) return;
+      void createPersistence(roomStoreKey(opened), true).save(store.get());
+    },
+  });
+  if (slug !== null) joinRoom(slug);
+}
+
 /** The visitor's own board: tools registered once, demo monitors ticking. */
 function mountWorkspace(root: Root): void {
   const mode = readMode();
-  const store = createStore({ mode });
+  const slug = currentRoomSlug();
+  const store = storeFor(mode, slug);
   const controller = new AbortController();
   const statusStore = registerTools(store, controller.signal);
   const stopScheduler = mode === "demo" ? startScheduler(store) : (): void => undefined;
+  startRooms(store, slug);
   window.addEventListener(
     "pagehide",
     () => {
       stopScheduler();
+      leaveRoom();
       controller.abort();
       // Best effort: pagehide gives no second chance, so a failed flush has no recovery path.
       void (store as { flush?: () => Promise<void> }).flush?.().catch(() => undefined);

@@ -15,6 +15,8 @@ import { createWebmcp } from "../../webmcp";
 import { TOOL_NAMES } from "../../webmcp/schemas";
 import { monitorHandlers } from "../../monitors";
 import { seedDemoHandler } from "../../demo/sampleWorkspace";
+import { datasetHandlers } from "../../dataset/handlers";
+import { roomHandlers } from "../../rooms/handlers";
 import { workspaceHandlers } from "../../webmcp/handlers";
 
 
@@ -65,17 +67,19 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 18 tools", () => {
+  it("publishes all 24 tools", () => {
     const store = createWorkspaceStore({ mode: "demo", persist: false });
     const bundle = createWebmcp({ store, handlers: { ...monitorHandlers, seed_demo_workspace: seedDemoHandler } });
-    expect(bundle.definitions.length).toBe(18);
-    expect(TOOL_NAMES.length).toBe(18);
+    expect(bundle.definitions.length).toBe(24);
+    expect(TOOL_NAMES.length).toBe(24);
   });
 
   it("leaves no tool without a handler", () => {
     const wired = new Set([
       ...Object.keys(workspaceHandlers),
       ...Object.keys(monitorHandlers),
+      ...Object.keys(roomHandlers),
+      ...Object.keys(datasetHandlers),
       "seed_demo_workspace",
     ]);
     expect(TOOL_NAMES.filter((name) => !wired.has(name))).toEqual([]);

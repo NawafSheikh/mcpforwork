@@ -1,0 +1,165 @@
+/* Drop zone and profile card. Owner A11.
+   Only --mfw-* tokens from the shell, each with a fallback so the card still reads if
+   it is ever rendered outside the app (a test page, a shared snapshot). */
+
+.mfw-ds {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mfw-ds__zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 16px;
+  border: 1px dashed var(--mfw-border, #263141);
+  border-radius: var(--mfw-radius, 12px);
+  background: var(--mfw-bg-soft, #10161d);
+  text-align: center;
+}
+
+.mfw-ds__zone-over {
+  border-color: var(--mfw-accent, #5aa9ff);
+  background: var(--mfw-accent-soft, rgba(90, 169, 255, 0.14));
+}
+
+.mfw-ds__headline { margin: 0; font-size: 14px; font-weight: 600; }
+.mfw-ds__sub { margin: 0; font-size: 12px; color: var(--mfw-muted, #93a1b0); }
+
+.mfw-ds__pick, .mfw-ds__forget {
+  padding: 4px 12px;
+  border: 1px solid var(--mfw-border, #263141);
+  border-radius: 999px;
+  background: var(--mfw-surface-2, #182029);
+  color: var(--mfw-text, #e6edf3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mfw-ds__pick { margin-top: 6px; }
+.mfw-ds__pick:hover, .mfw-ds__forget:hover { border-color: var(--mfw-accent, #5aa9ff); }
+.mfw-ds__pick:focus-visible, .mfw-ds__forget:focus-visible {
+  outline: 2px solid var(--mfw-accent, #5aa9ff);
+  outline-offset: 2px;
+}
+.mfw-ds__pick[disabled] { opacity: 0.5; cursor: default; }
+.mfw-ds__forget { color: var(--mfw-muted, #93a1b0); }
+.mfw-ds__forget:hover { color: var(--mfw-danger, #ef6a6a); border-color: var(--mfw-danger, #ef6a6a); }
+
+.mfw-ds__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mfw-ds__privacy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--mfw-muted, #93a1b0);
+}
+
+.mfw-ds__progress { display: flex; align-items: center; gap: 10px; }
+
+.mfw-ds__bar {
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--mfw-surface-2, #182029);
+  overflow: hidden;
+}
+
+.mfw-ds__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--mfw-accent, #5aa9ff);
+  transition: width 120ms linear;
+}
+
+.mfw-ds__progress-text { font-size: 12px; color: var(--mfw-muted, #93a1b0); white-space: nowrap; }
+
+.mfw-ds__error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--mfw-danger, #ef6a6a);
+  border-radius: var(--mfw-radius-sm, 8px);
+  background: var(--mfw-surface, #131a22);
+  color: var(--mfw-danger, #ef6a6a);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mfw-ds__list { display: flex; flex-direction: column; gap: 12px; }
+
+.mfw-ds__card {
+  padding: 12px;
+  border: 1px solid var(--mfw-border-soft, #1c2530);
+  border-radius: var(--mfw-radius, 12px);
+  background: var(--mfw-surface, #131a22);
+}
+
+.mfw-ds__card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mfw-ds__name { margin: 0; font-size: 13px; word-break: break-word; }
+.mfw-ds__meta { margin: 2px 0 0; font-size: 11px; color: var(--mfw-muted, #93a1b0); }
+
+.mfw-ds__table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mfw-ds__caption {
+  padding-bottom: 6px;
+  font-size: 11px;
+  text-align: left;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mfw-muted, #93a1b0);
+}
+
+.mfw-ds__table th,
+.mfw-ds__table td {
+  padding: 4px 8px 4px 0;
+  border-bottom: 1px solid var(--mfw-border-soft, #1c2530);
+  text-align: left;
+  vertical-align: top;
+}
+
+.mfw-ds__table th { font-weight: 500; color: var(--mfw-muted, #93a1b0); }
+.mfw-ds__col { font-family: var(--mfw-mono, monospace); word-break: break-word; }
+.mfw-ds__num { text-align: right; font-variant-numeric: tabular-nums; }
+.mfw-ds__facts { color: var(--mfw-muted, #93a1b0); }
+
+.mfw-ds__type {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--mfw-border, #263141);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--mfw-muted, #93a1b0);
+}
+
+.mfw-ds__type-number { color: var(--mfw-accent, #5aa9ff); }
+.mfw-ds__type-date { color: var(--mfw-warn, #e2b03c); }
+.mfw-ds__type-boolean { color: var(--mfw-ok, #47c08a); }
+
+.mfw-ds__sample { margin-top: 12px; }
+.mfw-ds__sample-title { margin: 0; font-size: 11px; color: var(--mfw-muted, #93a1b0); }
+.mfw-ds__table-sample { margin-top: 4px; }
+.mfw-ds__masked { font-family: var(--mfw-mono, monospace); color: var(--mfw-muted, #93a1b0); }

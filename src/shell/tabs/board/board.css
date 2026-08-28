@@ -343,3 +343,30 @@
   color: var(--mfw-muted);
   cursor: pointer;
 }
+
+/* ---------- dropped files: the src/dataset mount (DropPanel) ---------- */
+
+.mfw-drop {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+details.mfw-drop {
+  display: block;
+}
+
+.mfw-drop__summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--mfw-text);
+}
+
+.mfw-drop__summary:focus-visible {
+  outline: 2px solid var(--mfw-accent);
+  outline-offset: 2px;
+}
+
+details.mfw-drop[open] .mfw-drop__summary {
+  margin-bottom: 10px;
+}

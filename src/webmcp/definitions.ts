@@ -1,11 +1,13 @@
 /**
- * The 18 tool definitions from docs/TOOLS.md, ready for registerTool.
+ * The 24 tool definitions from docs/TOOLS.md, ready for registerTool.
  * Every execute is the same one line: hand the name and the raw input to the registry,
  * which validates, rate limits, audits and truncates. Tools whose handler is owned by
  * another module still register: they answer "not wired yet" until that handler lands.
  */
 
 import { LIMITS, type ToolDefinition } from "../types";
+import { DATASET_TOOL_DESCRIPTIONS } from "../dataset/definitions";
+import { roomToolDescriptions } from "../rooms/handlers";
 import { annotationsFor } from "./annotations";
 import { jsonSchemas } from "./jsonSchemas";
 import type { ToolRegistry } from "./registry";
@@ -49,6 +51,8 @@ const DESCRIPTIONS: Record<ToolName, string> = {
     "Load the synthetic sample workspace so the board has categories, dashboards, a monitor and drafts to look at. Demo mode only, and it replaces what is there. None of the sample data is real.",
   clear_workspace:
     "Wipe categories, the overview, monitors, runs and drafts. Pass confirm true. The audit trail is kept, so the record of what happened survives the reset.",
+  ...roomToolDescriptions,
+  ...DATASET_TOOL_DESCRIPTIONS,
 };
 
 function definitionFor(registry: ToolRegistry, name: ToolName): ToolDefinition {

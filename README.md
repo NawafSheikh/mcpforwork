@@ -39,8 +39,8 @@ submission material. The short version:
 
 - One conversation read **50 unique Gmail threads** through ChatGPT's own Google Workspace
   connector and wrote **six category dashboards plus an overview** through the site tools
-  on this page. The header pill read "Site tools on: 15 registered" (wave 2 has since
-  added three more tools, so a fresh page now registers 18).
+  on this page. The header pill read "Site tools on: 15 registered" (waves 2 and 3 have
+  since added nine more tools, so a fresh page now registers 24).
 - The work **fanned out**: two classification sub-agents ran side by side, shown in the UI
   as `Classify 1 25` and `Classify 26 50`, while the agent had its own aggregate reviewed
   for count drift and privacy leaks before anything was written.
@@ -132,10 +132,10 @@ button and the human approve path do not need an agent at all.
 
 ## The tools
 
-Registered once, in the top-level page, so tabs never tear them down. Every call is
-validated with zod, rate limited, audited, and returns a string under 1500 characters.
-Read tools set `readOnlyHint`. Tools that echo text derived from your own data set
-`untrustedContentHint`. Full contract, including the zod shapes, is in
+Twenty-four tools, registered once in the top-level page, so tabs never tear them down.
+Every call is validated with zod, rate limited, audited, and returns a string under 1500
+characters. Read tools set `readOnlyHint`. Tools that echo text derived from your own data
+set `untrustedContentHint`. Full contract, including the zod shapes, is in
 [docs/TOOLS.md](docs/TOOLS.md).
 
 | Tool | Read only | What it does |
@@ -158,6 +158,12 @@ Read tools set `readOnlyHint`. Tools that echo text derived from your own data s
 | `share_board` | yes | A read-only snapshot link. The board is compressed into the URL fragment, which is never sent to a server. |
 | `seed_demo_workspace` | no | Demo mode only. Loads the synthetic sample board. |
 | `clear_workspace` | no | Wipe the board. Requires `confirm: true`. The audit trail survives. |
+| `get_room` | yes | Whether this board is a shared room, the join link, and how many browsers and agents are on it. |
+| `create_room` | no | Open a shared room for this board and hand back the link. Anyone with the link can join and edit. |
+| `list_datasets` | yes | The files a human dropped on the board: name, rows, columns and inferred types. The rows never leave their browser. |
+| `get_dataset_profile` | yes | One file's shape: per column the type, null rate, distinct count, min, max, mean, date range and top values, plus masked example rows. |
+| `aggregate_dataset` | yes | Group a dropped file by one column and measure another, with an optional filter. Returns up to 12 labelled points, computed in the browser. |
+| `attach_dataset_to_category` | no | Store a dropped file's profile as a category's summary, with provenance naming the file. |
 
 Every tool also takes an optional `caller` string, at most 40 characters, with which the
 agent names itself. When ChatGPT splits work between sub-agents, the Activity rail shows
@@ -228,6 +234,13 @@ carrying an instruction that came from an email rather than from you.
   instruction.
 - **Snapshots are not state.** A shared link opens in memory only, never persists, and
   never registers a tool.
+- **A room is unlisted, not private.** `?room=<slug>` puts two browsers on one live board,
+  and the slug is the whole access control: anyone holding the link can read and write it,
+  and the audit rail is shared on purpose. There is no sign-in in v1, the relay stores
+  nothing, and patches arriving from a peer are re-coerced exactly like a share fragment.
+- **Dropped files stay in the tab.** A CSV or XLSX is parsed in the browser into a
+  module-level Map that dies with the tab. It never reaches the workspace, IndexedDB or a
+  share URL, and the dataset tools return a masked profile and aggregates, never a row.
 - **Tokens stay in memory.** Live mode holds the Supabase access token in a module
   variable in `src/live/auth.ts`. It is never written to `localStorage` and never placed
   in a URL, which is why magic-link sign-in is implemented as a mailed one-time code
@@ -274,6 +287,10 @@ src/policy/       the policy engine: auto, pending, or held with a clause
 src/monitors/     schedule parsing, next run, demo run simulator
 src/feedback/     notes humans and agents leave on the same objects
 src/share/        snapshot codec, defensive readers, the read-only shared board
+src/rooms/        multiplayer boards: ?room= slug, patch sync, presence, relay transports
+src/dataset/      client-side CSV and XLSX parsing, column profiling, masking, drop zone
+src/prompts/      the editable prompt library and the JSON board backup
+src/onboarding/   the empty-board hero, the sample ribbon and the replay
 src/demo/         the synthetic sample workspace
 src/live/         Supabase auth, typed API client, clawai adapter
 src/shell/        app shell, tabs, audit rail, monitors UI, theme

@@ -1,5 +1,5 @@
 /**
- * One import for the shell: build the registry, get the 18 definitions, register them.
+ * One import for the shell: build the registry, get the 24 definitions, register them.
  * A3 and A5 pass their own handlers in; anything they have not shipped yet answers
  * "not wired yet" instead of breaking the page.
  */

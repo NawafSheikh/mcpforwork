@@ -6,6 +6,8 @@
  */
 
 import { LIMITS } from "../types";
+import { datasetJsonSchemas } from "../dataset/jsonSchemas";
+import { roomJsonSchemas } from "../rooms/handlers";
 import type { ToolName } from "./schemas";
 
 export type JsonSchema = Record<string, unknown>;
@@ -310,6 +312,8 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
     },
     ["confirm"],
   ),
+  ...roomJsonSchemas,
+  ...datasetJsonSchemas,
 };
 
 /** caller is added once here so no tool can forget it. */

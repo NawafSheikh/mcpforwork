@@ -1,0 +1,128 @@
+/* Prompt library and backup popovers.
+   They sit inside .mfw-share-pop, so the numbered-list rules there are turned off here.
+   Colours come from the --mfw-* tokens in src/styles/app.css only. */
+
+.mfw-pl-pop {
+  width: min(520px, 92vw);
+  max-height: min(70vh, 620px);
+  overflow-y: auto;
+}
+
+.mfw-pl-pop li { counter-increment: none; }
+.mfw-pl-pop li::before { content: none; }
+
+.mfw-pl { display: flex; flex-direction: column; gap: 12px; }
+
+.mfw-pl-list { display: flex; flex-direction: column; gap: 10px; }
+
+.mfw-pl-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--mfw-border-soft);
+  border-radius: var(--mfw-radius-sm);
+  background: var(--mfw-surface-2);
+}
+
+.mfw-pl-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mfw-pl-name { font-weight: 600; font-size: 13px; color: var(--mfw-text); }
+
+.mfw-pl-copy { min-width: 76px; justify-content: center; }
+
+.mfw-pl-line {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--mfw-muted);
+}
+
+.mfw-pl-vars { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.mfw-pl-var {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mfw-mono);
+  font-size: 11px;
+  color: var(--mfw-muted);
+}
+
+.mfw-pl-var-input {
+  padding: 4px 7px;
+  border: 1px solid var(--mfw-border);
+  border-radius: var(--mfw-radius-sm);
+  background: var(--mfw-surface);
+  color: var(--mfw-text);
+  font-family: inherit;
+  font-size: 12px;
+  width: 130px;
+}
+
+.mfw-pl-var-number { width: 68px; text-align: center; }
+
+.mfw-pl-var-input:focus-visible {
+  outline: 2px solid var(--mfw-accent);
+  outline-offset: 1px;
+}
+
+.mfw-pl-edit { display: flex; flex-direction: column; gap: 6px; }
+
+.mfw-pl-name-input,
+.mfw-pl-text {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--mfw-border);
+  border-radius: var(--mfw-radius-sm);
+  background: var(--mfw-surface);
+  color: var(--mfw-text);
+  font-size: 13px;
+}
+
+.mfw-pl-name-input { font-family: inherit; font-weight: 600; }
+
+.mfw-pl-text {
+  font-family: var(--mfw-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.mfw-pl-name-input:focus-visible,
+.mfw-pl-text:focus-visible {
+  outline: 2px solid var(--mfw-accent);
+  outline-offset: 1px;
+}
+
+.mfw-pl-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.mfw-pl-hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--mfw-muted); }
+
+.mfw-pl-warn { margin: 0; font-size: 12px; line-height: 1.45; color: var(--mfw-warn); }
+
+.mfw-pl-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--mfw-border);
+  border-left: 3px solid var(--mfw-warn);
+  border-radius: var(--mfw-radius-sm);
+  background: var(--mfw-bg-soft);
+}
+
+.mfw-pl-file {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--mfw-muted);
+}
+
+.mfw-pl-file input { font-size: 12px; color: var(--mfw-text); }

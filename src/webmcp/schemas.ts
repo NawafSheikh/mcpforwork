@@ -6,6 +6,13 @@
 
 import { z } from "zod";
 import { LIMITS } from "../types";
+/**
+ * Rooms (A10) and datasets (A11) ship their own zod shapes. They are merged here, from the
+ * leaf files rather than the module barrels, so registering a tool never drags a React
+ * component or a spreadsheet parser into the validation layer.
+ */
+import { datasetToolSchemas } from "../dataset/schemas";
+import { roomToolSchemas } from "../rooms/handlers";
 
 export const kpiSchema = z.object({
   label: z.string().min(1).max(40),
@@ -145,6 +152,8 @@ export const toolSchemas = {
   clear_workspace: tool({
     confirm: z.literal(true),
   }),
+  ...roomToolSchemas,
+  ...datasetToolSchemas,
 } as const;
 
 export type ToolName = keyof typeof toolSchemas;

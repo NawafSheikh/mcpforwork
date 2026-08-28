@@ -8,6 +8,7 @@ import { DashboardView, categoryIcon } from "../../../dsl";
 import type { Category, Chart } from "../../../types";
 import { AskAgentButton } from "./AskAgentButton";
 import { ChartPanel } from "./ChartPanel";
+import { DropPanel } from "./DropPanel";
 import { EditableTitle } from "./EditableTitle";
 import { FeedbackSlot } from "./FeedbackSlot";
 import { SummaryTable, summaryFacts } from "./SummaryTable";
@@ -34,6 +35,7 @@ export function CategoryPane(props: CategoryPaneProps): JSX.Element {
           <SummaryTable summary={category.summary} caption={`Aggregates for ${category.name}`} />
         </section>
       ) : null}
+      <DropPanel readOnly={readOnly} compactFor={category.name} />
       {category.dashboard ? null : (
         <FeedbackSlot target={{ kind: "dashboard", id: category.name }} readOnly={readOnly} />
       )}

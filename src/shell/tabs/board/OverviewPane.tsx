@@ -8,6 +8,7 @@ import type { Category, Chart, OverviewSpec } from "../../../types";
 import { AskAgentButton } from "./AskAgentButton";
 import { ChartPanel } from "./ChartPanel";
 import { DomainGrid } from "./DomainGrid";
+import { DropPanel } from "./DropPanel";
 import { EditableTitle } from "./EditableTitle";
 import { FeedbackSlot } from "./FeedbackSlot";
 import type { BoardEdits } from "./useBoardEdits";
@@ -31,6 +32,7 @@ export function OverviewPane(props: OverviewPaneProps): JSX.Element {
   return (
     <div className="mfw-pane">
       {overview ? <OverviewSection {...props} spec={overview} /> : <NoOverview readOnly={readOnly} />}
+      <DropPanel readOnly={readOnly} />
       <DomainGrid
         categories={categories}
         onOpen={onOpen}

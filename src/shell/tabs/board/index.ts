@@ -6,6 +6,8 @@ export { CategoryNav, OVERVIEW_ID } from "./CategoryNav";
 export { CategoryPane } from "./CategoryPane";
 export { OverviewPane } from "./OverviewPane";
 export { ChartPanel } from "./ChartPanel";
+export { DropPanel } from "./DropPanel";
+export type { DropPanelProps } from "./DropPanel";
 export { AskAgentButton } from "./AskAgentButton";
 export { EditableTitle } from "./EditableTitle";
 export { UndoToast, UNDO_MS } from "./UndoToast";
