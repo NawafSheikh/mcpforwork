@@ -102,3 +102,17 @@ the place where that becomes a team's workday.
 - Actions are versioned recipes with parameters. Anyone proposes a change with a note; it runs
   as a trial, is measured against the records, and is kept only if it beats the current version.
   One change per round, keep only regression-free wins, the harness rule.
+
+### Recognising robots, bringing your own, building for all of them (29 Aug 2026)
+- Recognition is a manifest: the bridge's hello carries a robot profile (name, kind, coordinate
+  frame and units, capabilities, limits, sensors, safety features) and the page renders any
+  robot from it. Identity is a keypair generated once by the bridge; the fingerprint is the
+  robot's id across sessions and rooms; the owner is whoever runs the bridge.
+- A pack without a declared stop and boundary is never enabled.
+- Bring your own: an MCP server becomes a pack through the mcp-stdio adapter with no new code;
+  an HTTP, serial or Bluetooth controller through a small adapter template (five verbs, units,
+  limits); ROS 2 through a later adapter.
+- Building for robots: recipes are the unit of work (versioned, run records, kept only when
+  measured better). Skills are recipes plus conditions and a boundary, stored as JSON on the
+  board, shareable and portable by capability: a skill that needs walk and turn in centimetres
+  runs on any robot whose profile declares them. The room is the skill store.
