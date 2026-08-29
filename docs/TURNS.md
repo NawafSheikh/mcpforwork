@@ -1,5 +1,10 @@
 # Turns: who is working, whose input counts, what is being worked on
 
+Rule zero (29 Aug, Nawaf): no ceremony. Claims happen automatically on writes and release
+themselves; conflicts merge when fields do not overlap and are refused only on a true same-field
+clash, with the one-step fix in the message; people are never refused; nobody is asked for
+permission to proceed, only for decisions.
+
 Design for the collaborative workspace, 29 Aug 2026. Turns belong to objects, never to the
 room as a whole; nobody waits for a global lock.
 

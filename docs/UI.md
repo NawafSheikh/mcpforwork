@@ -4,6 +4,8 @@ Written 29 Aug 2026. The current shell is a dashboard app with collaboration bol
 redesign puts the collaboration in the frame and the objects in the middle.
 
 ## Principles
+0. Easy, useful, secure, gets things done. Fewer buttons, sensible defaults, one visible next
+   step. Agents act by default; humans get decisions and information, never gates.
 1. Who is here and what they are doing is always visible, never a popover.
 2. Every object shows its state of work: who holds it, who changed it last, what is asked of it.
 3. Agents and people use the same surface; the page tells each what to do next in plain words.
