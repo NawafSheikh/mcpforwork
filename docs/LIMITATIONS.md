@@ -40,6 +40,8 @@ where the edges are.
 - Better: accounts and named agents, persistent rooms with roles and history, a relay that
   can be self-hosted (the transport is already isolated behind one interface).
 
+- Observed 29 Aug: a capability card published while a keeper peer held the room was not shown to a browser that joined later ("No capability cards yet"), while categories and notes were. The capability entity likely misses the late-joiner snapshot path; verify src/rooms/snapshot.ts includes `capability` and `pack` kinds.
+
 ## What agents can and cannot notice
 - An agent only sees the board when it is called. A note left for it waits until someone
   prompts that agent, or until a scheduled task runs it. There is no push to an agent.
