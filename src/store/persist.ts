@@ -21,6 +21,14 @@ export function workspaceKey(mode: WorkspaceMode): string {
   return `mfw:workspace:${mode}`;
 }
 
+/**
+ * The key a board was saved under before the "demo" mode was renamed to "local".
+ * Read once, on a first load that finds nothing, and never written back to.
+ */
+export function legacyWorkspaceKey(mode: WorkspaceMode): string | undefined {
+  return mode === "local" ? "mfw:workspace:demo" : undefined;
+}
+
 function hasIndexedDb(): boolean {
   try {
     return typeof indexedDB !== "undefined" && indexedDB !== null;
@@ -33,6 +41,8 @@ export function createPersistence(
   key: string,
   enabled: boolean,
   onError?: PersistenceError,
+  /** Read when the main key holds nothing, so a rename does not lose a board. */
+  legacyKey?: string,
 ): Persistence {
   let usable = enabled && hasIndexedDb();
   const fail = (error: unknown, where: string): void => {
@@ -46,7 +56,9 @@ export function createPersistence(
     async load(): Promise<unknown> {
       if (!usable) return undefined;
       try {
-        return await idbGet(key);
+        const value = await idbGet(key);
+        if (value !== undefined || legacyKey === undefined) return value;
+        return await idbGet(legacyKey);
       } catch (error) {
         fail(error, "persist.load");
         return undefined;

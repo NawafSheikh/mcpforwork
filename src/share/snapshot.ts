@@ -155,7 +155,7 @@ export function fromSnapshot(raw: unknown, now: Date = new Date()): Workspace | 
   return {
     id: asText(rec.id, CAP.label, "ws_shared"),
     name: sharedName(rec.name),
-    mode: "demo",
+    mode: "local",
     categories: readCategories(rec.categories, at),
     ...(overview ? { overview } : {}),
     monitors: mapRecord(rec.monitors, CAP.monitors, (i) => coerceMonitor(i, at), (m) => m.id),

@@ -12,7 +12,7 @@ import { datasetToolSchemas } from "../schemas";
 import type { CellValue, DatasetTable, LoadedDataset } from "../types";
 
 const emptyWorkspace = (): Workspace =>
-  createWorkspaceStore({ mode: "demo", persist: false }).get();
+  createWorkspaceStore({ mode: "local", persist: false }).get();
 
 const load = (name: string, table: DatasetTable): LoadedDataset => ({
   table,

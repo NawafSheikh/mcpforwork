@@ -15,7 +15,7 @@ import { turnHandlers } from "../tools";
 import type { Chart, KPI, Workspace } from "../../types";
 
 function setup() {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const registry = createToolRegistry({
     store,
     handlers: { ...workspaceHandlers, ...monitorHandlers, ...turnHandlers },

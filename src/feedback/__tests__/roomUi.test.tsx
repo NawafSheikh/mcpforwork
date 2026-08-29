@@ -5,7 +5,6 @@ import { createWorkspaceStore } from "../../store/createStore";
 import { ShellProvider } from "../../shell/context";
 import { FeedbackBox } from "../ui/FeedbackBox";
 import { RoomRequests } from "../ui/RoomRequests";
-import { NameChip } from "../ui/NameChip";
 import { authorLabel, targetLabel } from "../ui/notes";
 import { ANY_ONE, ROOM_TARGET, addFeedback, resolveFeedback } from "../store";
 import { NAME_KEY, resetNameCache } from "../identity";
@@ -21,9 +20,9 @@ const statusStore = {
 };
 
 function paint(node: JSX.Element, seed: (ws: Workspace) => Workspace = (ws) => ws): string {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const initial = seed(store.get());
-  const seeded = createWorkspaceStore({ mode: "demo", persist: false, initial });
+  const seeded = createWorkspaceStore({ mode: "local", persist: false, initial });
   return renderToStaticMarkup(
     <ShellProvider store={seeded} statusStore={statusStore}>
       {node}
@@ -136,18 +135,5 @@ describe("RoomRequests", () => {
     });
     expect(html).toContain("Done (1)");
     expect(html).toContain("nothing open");
-  });
-});
-
-describe("NameChip", () => {
-  it("shows the default name when this browser has never said one", () => {
-    expect(paint(<NameChip />)).toContain("Someone");
-  });
-
-  it("shows the stored name and offers it for editing", () => {
-    globalThis.localStorage.setItem(NAME_KEY, "Maria");
-    const html = paint(<NameChip />);
-    expect(html).toContain("Maria");
-    expect(html).toContain("Your name on this board");
   });
 });

@@ -6,7 +6,6 @@ import { App } from "../../App";
 import { ShellProvider } from "../context";
 import { ToastProvider } from "../Toasts";
 import { createWorkspaceStore } from "../../store";
-import { sampleWorkspace } from "../../demo/sampleWorkspace";
 import { MonitorsTab } from "../tabs/MonitorsTab";
 import { ActivityTab } from "../tabs/ActivityTab";
 import { AboutTab } from "../tabs/AboutTab";
@@ -14,13 +13,13 @@ import type { Workspace } from "../../types";
 import { createWebmcp } from "../../webmcp";
 import { TOOL_NAMES } from "../../webmcp/schemas";
 import { monitorHandlers } from "../../monitors";
-import { seedDemoHandler } from "../../demo/sampleWorkspace";
 import { datasetHandlers } from "../../dataset/handlers";
 import { roomHandlers } from "../../rooms/handlers";
 import { turnHandlers } from "../../turns/tools";
 import { capabilityHandlers } from "../../capabilities/tools";
 import { workspaceHandlers } from "../../webmcp/handlers";
-import { SHOWCASE_ROOM, START_COLLABORATING } from "../lib/constants";
+import { AGENT_OFF, CONTROLS_HEADING, NAME_QUESTION } from "../lib/constants";
+import { filledBoard } from "./fixture";
 
 const statusStore = {
   get: () => ({ available: false, registered: 0 }),
@@ -29,7 +28,7 @@ const statusStore = {
 
 function shell(node: ReactNode, seeded?: Workspace): string {
   const store = createWorkspaceStore(
-    seeded ? { mode: "demo", initial: seeded, persist: false } : { mode: "demo", persist: false },
+    seeded ? { mode: "local", initial: seeded, persist: false } : { mode: "local", persist: false },
   );
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore}>
@@ -39,22 +38,31 @@ function shell(node: ReactNode, seeded?: Workspace): string {
 }
 
 describe("shell", () => {
-  it("renders the landing page on an empty board, with the rails around it", () => {
+  it("opens on the three first-run questions, with the rails around them", () => {
     const html = shell(<App />);
     expect(html).toContain("MCP for Work");
+    expect(html).toContain(NAME_QUESTION);
+    expect(html).toContain(AGENT_OFF);
+    expect(html).toContain(CONTROLS_HEADING);
     expect(html).toContain("group them into");
     expect(html).toContain("WebMCP not available");
-    // The live public room card sits above the hero, in the centre column.
-    expect(html).toContain(SHOWCASE_ROOM);
-    expect(html).toContain(START_COLLABORATING);
     // The rails are already there, and the empty members list explains rooms.
     expect(html).toContain("Members");
     expect(html).toContain("Places");
     expect(html).toContain("Press Invite");
   });
 
-  it("renders the sample board through the dsl", () => {
-    const html = shell(<App />, sampleWorkspace(new Date()));
+  it("keeps every sample and showcase entry point off the page", () => {
+    const html = shell(<App />);
+    expect(html).not.toContain("Live public room");
+    expect(html).not.toContain("Load sample workspace");
+    expect(html).not.toContain("See a finished example");
+    expect(html).not.toContain("Watch it build");
+    expect(html).not.toContain("Someone");
+  });
+
+  it("renders a filled board through the dsl", () => {
+    const html = shell(<App />, filledBoard());
     expect(html).toContain("mfw-dsl");
     // The board opens on the overview, with the categories as domain cards;
     // a single dashboard renders once a category is selected in the rail.
@@ -62,22 +70,24 @@ describe("shell", () => {
     expect(html).toContain("Invoices");
     // The categories are places in the left rail, not a second tab bar.
     expect(html).toContain("mfw-place");
+    expect(html).not.toContain(NAME_QUESTION);
   });
 
   it("renders monitors, drafts and a held clause", () => {
-    const html = shell(<MonitorsTab />, sampleWorkspace(new Date()));
+    const html = shell(<MonitorsTab />, filledBoard());
     expect(html).toContain("Approve");
     expect(html).toContain("Decline");
     expect(html).toContain("mfw-chip-held");
+    expect(html).not.toContain("Run now");
   });
 
   it("renders activity and about", () => {
-    expect(shell(<ActivityTab />, sampleWorkspace(new Date()))).toContain("mfw-event");
+    expect(shell(<ActivityTab />, filledBoard())).toContain("mfw-event");
     expect(shell(<AboutTab />)).toContain("Site tools");
   });
 
   it("keeps every feature one click away without a header button", () => {
-    const html = shell(<App />, sampleWorkspace(new Date()));
+    const html = shell(<App />, filledBoard());
     for (const label of ["Monitors", "Datasets", "Requests", "Activity", "About"]) {
       expect(html).toContain(label);
     }
@@ -90,11 +100,12 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 30 tools", () => {
-    const store = createWorkspaceStore({ mode: "demo", persist: false });
-    const bundle = createWebmcp({ store, handlers: { ...monitorHandlers, seed_demo_workspace: seedDemoHandler } });
-    expect(bundle.definitions.length).toBe(30);
-    expect(TOOL_NAMES.length).toBe(30);
+  it("publishes all 29 tools", () => {
+    const store = createWorkspaceStore({ mode: "local", persist: false });
+    const bundle = createWebmcp({ store, handlers: { ...monitorHandlers } });
+    expect(bundle.definitions.length).toBe(29);
+    expect(TOOL_NAMES.length).toBe(29);
+    expect(TOOL_NAMES).not.toContain("seed_demo_workspace");
   });
 
   it("leaves no tool without a handler", () => {
@@ -105,7 +116,6 @@ describe("shell wiring", () => {
       ...Object.keys(datasetHandlers),
       ...Object.keys(turnHandlers),
       ...Object.keys(capabilityHandlers),
-      "seed_demo_workspace",
     ]);
     expect(TOOL_NAMES.filter((name) => !wired.has(name))).toEqual([]);
   });

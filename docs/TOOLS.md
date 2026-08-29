@@ -1,12 +1,12 @@
 # WebMCP tool contract (MCP for Work)
 
-**30 tools**, in five sections: 19 board and monitor tools, 2 room tools, 4 dataset tools,
+**29 tools**, in five sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
 3 turn tools, 2 capability tools. They live in one registry and one name space
 (`src/webmcp/schemas.ts` merges `roomToolSchemas`, `datasetToolSchemas`, `turnToolSchemas`
-and `capabilityToolSchemas` into `toolSchemas`), so the header pill counts all 30 and the
+and `capabilityToolSchemas` into `toolSchemas`), so the header pill counts all 29 and the
 sections below are for reading, not for wiring.
 
-Every one of the 30 belongs to exactly one **pack**, and a pack has a switch on the page.
+Every one of the 29 belongs to exactly one **pack**, and a pack has a switch on the page.
 A tool whose pack is off is unregistered from `document.modelContext` and refused by the
 registry; see "## Packs" below.
 
@@ -40,7 +40,6 @@ set `untrustedContentHint: true`. All read tools set `readOnlyHint: true`.
 | list_feedback | yes | {target?: {kind, id}, includeResolved?: boolean} | none | JSON rows: id, target, `for` (the same target, under the name an addressed note reads by), `from`, `author`, `authorKind` ("person" or "agent"), text, createdAt, resolved, and `addressedTo` on notes handed to an agent. Open notes newest first, agent-addressed ones included; pass `caller` and the notes addressed to that name, or to "*", come first. Rows are dropped from the end until the JSON fits the budget. (untrustedContentHint) |
 | resolve_feedback | no | {feedbackId, resolution: string(..200)} | mark resolved by agent | confirmation, naming `from` when the note was signed |
 | share_board | yes | {} | none | a read-only snapshot URL of the current board (state compressed into the URL fragment, never sent to a server) |
-| seed_demo_workspace | no | {} | demo mode only: load the sample workspace | confirmation |
 | clear_workspace | no | {confirm: true} | wipe categories, overview, monitors, runs, drafts (audit kept) | confirmation |
 
 ### Feedback targets: the board, and the people on it
@@ -153,7 +152,7 @@ exactly `TOOL_NAMES`, each name once, so a tool can never end up with no switch 
 
 | Pack | Risk | Tools | What it is |
 |---|---|---|---|
-| board | write | 8: get_workspace, create_category, upsert_dataset_summary, upsert_dashboard, get_dashboard, compose_overview, seed_demo_workspace, clear_workspace | categories, dashboards and the overview |
+| board | write | 7: get_workspace, create_category, upsert_dataset_summary, upsert_dashboard, get_dashboard, compose_overview, clear_workspace | categories, dashboards and the overview |
 | datasets | write | 4: list_datasets, get_dataset_profile, aggregate_dataset, attach_dataset_to_category | profile and aggregate dropped files; rows never leave the browser |
 | notes | write | 3: add_feedback, list_feedback, resolve_feedback | requests in all four directions |
 | turns | write | 3: claim, release, list_claims | claims and versions |

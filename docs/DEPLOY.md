@@ -1,6 +1,6 @@
 # Deploy
 
-MCP for Work is a static single-page app. It has no server of its own: demo mode runs
+MCP for Work is a static single-page app. It has no server of its own: local mode runs
 entirely in the browser, and live mode talks straight to `https://clawai.eu/api/coc/*`
 with a Supabase bearer token, which works cross-origin because that API sends
 `Access-Control-Allow-Origin: *`.
@@ -11,7 +11,7 @@ Build output is `dist/`. Anything that can serve a folder with an SPA fallback w
 
 ## 1. Environment variables
 
-Demo mode needs none. Live mode reads three, all at build time (Vite inlines `VITE_*`
+Local mode needs none. Live mode reads three, all at build time (Vite inlines `VITE_*`
 into the bundle, so treat them as public values):
 
 | Name | Required | Default | What it is |
@@ -178,7 +178,7 @@ Two things to remember for a subpath deploy:
 - [ ] `https://<host>/` loads and the WebMCP status pill says tools are registered.
 - [ ] A deep link such as `https://<host>/monitors` renders the app, not a 404.
 - [ ] `curl -sI https://<host>/ | grep -i content-security-policy` matches `index.html`.
-- [ ] Demo mode: the seed button fills the board, with no network call to clawai.
+- [ ] Local mode: the board opens empty, and no network call goes to clawai.
 - [ ] Live mode: sign in with email and password inside the ChatGPT desktop browser,
       which is a separate storage partition from the normal browser, so the sign-in has
       to happen there. OAuth redirect flows are the fragile part; password and one-time

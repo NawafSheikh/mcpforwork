@@ -1,12 +1,10 @@
 /** One monitor: schedule, next run, policy summary, run history, policy editor. */
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import type { Monitor, MonitorRun } from "../../types";
-import { runMonitorNow } from "../adapters/monitors";
 import { describePolicyText } from "../adapters/policy";
 import { ClaimBadge } from "../../turns/ui";
-import { useShell, useWorkspace } from "../context";
+import { useWorkspace } from "../context";
 import { formatClock, formatRelative } from "../lib/format";
-import { useToast } from "../Toasts";
 import { PolicyEditor } from "./PolicyEditor";
 
 function RunHistory({ runs }: { readonly runs: readonly MonitorRun[] }): JSX.Element {
@@ -46,17 +44,10 @@ function MonitorFacts({ monitor }: { readonly monitor: Monitor }): JSX.Element {
 }
 
 export function MonitorCard({ monitor }: { readonly monitor: Monitor }): JSX.Element {
-  const { store } = useShell();
   const workspace = useWorkspace();
-  const push = useToast();
   const [showPolicy, setShowPolicy] = useState(false);
 
   const runs = [...workspace.runs].filter((run) => run.monitorId === monitor.id).reverse().slice(0, 3);
-
-  const onRunNow = useCallback(async () => {
-    await runMonitorNow(store, monitor.id);
-    push(`${monitor.name} reported back.`, "ok");
-  }, [store, monitor.id, monitor.name, push]);
 
   return (
     <article className="mfw-card mfw-monitor">
@@ -77,11 +68,6 @@ export function MonitorCard({ monitor }: { readonly monitor: Monitor }): JSX.Ele
       {monitor.policy.notes ? <p className="mfw-muted">{monitor.policy.notes}</p> : null}
       <RunHistory runs={runs} />
       <div className="mfw-row-actions">
-        {workspace.mode === "demo" ? (
-          <button type="button" className="mfw-btn" onClick={onRunNow}>
-            Run now
-          </button>
-        ) : null}
         <button type="button" className="mfw-btn mfw-btn-ghost" onClick={() => setShowPolicy((open) => !open)}>
           {showPolicy ? "Hide policy" : "Edit policy"}
         </button>

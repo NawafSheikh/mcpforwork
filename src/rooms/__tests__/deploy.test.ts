@@ -66,8 +66,8 @@ describe("a relay the browser refuses to connect to", () => {
 
 describe("the room-scoped board survives a reload", () => {
   it("re-keys persistence when a room opens mid-session instead of copying once", async () => {
-    const store = createWorkspaceStore({ mode: "demo", persist: false });
-    expect(store.key).toBe("mfw:workspace:demo");
+    const store = createWorkspaceStore({ mode: "local", persist: false });
+    expect(store.key).toBe("mfw:workspace:local");
     await store.rekey(roomStoreKey("abc123"));
     expect(store.key).toBe("mfw:workspace:room:abc123");
     store.dispose();
@@ -75,7 +75,7 @@ describe("the room-scoped board survives a reload", () => {
 
   it("is a no-op when the page already booted on that slug, so hydration is safe", async () => {
     const key = roomStoreKey("abc123");
-    const store = createWorkspaceStore({ mode: "demo", persist: false, key });
+    const store = createWorkspaceStore({ mode: "local", persist: false, key });
     await store.rekey(key);
     expect(store.key).toBe(key);
     store.dispose();

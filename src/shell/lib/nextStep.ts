@@ -6,9 +6,20 @@
  * text in (from src/prompts, so a visitor's own edit of a prompt is what they copy).
  */
 
-export type NextStepId = "starter" | "requests" | "drafts" | "invite" | "steady";
+export type NextStepId =
+  | "name"
+  | "connect"
+  | "starter"
+  | "requests"
+  | "drafts"
+  | "invite"
+  | "steady";
 
 export interface NextStepInput {
+  /** False until somebody typed a name on this browser. */
+  readonly hasName: boolean;
+  /** True when this page is running somewhere an agent can call its tools. */
+  readonly connected: boolean;
   readonly emptyBoard: boolean;
   readonly openRequests: number;
   readonly heldDrafts: number;
@@ -28,17 +39,40 @@ export interface NextStepCard {
   readonly body: string;
   /** Text to paste into ChatGPT, when there is one. */
   readonly prompt?: string;
+  /** The path into the ChatGPT desktop browser, when that is the step. */
+  readonly steps?: readonly string[];
+  /** Set when the step is answered by a field on the page rather than by a prompt. */
+  readonly focus?: string;
 }
+
+import { CHATGPT_STEPS, NAME_INPUT_ID } from "./constants";
 
 const CHECK_FEEDBACK =
   "On mcpforwork.com, call list_feedback, do what the open notes ask, then call " +
   "resolve_feedback for each one with a line saying what you did.";
 
 /**
- * Order matters and it is the order of the work: fill an empty board, answer what was
- * asked of you, decide what is held, then bring somebody else in.
+ * Order matters and it is the order of the first hour: say who you are, get an agent
+ * onto the page, fill an empty board, answer what was asked of you, decide what is
+ * held, then bring somebody else in.
  */
 export function nextStep(input: NextStepInput, prompts: NextStepPrompts): NextStepCard {
+  if (!input.hasName) {
+    return {
+      id: "name",
+      title: "Tell us your name",
+      body: "It signs your notes and your presence in a room, and it stays in this browser.",
+      focus: NAME_INPUT_ID,
+    };
+  }
+  if (!input.connected) {
+    return {
+      id: "connect",
+      title: "Open this page inside ChatGPT desktop",
+      body: "Nothing here can call a tool until your ChatGPT is on the other end of this page.",
+      steps: CHATGPT_STEPS,
+    };
+  }
   if (input.emptyBoard) {
     return {
       id: "starter",

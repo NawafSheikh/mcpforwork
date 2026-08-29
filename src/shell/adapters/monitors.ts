@@ -1,16 +1,15 @@
 /**
- * ADAPTER: monitor actions and the demo scheduler. Wired to src/monitors (A3).
+ * ADAPTER: monitor actions. Wired to src/monitors (A3).
  * Human decisions go through humanDecide, so they are audited as actor "human".
+ * There is no local run simulator: a run only exists when an agent reports one.
  */
 import { displayName } from "../../feedback";
-import { humanDecide, set_policy, simulateRun, startDemoScheduler } from "../../monitors";
+import { humanDecide, set_policy } from "../../monitors";
 import { humanWrite } from "../../turns";
 import type { Policy, Workspace, WorkspaceStore } from "../../types";
 import { withAudit } from "./store";
 
 export type HumanDecision = "approved" | "declined";
-
-const DEMO_TICK_MS = 20_000;
 
 /**
  * A human decision always lands: the approve button is never disabled, and deciding a
@@ -52,12 +51,3 @@ export async function setMonitorPolicy(
   return outcome.result;
 }
 
-/** Demo only: make a monitor report back right now. */
-export async function runMonitorNow(store: WorkspaceStore, monitorId: string): Promise<void> {
-  const now = new Date();
-  await store.update((current) => simulateRun(current, monitorId, now));
-}
-
-export function startScheduler(store: WorkspaceStore): () => void {
-  return startDemoScheduler(store, { tickMs: DEMO_TICK_MS });
-}

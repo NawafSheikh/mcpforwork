@@ -10,6 +10,7 @@ import type { PresenceState, RoomPeer } from "../../rooms";
 import type { AuditEvent, Category, Workspace } from "../../types";
 import { EVERYONE, groupFeed, peerOf } from "../lib/feed";
 import { buildMembers } from "../lib/members";
+import { controlRows } from "../lib/controls";
 import { nextStep } from "../lib/nextStep";
 import { placeForEvent, placeRows, samePlace } from "../lib/places";
 import { pulseFor } from "../lib/pulse";
@@ -27,7 +28,7 @@ function category(name: string, rows: number): Category {
 }
 
 function board(): Workspace {
-  const base = emptyWorkspace("demo");
+  const base = emptyWorkspace("local");
   return {
     ...base,
     categories: { Invoices: category("Invoices", 30), Tickets: category("Tickets", 10) },
@@ -196,7 +197,15 @@ describe("the pulse on a card", () => {
 });
 
 describe("the next step card", () => {
-  const base = { emptyBoard: false, openRequests: 0, heldDrafts: 0, inRoom: false, people: 1 };
+  const base = {
+    hasName: true,
+    connected: true,
+    emptyBoard: false,
+    openRequests: 0,
+    heldDrafts: 0,
+    inRoom: false,
+    people: 1,
+  };
 
   it("starts an empty board with the starter prompt", () => {
     const card = nextStep({ ...base, emptyBoard: true }, PROMPTS);
@@ -230,6 +239,61 @@ describe("the next step card", () => {
   it("puts the board before everything else", () => {
     expect(nextStep({ ...base, emptyBoard: true, openRequests: 4 }, PROMPTS).id).toBe("starter");
   });
+
+  it("asks for a name before anything else, and offers a field not a prompt", () => {
+    const card = nextStep({ ...base, hasName: false, emptyBoard: true, heldDrafts: 2 }, PROMPTS);
+    expect(card.id).toBe("name");
+    expect(card.prompt).toBeUndefined();
+    expect(card.focus).toBeDefined();
+  });
+
+  it("sends a named visitor into ChatGPT desktop with the steps", () => {
+    const card = nextStep({ ...base, connected: false, emptyBoard: true }, PROMPTS);
+    expect(card.id).toBe("connect");
+    expect(card.steps?.length).toBeGreaterThan(0);
+  });
+});
+
+describe("what you control", () => {
+  const input = {
+    categories: 0,
+    monitors: 0,
+    toolsOn: 29,
+    toolsTotal: 29,
+    packsOn: 6,
+    packsTotal: 6,
+    room: null,
+    people: 1,
+    datasets: 0,
+  };
+
+  it("says empty when the board is empty, and never invents a number", () => {
+    const rows = controlRows(input);
+    expect(rows.map((row) => row.id)).toEqual(["board", "guardrails", "tools", "rooms", "data"]);
+    expect(rows[0]?.state).toBe("empty, your agent builds it");
+    expect(rows[1]?.state).toBe("no monitors yet");
+    expect(rows[2]?.state).toBe("29 tools in 6 packs, all on");
+    expect(rows[3]?.state).toBe("only this browser");
+    expect(rows[4]?.state).toBe("nothing dropped");
+  });
+
+  it("counts what is there once there is something there", () => {
+    const rows = controlRows({
+      ...input,
+      categories: 4,
+      monitors: 1,
+      toolsOn: 21,
+      packsOn: 5,
+      room: "Q3 close",
+      people: 2,
+      datasets: 3,
+    });
+    expect(rows[0]?.state).toBe("4 categories");
+    expect(rows[1]?.state).toBe("1 monitor");
+    expect(rows[2]?.state).toBe("21 of 29 tools, 5 of 6 packs on");
+    expect(rows[3]?.state).toBe("Q3 close, 2 members");
+    expect(rows[4]?.state).toBe("3 datasets");
+  });
 });
 
 describe("the room line", () => {
@@ -241,7 +305,7 @@ describe("the room line", () => {
   });
 
   it("knows an empty board from a working one", () => {
-    expect(boardIsEmpty(emptyWorkspace("demo"))).toBe(true);
+    expect(boardIsEmpty(emptyWorkspace("local"))).toBe(true);
     expect(boardIsEmpty(board())).toBe(false);
   });
 });

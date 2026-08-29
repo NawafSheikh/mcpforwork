@@ -6,7 +6,7 @@ import { addFeedback, openFeedback, resolveFeedback, resolvedFeedback } from "..
 const dashboard: FeedbackTarget = { kind: "dashboard", id: "Invoices" };
 const overview: FeedbackTarget = { kind: "overview", id: "overview" };
 
-const base = (): Workspace => emptyWorkspace("demo", "2026-08-28T09:00:00.000Z");
+const base = (): Workspace => emptyWorkspace("local", "2026-08-28T09:00:00.000Z");
 
 const only = (ws: Workspace): Feedback => {
   const items = Object.values(ws.feedback);

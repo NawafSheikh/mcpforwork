@@ -28,8 +28,8 @@ describe("pack registry", () => {
     expect(new Set(PACK_TOOL_NAMES).size).toBe(PACK_TOOL_NAMES.length);
   });
 
-  it("publishes 30 tools in six packs", () => {
-    expect(TOOL_NAMES).toHaveLength(30);
+  it("publishes 29 tools in six packs", () => {
+    expect(TOOL_NAMES).toHaveLength(29);
     expect(BUILT_IN_PACKS).toHaveLength(6);
     expect(BUILT_IN_PACKS.map((pack) => pack.id)).toEqual([...PACK_IDS]);
   });

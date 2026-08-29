@@ -19,7 +19,7 @@ import { setPackState } from "../state";
 const AT = "2026-08-29T10:00:00.000Z";
 const LATER = "2026-08-29T10:05:00.000Z";
 
-const board = (): Workspace => emptyWorkspace("demo", AT);
+const board = (): Workspace => emptyWorkspace("local", AT);
 
 const withCard = (ws: Workspace, name: string, knows: readonly string[]): Workspace =>
   publishCapability(ws, {

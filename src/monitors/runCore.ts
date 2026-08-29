@@ -1,6 +1,6 @@
 /**
  * The one path a monitor run takes, whether the findings came from a real
- * agent (report_monitor_run) or from the demo simulator. Every draft goes
+ * agent (report_monitor_run). Every draft goes
  * through the policy engine in order, and the auto counter carries forward so
  * maxAutoActionsPerRun is enforced across the whole run.
  */

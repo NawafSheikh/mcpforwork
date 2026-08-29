@@ -1,25 +1,46 @@
 /**
- * The rendered half of the new shell: the three columns, the phone tab bar, and the
- * cards that tell a person and their agent the same thing at the same time.
+ * The rendered half of the shell: the three columns, the phone tab bar, and the cards
+ * that tell a person and their agent the same thing at the same time.
  */
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
 import { App } from "../../App";
-import { sampleWorkspace } from "../../demo/sampleWorkspace";
+import { NAME_KEY, resetNameCache, setDisplayName } from "../../feedback";
 import { emptyWorkspace, createWorkspaceStore } from "../../store";
 import type { DraftAction, Workspace } from "../../types";
 import { ShellProvider } from "../context";
 import { ToastProvider } from "../Toasts";
 import { NavProvider } from "../nav";
-import { PHONE_LABELS, PHONE_PANES, ROBOT_STATUS, SHOWCASE_UNKNOWN } from "../lib/constants";
+import {
+  AGENT_HEADING,
+  AGENT_OFF,
+  AGENT_ON,
+  CONTROLS_HEADING,
+  NAME_QUESTION,
+  PHONE_LABELS,
+  PHONE_PANES,
+} from "../lib/constants";
 import { LeftRail } from "../rail/LeftRail";
 import { RightPanel } from "../live/RightPanel";
 import { RequestsPage } from "../center/RequestsPage";
 import { DatasetsPage } from "../center/DatasetsPage";
-import { LandingPage, robotLine } from "../center/LandingPage";
+import { LandingPage } from "../center/LandingPage";
 import { Center } from "../center/Center";
 import type { Place } from "../lib/places";
+import { filledBoard } from "./fixture";
+
+function forgetName(): void {
+  resetNameCache();
+  try {
+    globalThis.localStorage?.removeItem(NAME_KEY);
+  } catch {
+    /* no storage under the test renderer, which reads the same as an empty one */
+  }
+}
+
+beforeEach(forgetName);
+afterEach(forgetName);
 
 const statusStore = (available = false, registered = 0) => ({
   get: () => ({ available, registered }),
@@ -28,7 +49,7 @@ const statusStore = (available = false, registered = 0) => ({
 
 function frame(node: ReactNode, seeded?: Workspace, available = false, at?: Place): string {
   const store = createWorkspaceStore(
-    seeded ? { mode: "demo", initial: seeded, persist: false } : { mode: "demo", persist: false },
+    seeded ? { mode: "local", initial: seeded, persist: false } : { mode: "local", persist: false },
   );
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore(available, available ? 28 : 0)}>
@@ -51,7 +72,7 @@ const HELD: DraftAction = {
 };
 
 function withHeldDraft(): Workspace {
-  const base = emptyWorkspace("demo");
+  const base = emptyWorkspace("local");
   return {
     ...base,
     categories: {
@@ -65,7 +86,7 @@ describe("the phone layout", () => {
   it("puts a bottom tab bar on the page with the four panes", () => {
     const html = renderToStaticMarkup(
       <ShellProvider
-        store={createWorkspaceStore({ mode: "demo", persist: false })}
+        store={createWorkspaceStore({ mode: "local", persist: false })}
         statusStore={statusStore()}
       >
         <App />
@@ -73,21 +94,36 @@ describe("the phone layout", () => {
     );
 
     expect(html).toContain("mfw-phonetabs");
-    expect(html).toContain('data-pane="board"');
+    expect(html).toContain("data-pane=\"board\"");
     for (const pane of PHONE_PANES) expect(html).toContain(PHONE_LABELS[pane]);
   });
 });
 
 describe("the next step card", () => {
-  it("leads with the starter prompt on a cold board", () => {
+  it("asks for a name before anything else on a first run", () => {
     const html = frame(<RightPanel />);
     expect(html).toContain("Next step");
+    expect(html).toContain("Tell us your name");
+    expect(html).not.toContain("Start the board");
+  });
+
+  it("sends a named visitor into ChatGPT desktop, with the steps", () => {
+    setDisplayName("Maria");
+    const html = frame(<RightPanel />);
+    expect(html).toContain("Open this page inside ChatGPT desktop");
+    expect(html).toContain("Toggle side panel");
+  });
+
+  it("leads with the starter prompt on a cold board inside ChatGPT", () => {
+    setDisplayName("Maria");
+    const html = frame(<RightPanel />, undefined, true);
     expect(html).toContain("Start the board");
     expect(html).toContain("group them into");
   });
 
   it("switches to the approve-all prompt when policy is holding something", () => {
-    const html = frame(<RightPanel />, withHeldDraft());
+    setDisplayName("Maria");
+    const html = frame(<RightPanel />, withHeldDraft(), true);
     expect(html).toContain("held for a decision");
     expect(html).toContain("including the ones marked held");
   });
@@ -108,6 +144,21 @@ describe("the left rail", () => {
     expect(html).toContain("Invoices");
     expect(html).toContain("Monitors");
   });
+
+  it("outside a room lists you and your agent, and nobody invented", () => {
+    const html = frame(<LeftRail />);
+    expect(html).toContain("You");
+    expect(html).toContain(AGENT_HEADING);
+    expect(html).toContain("not connected");
+    expect(html).not.toContain("Someone");
+  });
+
+  it("uses the typed name and says the agent is here", () => {
+    setDisplayName("Maria");
+    const html = frame(<LeftRail />, undefined, true);
+    expect(html).toContain("Maria");
+    expect(html).toContain("ChatGPT");
+  });
 });
 
 describe("the requests page", () => {
@@ -126,26 +177,42 @@ describe("the datasets page", () => {
   });
 });
 
-describe("the landing page", () => {
-  it("puts the live room card above the hero, with the robot on it", () => {
+describe("the first run", () => {
+  it("asks the name, says the agent is missing, and lists what you control", () => {
     const html = frame(<LandingPage />);
-    expect(html).toContain("Live public room");
-    expect(html).toContain(SHOWCASE_UNKNOWN);
-    expect(html).toContain(robotLine());
-    expect(html).toContain(ROBOT_STATUS.name);
-    expect(html).toContain("A workspace for people and their agents");
+    expect(html).toContain(NAME_QUESTION);
+    expect(html).toContain(AGENT_OFF);
+    expect(html).toContain("Toggle side panel");
+    expect(html).toContain(CONTROLS_HEADING);
+    for (const row of ["Board", "Guardrails", "Tools", "Rooms", "Data"]) {
+      expect(html).toContain(row);
+    }
+    expect(html).toContain("empty, your agent builds it");
+    expect(html).toContain("no monitors yet");
+    expect(html).toContain("29 tools in 6 packs, all on");
+    expect(html).toContain("only this browser");
+    expect(html).toContain("nothing dropped");
   });
 
-  it("drops the room card inside ChatGPT and says the agent is in the room", () => {
+  it("drops the steps inside ChatGPT and leads with the prompt", () => {
     const html = frame(<LandingPage />, undefined, true);
-    expect(html).toContain("Your agent is in the room");
+    expect(html).toContain(AGENT_ON);
+    expect(html).toContain("Copy the starter prompt");
+    expect(html).not.toContain("Toggle side panel");
+  });
+
+  it("carries no sample board, no showcase room and no replay", () => {
+    const html = frame(<LandingPage />);
     expect(html).not.toContain("Live public room");
+    expect(html).not.toContain("See a finished example");
+    expect(html).not.toContain("Load sample workspace");
+    expect(html).not.toContain("Watch it build");
   });
 });
 
 describe("the centre column", () => {
   it("opens one category with its dashboard and the turn toggle", () => {
-    const html = frame(<Center />, sampleWorkspace(new Date()), false, {
+    const html = frame(<Center />, filledBoard(), false, {
       kind: "category",
       name: "Invoices",
     });
@@ -159,6 +226,6 @@ describe("the centre column", () => {
   it("keeps the monitors page reachable on a cold board", () => {
     const html = frame(<Center />, undefined, false, { kind: "monitors" });
     expect(html).toContain("Approval queue");
-    expect(html).not.toContain("Live public room");
+    expect(html).not.toContain(NAME_QUESTION);
   });
 });

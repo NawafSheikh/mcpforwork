@@ -2,7 +2,11 @@
 import type { Workspace } from "../../types";
 
 /** Names the store hands out before anybody renamed anything. */
-export const DEFAULT_WORKSPACE_NAMES: readonly string[] = ["Demo workspace", "Live workspace"];
+export const DEFAULT_WORKSPACE_NAMES: readonly string[] = [
+  "Local workspace",
+  "Demo workspace",
+  "Live workspace",
+];
 
 /** The name in the top bar: the board's own name, the slug, or the local board. */
 export function roomTitle(workspace: Workspace, slug: string | null): string {

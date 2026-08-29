@@ -17,7 +17,7 @@ const monitor: Monitor = {
   name: "Invoice watch",
   category: "Invoices",
   schedule: "every morning at 08:00",
-  runner: "demo",
+  runner: "local",
   status: "active",
   createdAt: "2026-08-28T06:00:00.000Z",
   policy: {
@@ -30,7 +30,7 @@ const monitor: Monitor = {
 };
 
 function paint(): string {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore}>
       <ToastProvider>

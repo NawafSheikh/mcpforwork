@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 function registry() {
-  live = createWorkspaceStore({ mode: "demo", persist: false });
+  live = createWorkspaceStore({ mode: "local", persist: false });
   return {
     store: live,
     tools: createToolRegistry({
@@ -115,7 +115,7 @@ describe("capability tools", () => {
 
 describe("capability state", () => {
   it("keeps the newest card first and caps how many it holds", () => {
-    let ws = createWorkspaceStore({ mode: "demo", persist: false }).get();
+    let ws = createWorkspaceStore({ mode: "local", persist: false }).get();
     for (let index = 0; index < LIMITS.maxCapabilities + 5; index += 1) {
       ws = publishCapability(ws, {
         ...card(`agent-${index}`),

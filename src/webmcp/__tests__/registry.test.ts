@@ -20,7 +20,7 @@ function descriptions(node: unknown, found: string[] = []): string[] {
 }
 
 const setup = (extra?: HandlerMap, maxCallsPerMinute?: number) => {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const registry = createToolRegistry({
     store,
     handlers: { ...workspaceHandlers, ...extra },
@@ -77,7 +77,7 @@ describe("tool registry", () => {
 
     expect(result).toContain("not wired yet");
     expect(registry.wired()).not.toContain("report_monitor_run");
-    expect(registry.names()).toHaveLength(30);
+    expect(registry.names()).toHaveLength(29);
   });
 
   it("names an unknown tool instead of throwing", async () => {
@@ -101,7 +101,7 @@ describe("tool registry", () => {
     const { registry } = setup();
     const definitions = createToolDefinitions(registry);
 
-    expect(definitions).toHaveLength(30);
+    expect(definitions).toHaveLength(29);
     for (const definition of definitions) {
       expect(definition.description.length).toBeLessThanOrEqual(LIMITS.toolDescriptionChars);
       expect(definition.inputSchema).toHaveProperty("type", "object");

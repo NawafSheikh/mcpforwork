@@ -173,7 +173,6 @@ export const toolSchemas = {
     resolution: z.string().min(1).max(200),
   }),
   share_board: emptyInput,
-  seed_demo_workspace: emptyInput,
   clear_workspace: tool({
     confirm: z.literal(true),
   }),
@@ -217,7 +216,6 @@ export type AddFeedbackInput = ToolInputs["add_feedback"];
 export type ListFeedbackInput = ToolInputs["list_feedback"];
 export type ResolveFeedbackInput = ToolInputs["resolve_feedback"];
 export type ShareBoardInput = ToolInputs["share_board"];
-export type SeedDemoWorkspaceInput = ToolInputs["seed_demo_workspace"];
 export type ClearWorkspaceInput = ToolInputs["clear_workspace"];
 export type ClaimInput = ToolInputs["claim"];
 export type ReleaseInput = ToolInputs["release"];

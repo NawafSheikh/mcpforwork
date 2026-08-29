@@ -16,7 +16,7 @@ import type { RoomMessage } from "../types";
 const T1 = "2026-08-28T10:00:00.000Z";
 
 function store(): PersistentWorkspaceStore {
-  return createWorkspaceStore({ mode: "demo", persist: false });
+  return createWorkspaceStore({ mode: "local", persist: false });
 }
 
 function category(name: string, description: string): Category {

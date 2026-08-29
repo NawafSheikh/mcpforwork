@@ -49,7 +49,6 @@ const TOOL_PHRASES: Readonly<Record<string, string>> = {
   approve_draft: "ChatGPT approved a draft",
   decline_draft: "ChatGPT declined a draft",
   set_policy: "Policy updated",
-  seed_demo_workspace: "Sample workspace loaded",
   clear_workspace: "Workspace cleared",
 };
 

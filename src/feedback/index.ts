@@ -1,14 +1,13 @@
 /**
  * Public surface of the feedback module. Other modules import from here, never from
  * the files: the store helpers for anything that holds a Workspace, FeedbackBox for
- * anything that renders one, RoomRequests and NameChip for the room-wide thread.
+ * anything that renders one, RoomRequests for the room-wide thread.
  */
 
 export { FeedbackBox } from "./ui/FeedbackBox";
 export type { FeedbackBoxProps } from "./ui/FeedbackBox";
 export { RoomRequests } from "./ui/RoomRequests";
-export { NameChip, useDisplayName } from "./ui/NameChip";
-export type { NameChipProps } from "./ui/NameChip";
+export { useDisplayName } from "./ui/useDisplayName";
 export { authorLabel, targetLabel } from "./ui/notes";
 export {
   DEFAULT_NAME,

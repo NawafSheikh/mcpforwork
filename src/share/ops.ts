@@ -37,7 +37,7 @@ import {
 } from "./coerce";
 
 const OPS: readonly ThresholdOp[] = ["gt", "gte", "lt", "lte", "eq"];
-const RUNNERS: readonly Runner[] = ["local", "cloud", "demo"];
+const RUNNERS: readonly Runner[] = ["local", "cloud"];
 const STATUSES: readonly DraftStatus[] = ["pending", "held", "approved", "declined", "auto"];
 const DECIDERS: readonly Decider[] = ["human", "agent", "policy"];
 const ACTORS: readonly Actor[] = ["agent", "human", "system"];
@@ -109,7 +109,7 @@ export function coerceMonitor(raw: unknown, at: string): Monitor | null {
     category: asText(rec.category, CAP.name, "Uncategorised"),
     schedule: asText(rec.schedule, CAP.schedule, "on demand"),
     policy: coercePolicy(rec.policy),
-    runner: asEnum(rec.runner, RUNNERS, "demo"),
+    runner: asEnum(rec.runner, RUNNERS, "local"),
     status: asEnum(rec.status, ["active", "paused"] as const, "active"),
     createdAt: asIso(rec.createdAt, at),
     ...(lastRunAt ? { lastRunAt } : {}),
@@ -127,7 +127,7 @@ export function coerceRun(raw: unknown, at: string): MonitorRun | null {
   return {
     id,
     monitorId,
-    runner: asEnum(rec.runner, RUNNERS, "demo"),
+    runner: asEnum(rec.runner, RUNNERS, "local"),
     startedAt: asIso(rec.startedAt, at),
     findings: asStringList(rec.findings, CAP.findings, CAP.summary),
     draftIds: asStringList(rec.draftIds, CAP.draftIds, CAP.label),

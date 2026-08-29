@@ -322,7 +322,6 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
     ["feedbackId", "resolution"],
   ),
   share_board: EMPTY,
-  seed_demo_workspace: EMPTY,
   clear_workspace: object(
     {
       confirm: {

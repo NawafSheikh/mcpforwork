@@ -37,7 +37,7 @@ afterEach(() => {
 /** Join a room, then optionally put one more browser in it with a chosen client id. */
 function room(peerId?: string): Live {
   const hub = createMemoryHub();
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   configureRooms({ store, label: "Ana", transport: (slug) => hub.transport(slug) });
   const joined = joinRoom(SLUG);
   if (isJoinFailure(joined)) throw new Error(`could not open the test room: ${joined}`);
@@ -45,7 +45,7 @@ function room(peerId?: string): Live {
     live = { store, room: joined, peer: null, peerStore: null };
     return live;
   }
-  const peerStore = createWorkspaceStore({ mode: "demo", persist: false });
+  const peerStore = createWorkspaceStore({ mode: "local", persist: false });
   const peer = startRoomSync({
     store: peerStore,
     slug: SLUG,
@@ -64,7 +64,7 @@ describe("who may switch", () => {
   });
 
   it("lets the person decide on a board that is not in a room", async () => {
-    const store = createWorkspaceStore({ mode: "demo", persist: false });
+    const store = createWorkspaceStore({ mode: "local", persist: false });
     const packs = createPackController(store);
 
     expect(inRoom()).toBe(false);

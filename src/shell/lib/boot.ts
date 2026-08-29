@@ -4,7 +4,7 @@
  * Two kinds of room, and the difference is one character after the "#":
  * - a link with a key (#k=) is an encrypted room, which is every room Invite mints;
  * - a link with a slug and no key is a PUBLIC room (docs/UI.md), unencrypted by design,
- *   which is how the showcase room on the landing page can be opened by a stranger.
+ *   which is how a public room link posted anywhere can be opened by a stranger.
  *
  * A public room is not a broken link, so this never refuses to boot: the page joins,
  * registers its site tools and says "Public room" in the top bar. The only locked state

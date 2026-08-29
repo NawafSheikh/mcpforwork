@@ -1,16 +1,14 @@
 /**
  * The board's own actions, kept out of the room's buttons: a snapshot link, the prompt
- * library, the backup file, the way into the ChatGPT browser and the sample board.
+ * library, the backup file and the way into the ChatGPT browser.
  * Nothing here is the only route to a feature; each one has a home in the columns too.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Backup, PromptLibrary } from "../../prompts";
 import { buildShareUrl } from "../../share";
-import { seedSampleWorkspace } from "../adapters/demo";
-import { useShell, useWorkspace } from "../context";
+import { useWorkspace } from "../context";
 import { copyText } from "../lib/clipboard";
 import { CHATGPT_STEPS, CHATGPT_STEPS_NOTE } from "../lib/constants";
-import { useToast } from "../Toasts";
 import { Popover } from "./Popover";
 
 const COPIED_MS = 2000;
@@ -52,32 +50,14 @@ function ShareButton(): JSX.Element {
   );
 }
 
-function SampleButton(): JSX.Element | null {
-  const { store } = useShell();
-  const workspace = useWorkspace();
-  const push = useToast();
-  const onSample = useCallback(async () => {
-    await seedSampleWorkspace(store);
-    push("Sample workspace loaded. Everything here is synthetic.", "ok");
-  }, [store, push]);
-
-  if (workspace.mode !== "demo") return null;
-  return (
-    <button type="button" className="mfw-btn" onClick={() => void onSample()}>
-      Load sample workspace
-    </button>
-  );
-}
-
 export function MoreMenu(): JSX.Element {
   return (
-    <Popover label="Board" title="Snapshot, prompts, backup and the sample board" panelClass="mfw-pop--more">
+    <Popover label="Board" title="Snapshot, prompts and backup" panelClass="mfw-pop--more">
       <h4>This board</h4>
       <div className="mfw-pop__actions">
         <ShareButton />
         <PromptLibrary />
         <Backup />
-        <SampleButton />
       </div>
       <h4>Opening this page in ChatGPT desktop</h4>
       <ol className="mfw-setup">

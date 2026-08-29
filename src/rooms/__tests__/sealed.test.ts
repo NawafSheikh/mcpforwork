@@ -25,7 +25,7 @@ async function settle(times = 30): Promise<void> {
 }
 
 function store(): PersistentWorkspaceStore {
-  return createWorkspaceStore({ mode: "demo", persist: false });
+  return createWorkspaceStore({ mode: "local", persist: false });
 }
 
 const category = (name: string): Category => ({ name, description: `${name} board`, createdAt: T1 });

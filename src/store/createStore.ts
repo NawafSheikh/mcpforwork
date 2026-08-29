@@ -5,7 +5,12 @@
  */
 
 import { capAudit } from "./audit";
-import { createPersistence, workspaceKey, type PersistenceError } from "./persist";
+import {
+  createPersistence,
+  legacyWorkspaceKey,
+  workspaceKey,
+  type PersistenceError,
+} from "./persist";
 import type {
   AuditEvent,
   MonitorRun,
@@ -53,7 +58,7 @@ export interface PersistentWorkspaceStore extends WorkspaceStore {
 export function emptyWorkspace(mode: WorkspaceMode, at: string = new Date().toISOString()): Workspace {
   return {
     id: `mfw-${mode}`,
-    name: mode === "demo" ? "Demo workspace" : "Live workspace",
+    name: mode === "local" ? "Local workspace" : "Live workspace",
     mode,
     categories: {},
     monitors: {},
@@ -106,7 +111,8 @@ function normalize(ws: Workspace, at: string): Workspace {
 export function createWorkspaceStore(opts: CreateStoreOptions): PersistentWorkspaceStore {
   const debounceMs = opts.debounceMs ?? DEBOUNCE_MS;
   let key = opts.key ?? workspaceKey(opts.mode);
-  let persistence = createPersistence(key, opts.persist !== false, opts.onError);
+  const legacy = opts.key === undefined ? legacyWorkspaceKey(opts.mode) : undefined;
+  let persistence = createPersistence(key, opts.persist !== false, opts.onError, legacy);
   const listeners = new Set<(ws: Workspace) => void>();
 
   let current = opts.initial ?? emptyWorkspace(opts.mode);

@@ -5,7 +5,7 @@
  * - Best effort. syncWorkspaceToLive and pullFromLive never throw at the caller.
  *   Every failure comes back as a result object and is written to the audit rail
  *   as an event with actor "system", so the board shows what did not happen.
- * - Demo mode is never touched. A workspace whose mode is "demo" is skipped.
+ * - A local board is never touched. A workspace whose mode is "local" is skipped.
  * - Only endpoints that exist are called (see PATHS in ./mapping.ts).
  */
 import { LIMITS, type AuditEvent, type Monitor, type MonitorRun, type Workspace, type WorkspaceStore } from "../types";
@@ -76,7 +76,7 @@ async function record(store: WorkspaceStore, event: AuditEvent): Promise<void> {
 }
 
 function skipReason(ws: Workspace): string | null {
-  if (ws.mode !== "live") return "Workspace is in demo mode, so nothing was sent to clawai.";
+  if (ws.mode !== "live") return "This is a local board, so nothing was sent to clawai.";
   return null;
 }
 

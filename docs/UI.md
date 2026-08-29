@@ -17,7 +17,7 @@ redesign puts the collaboration in the frame and the objects in the middle.
 ### Top bar (room)
 - Wordmark, room name (editable by host), lock badge (encrypted room or local board), invite
   (write link, read-only link), Tools (packs switches), your name chip, theme.
-- Connected-agent pill: "Site tools on: 30" or the exact fix if not.
+- Connected-agent pill: "Site tools on: 29" or the exact fix if not.
 
 ### Left rail (people, agents, places)
 - Members: every person with their name, what they are viewing, what they hold. Every agent
@@ -45,29 +45,42 @@ redesign puts the collaboration in the frame and the objects in the middle.
   (empty board: starter; open requests: "check list_feedback"; held drafts: approve prompt).
 
 
-## Landing page: the live room card (29 Aug, Nawaf)
-- The first thing on mcpforwork.com is a live public room: room code and link, who is in it now
-  (people, agents, the robot as a constant presence with status: awake, asleep, last run), and
-  one button, Start collaborating. Joining is one click; nothing else is asked.
-- The next step card reacts to what the visitor does: opened ChatGPT beside the page, typed,
-  closed it, joined a room. It always shows the one most useful thing to do next, in plain
-  words, with the prompt ready to copy.
-- Output appears live on the same page as people and agents work, so a newcomer sees the room
-  working before they do anything.
-- Public rooms are listed and unencrypted by design (boundary and queue enforced by the robot
-  bridge); every other room is encrypted and unlisted.
+## First run: a blank canvas (29 Aug, Nawaf)
+The first thing on mcpforwork.com is an empty board and three questions about the person,
+in this order, in the centre column with the rails already around them:
+
+1. **"What should we call you?"** with an inline field. It writes the display name, so the
+   top bar chip and the members rail change in the same tick. Before it is set the rail
+   says "You" and the chip says "Set your name"; the word "Someone" never reaches a screen.
+2. **"Your agent."** Outside the ChatGPT desktop browser: "Not connected. Your ChatGPT
+   joins when this page runs inside it", the three steps, and copy buttons for the address
+   and the starter prompt. Inside it: "ChatGPT is in the room" and the prompt card alone.
+3. **"What you control."** Five rows, each with its real state and one action: Board
+   ("empty, your agent builds it" or a category count), Guardrails ("no monitors yet" or a
+   count, opens Monitors), Tools ("29 tools in 6 packs, all on", opens the Tools popover),
+   Rooms ("only this browser" or the room and its member count, Invite), Data ("nothing
+   dropped" or a dataset count, opens Datasets).
+
+There is no sample board, no seeded demo, no live public room to peek at, no replay and no
+hero headline over 26 px. Nothing on the page is pre-filled: `seed_demo_workspace` is gone,
+the board is empty until an agent fills it, and every number on screen is a real count of
+something that is actually there.
+
+The next step card in the right panel follows the same order: no name yet, tell us your
+name (it focuses the field); named but outside ChatGPT, open this page inside ChatGPT
+desktop with the steps; inside ChatGPT with an empty board, the starter prompt; after that
+open requests, held drafts, then the invite.
 
 ## States
-- First visit outside ChatGPT: the hero with the three steps and Watch it build, inside the
-  center column, with the rails already visible (empty members list explains rooms).
-- First visit inside ChatGPT: "Your agent is in the room", the starter prompt, the rails alive.
-- Sample loaded: ribbon in the center column, everything else real.
+- First visit outside ChatGPT: the three first-run questions in the center column, with the
+  rails already visible (empty members list explains rooms).
+- First visit inside ChatGPT: the same three, with "ChatGPT is in the room" on the second.
 - Shared snapshot: read-only center, rails show "snapshot, nobody live".
 - Room without key: locked center with "ask the host for the link with the key".
 
 ## Components to keep
-Dashboard renderer, charts, guardrail form, prompt library, backup, drop zone, replay,
-FeedbackBox, RoomRequests, NameChip. Rebuild the shell around them; do not rebuild them.
+Dashboard renderer, charts, guardrail form, prompt library, backup, drop zone,
+FeedbackBox, RoomRequests. Rebuild the shell around them; do not rebuild them.
 
 ## Acceptance
 - A stranger understands in ten seconds that people and agents work here together.

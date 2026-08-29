@@ -12,7 +12,7 @@ const statusStore = {
 };
 
 function withShell(node: JSX.Element): string {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore}>
       {node}

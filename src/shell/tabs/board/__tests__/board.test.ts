@@ -37,7 +37,7 @@ function workspace(): Workspace {
   return {
     id: "mfw-demo",
     name: "Demo workspace",
-    mode: "demo",
+    mode: "local",
     categories: { Invoices: { name: "Invoices", createdAt: AT, dashboard } },
     overview: { title: "Whole workspace", kpis: [], charts: [chart("cross")], updatedAt: AT },
     monitors: {},

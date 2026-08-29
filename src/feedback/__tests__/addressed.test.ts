@@ -24,7 +24,7 @@ const toMaria: FeedbackTarget = { kind: "agent", id: "Maria's ChatGPT" };
 const toAnyAgent: FeedbackTarget = { kind: "agent", id: ANY_ONE };
 const toNawaf: FeedbackTarget = { kind: "person", id: "Nawaf" };
 
-const base = (): Workspace => emptyWorkspace("demo", "2026-08-29T09:00:00.000Z");
+const base = (): Workspace => emptyWorkspace("local", "2026-08-29T09:00:00.000Z");
 
 const find = (ws: Workspace, text: string): Feedback => {
   const item = Object.values(ws.feedback).find((entry) => entry.text === text);

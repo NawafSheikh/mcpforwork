@@ -33,7 +33,7 @@ const note: Feedback = {
 
 function board(): Workspace {
   return {
-    ...emptyWorkspace("demo", at),
+    ...emptyWorkspace("local", at),
     name: "My board",
     categories: { Invoices: category },
     feedback: { fb_1: note },
@@ -80,7 +80,7 @@ describe("reading one back", () => {
   });
 
   it("refuses anything that is not a board, without throwing", () => {
-    const current = emptyWorkspace("demo", at);
+    const current = emptyWorkspace("local", at);
     expect(restoreFrom("not json at all", current)).toBeNull();
     expect(restoreFrom("[1,2,3]", current)).toBeNull();
     expect(restoreFrom("null", current)).toBeNull();
@@ -97,7 +97,7 @@ describe("reading one back", () => {
       feedback: {},
       updatedAt: at,
     });
-    const restored = restoreFrom(hostile, emptyWorkspace("demo", at));
+    const restored = restoreFrom(hostile, emptyWorkspace("local", at));
     expect(restored).not.toBeNull();
     expect(Object.keys(restored?.categories ?? {})).toEqual(["Ok"]);
     expect(restored?.monitors).toEqual({});
@@ -105,7 +105,7 @@ describe("reading one back", () => {
   });
 
   it("counts the categories on the board it is about to replace", () => {
-    expect(categoryCount(emptyWorkspace("demo", at))).toBe(0);
+    expect(categoryCount(emptyWorkspace("local", at))).toBe(0);
     expect(categoryCount(board())).toBe(1);
   });
 });

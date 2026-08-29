@@ -51,7 +51,7 @@ const CLAIM: Claim = {
 
 function board(): Workspace {
   return {
-    ...emptyWorkspace("demo", AT),
+    ...emptyWorkspace("local", AT),
     feedback: { [NOTE.id]: NOTE, [ROOM_NOTE.id]: ROOM_NOTE, [PERSON_NOTE.id]: PERSON_NOTE },
     claims: { "dashboard:Invoices": CLAIM },
     lastWriter: { "dashboard:Invoices": { at: AT, by: "Maria's agent", byKind: "agent" } },
@@ -70,9 +70,9 @@ describe("a note addressed to an agent, a person or the room", () => {
   });
 
   it("survives the room patches, which is where it used to arrive as a dashboard note", () => {
-    const patches = derivePatches(emptyWorkspace("demo", AT), board(), "aaa1", AT);
+    const patches = derivePatches(emptyWorkspace("local", AT), board(), "aaa1", AT);
     const wire = JSON.parse(JSON.stringify(patches)) as typeof patches;
-    const applied = applyPatches(emptyWorkspace("demo", AT), wire, {});
+    const applied = applyPatches(emptyWorkspace("local", AT), wire, {});
 
     expect(applied.ws.feedback[NOTE.id]?.target).toEqual({ kind: "agent", id: "Maria" });
     expect(applied.ws.feedback[NOTE.id]?.from).toBe("Classify 1-25");
@@ -91,12 +91,12 @@ describe("a turn crossing the wire", () => {
   });
 
   it("syncs to another browser as its own kind of patch", () => {
-    const patches = derivePatches(emptyWorkspace("demo", AT), board(), "aaa1", AT);
+    const patches = derivePatches(emptyWorkspace("local", AT), board(), "aaa1", AT);
     expect(patches.filter((patch) => patch.kind === "claim")).toHaveLength(1);
     expect(patches.filter((patch) => patch.kind === "write")).toHaveLength(1);
 
     const wire = JSON.parse(JSON.stringify(patches)) as typeof patches;
-    const applied = applyPatches(emptyWorkspace("demo", AT), wire, {});
+    const applied = applyPatches(emptyWorkspace("local", AT), wire, {});
     expect(applied.ws.claims["dashboard:Invoices"]?.holderKind).toBe("agent");
     expect(applied.ws.lastWriter["dashboard:Invoices"]?.at).toBe(AT);
   });
@@ -105,7 +105,7 @@ describe("a turn crossing the wire", () => {
     const patches = [
       { kind: "claim" as const, key: "dashboard:Somewhere else", value: CLAIM, at: AT, origin: "zzz9" },
     ];
-    const applied = applyPatches(emptyWorkspace("demo", AT), patches, {});
+    const applied = applyPatches(emptyWorkspace("local", AT), patches, {});
 
     expect(Object.keys(applied.ws.claims)).toEqual(["dashboard:Invoices"]);
   });

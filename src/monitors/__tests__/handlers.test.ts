@@ -13,7 +13,6 @@ import {
   set_policy,
 } from "../handlers";
 import type { HandlerResult } from "../handlerTypes";
-import { simulateRun } from "../simulator";
 
 const POLICY: Policy = {
   maxAutoActionsPerRun: 2,
@@ -39,7 +38,7 @@ function workspace(over: Partial<Workspace> = {}): Workspace {
   return {
     id: "ws-test",
     name: "Test workspace",
-    mode: "demo",
+    mode: "local",
     categories: {
       invoices: { name: "invoices", createdAt: "2026-08-28T06:00:00.000Z" },
     },
@@ -316,31 +315,5 @@ describe("read tools and set_policy", () => {
     const result = set_policy({ monitorId: "mon-nope", policy: POLICY }, reported);
     expect(result.next).toBeUndefined();
     expect(result.result).toContain("needs a known monitorId");
-  });
-});
-
-describe("simulateRun", () => {
-  it("produces 2 to 5 synthetic drafts through the same policy path", () => {
-    const next = simulateRun(workspace(), MONITOR.id, new Date(2026, 7, 28, 8, 0));
-    const drafts = Object.values(next.drafts);
-    expect(next.runs).toHaveLength(1);
-    expect(drafts.length).toBeGreaterThanOrEqual(2);
-    expect(drafts.length).toBeLessThanOrEqual(5);
-    expect(drafts.every((draft) => ["auto", "pending", "held"].includes(draft.status))).toBe(true);
-    expect(next.runs[0]?.findings.length).toBeGreaterThan(0);
-  });
-
-  it("is deterministic for the same monitor and instant, and leaves the input alone", () => {
-    const base = workspace();
-    const at = new Date(2026, 7, 28, 8, 0);
-    const a = simulateRun(base, MONITOR.id, at);
-    const b = simulateRun(base, MONITOR.id, at);
-    expect(Object.keys(a.drafts)).toEqual(Object.keys(b.drafts));
-    expect(base.runs).toHaveLength(0);
-  });
-
-  it("returns the workspace untouched for an unknown monitor", () => {
-    const base = workspace();
-    expect(simulateRun(base, "mon-nope", new Date())).toBe(base);
   });
 });

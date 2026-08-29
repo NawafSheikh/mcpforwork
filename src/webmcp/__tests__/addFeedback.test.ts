@@ -10,7 +10,7 @@ import { createToolRegistry } from "../registry";
 import type { Feedback, Workspace } from "../../types";
 
 const setup = () => {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const registry = createToolRegistry({ store, handlers: workspaceHandlers });
   return { store, registry };
 };

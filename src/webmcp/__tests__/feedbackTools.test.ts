@@ -9,7 +9,7 @@ import type { FeedbackTarget, Workspace } from "../../types";
 const dashboard: FeedbackTarget = { kind: "dashboard", id: "Invoices" };
 
 const setup = () => {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const registry = createToolRegistry({ store, handlers: workspaceHandlers });
   return { store, registry };
 };

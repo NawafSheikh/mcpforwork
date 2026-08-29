@@ -2,13 +2,11 @@
  * The centre column: the object being worked on, and nothing else.
  *
  * Which object is React state (src/shell/nav.tsx), never navigation, so the site tools
- * registered on this page survive every move. The landing room card only stands in for
- * the overview: every other place stays reachable from the rail on a cold board.
+ * registered on this page survive every move. The first-run page only stands in for the
+ * overview: every other place stays reachable from the rail on a cold board.
  */
 import { useEffect } from "react";
-import { ReplayHost, SampleRibbon } from "../../onboarding";
 import { askCapability } from "../../packs";
-import { usePresence } from "../../rooms";
 import { useWorkspace } from "../context";
 import { boardIsEmpty } from "../lib/room";
 import { REQUESTS, type Place } from "../lib/places";
@@ -35,19 +33,18 @@ function Page({ place, landing }: { readonly place: Place; readonly landing: boo
 
 export function Center(): JSX.Element {
   const workspace = useWorkspace();
-  const presence = usePresence();
   const { place, goTo } = useNav();
   // A capability card asked for somebody: the composer that answers it lives on the
   // requests page, so that is where the click has to land.
   useEffect(() => askCapability.subscribe(() => goTo(REQUESTS)), [goTo]);
   const wrongKey = useWrongKey();
-  const landing = presence.slug === null && boardIsEmpty(workspace);
+  // An empty board is an empty board, in a room or not: there is nothing to draw yet,
+  // so the centre asks the three first-run questions instead of painting a blank grid.
+  const landing = boardIsEmpty(workspace);
 
   return (
     <main className="mfw-center" aria-label="Board">
-      <SampleRibbon />
       {wrongKey ? <WrongKey /> : <Page place={place} landing={landing} />}
-      <ReplayHost />
     </main>
   );
 }

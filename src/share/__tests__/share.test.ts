@@ -194,7 +194,7 @@ describe("readShareFromLocation", () => {
     withCompression();
     const restored = await roundTrip(board());
     expect(restored).not.toBeNull();
-    expect(restored?.mode).toBe("demo");
+    expect(restored?.mode).toBe("local");
     expect(restored?.name).toBe("Sample workspace (synthetic) (shared)");
     expect(restored?.audit).toEqual([]);
     expect(restored?.categories.Invoices?.dashboard?.charts[0]?.points[0]?.value).toBe(7400);
@@ -257,7 +257,7 @@ describe("hostile payloads", () => {
       audit: [{ id: "ev", actor: "agent" }],
     });
     expect(restored).not.toBeNull();
-    expect(restored?.mode).toBe("demo");
+    expect(restored?.mode).toBe("local");
     expect(restored?.audit).toEqual([]);
     expect(restored?.categories.Invoices?.description).toBeUndefined();
     expect(Object.keys(restored?.categories ?? {})).toEqual(["Invoices"]);

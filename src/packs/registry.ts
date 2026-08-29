@@ -42,7 +42,6 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
       "upsert_dashboard",
       "get_dashboard",
       "compose_overview",
-      "seed_demo_workspace",
       "clear_workspace",
     ],
   },

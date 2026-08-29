@@ -4,7 +4,7 @@ import { appendAudit, makeAuditEvent } from "../audit";
 import { workspaceSummary } from "../selectors";
 import { LIMITS, type Workspace } from "../../types";
 
-const store = () => createWorkspaceStore({ mode: "demo", persist: false });
+const store = () => createWorkspaceStore({ mode: "local", persist: false });
 
 const withCategory = (ws: Workspace, name: string): Workspace => ({
   ...ws,
@@ -61,7 +61,7 @@ describe("createWorkspaceStore", () => {
     const cleared = await s.reset();
 
     expect(cleared.categories).toEqual({});
-    expect(cleared.mode).toBe("demo");
+    expect(cleared.mode).toBe("local");
     expect(workspaceSummary(cleared).categories).toEqual([]);
   });
 
@@ -77,11 +77,11 @@ describe("createWorkspaceStore", () => {
 
 describe("emptyWorkspace", () => {
   it("builds an empty board for the mode", () => {
-    const ws = emptyWorkspace("demo");
-    expect(ws.mode).toBe("demo");
+    const ws = emptyWorkspace("local");
+    expect(ws.mode).toBe("local");
     expect(ws.runs).toEqual([]);
     expect(workspaceSummary(ws)).toMatchObject({
-      mode: "demo",
+      mode: "local",
       hasOverview: false,
       pendingDrafts: 0,
       heldDrafts: 0,

@@ -96,7 +96,7 @@ export interface Policy {
   readonly notes?: string;
 }
 
-export type Runner = "local" | "cloud" | "demo";
+export type Runner = "local" | "cloud";
 
 export interface Monitor {
   readonly id: string;
@@ -279,7 +279,7 @@ export interface Capability {
 
 /* ---------- Workspace (the whole board) ---------- */
 
-export type WorkspaceMode = "demo" | "live";
+export type WorkspaceMode = "local" | "live";
 
 export interface Workspace {
   readonly id: string;

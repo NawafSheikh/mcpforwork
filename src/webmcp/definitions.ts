@@ -1,5 +1,5 @@
 /**
- * The 30 tool definitions from docs/TOOLS.md, ready for registerTool.
+ * The 29 tool definitions from docs/TOOLS.md, ready for registerTool.
  * Every execute is the same one line: hand the name and the raw input to the registry,
  * which validates, rate limits, audits and truncates. Tools whose handler is owned by
  * another module still register: they answer "not wired yet" until that handler lands.
@@ -51,8 +51,6 @@ const DESCRIPTIONS: Record<ToolName, string> = {
     "Close one note with what you actually changed in response, so the human reads your answer next to their question. Pass the feedbackId from list_feedback and a short resolution. An unknown id is refused and the board is left exactly as it was.",
   share_board:
     "Return a read-only snapshot link for this board. The whole state is packed into the URL fragment, so nothing is uploaded to a server and anyone with the link sees the board as it stands now, without the tools attached.",
-  seed_demo_workspace:
-    "Load the synthetic sample workspace so the board has categories, dashboards, a monitor and drafts to look at. Demo mode only, and it replaces what is there. None of the sample data is real.",
   clear_workspace:
     "Wipe categories, the overview, monitors, runs and drafts. Pass confirm true. The audit trail is kept, so the record of what happened survives the reset.",
   ...roomToolDescriptions,

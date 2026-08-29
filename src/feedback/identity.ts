@@ -10,7 +10,7 @@
 import { LIMITS } from "../types";
 
 export const NAME_KEY = "mfw:name";
-export const DEFAULT_NAME = "Someone";
+export const DEFAULT_NAME = "Unnamed";
 export const MAX_NAME_CHARS = LIMITS.maxCallerChars;
 
 const listeners = new Set<() => void>();

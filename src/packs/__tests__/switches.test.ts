@@ -15,7 +15,7 @@ import { packStateOf, packViews, setPackState } from "../state";
 import { fakeContext, installContext, removeContext } from "./fixtures";
 
 const MONITOR_TOOLS = 7;
-const ALL_TOOLS = 30;
+const ALL_TOOLS = 29;
 
 function bundle(store: PersistentWorkspaceStore) {
   const packs = createPackController(store);
@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 function store(): PersistentWorkspaceStore {
-  live = createWorkspaceStore({ mode: "demo", persist: false });
+  live = createWorkspaceStore({ mode: "local", persist: false });
   return live;
 }
 
@@ -108,7 +108,7 @@ describe("pack switches", () => {
   });
 
   it("pins a default on, and leaves the board untouched for a repeat or an unknown pack", () => {
-    const ws = createWorkspaceStore({ mode: "demo", persist: false });
+    const ws = createWorkspaceStore({ mode: "local", persist: false });
     const before = ws.get();
 
     // Saying "on" out loud is not a no-op: it pins the pack against the room default,
@@ -122,7 +122,7 @@ describe("pack switches", () => {
   });
 
   it("shows six rows with a risk and a tool count", () => {
-    const views = packViews(createWorkspaceStore({ mode: "demo", persist: false }).get(), false);
+    const views = packViews(createWorkspaceStore({ mode: "local", persist: false }).get(), false);
     expect(views).toHaveLength(6);
     expect(views.every((view) => view.enabled)).toBe(true);
     expect(views.every((view) => view.changedBy === undefined)).toBe(true);

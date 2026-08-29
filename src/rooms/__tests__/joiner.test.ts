@@ -22,7 +22,7 @@ const T1 = "2026-08-29T10:00:00.000Z";
 const SLUG = "proofq7m2k4";
 
 function store(): PersistentWorkspaceStore {
-  return createWorkspaceStore({ mode: "demo", persist: false });
+  return createWorkspaceStore({ mode: "local", persist: false });
 }
 
 function category(name: string): Category {

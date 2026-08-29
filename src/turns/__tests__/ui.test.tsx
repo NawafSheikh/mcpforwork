@@ -17,8 +17,8 @@ const statusStore = {
 };
 
 function paint(node: JSX.Element, seed: (ws: Workspace) => Workspace = (ws) => ws): string {
-  const base = createWorkspaceStore({ mode: "demo", persist: false });
-  const store = createWorkspaceStore({ mode: "demo", persist: false, initial: seed(base.get()) });
+  const base = createWorkspaceStore({ mode: "local", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false, initial: seed(base.get()) });
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore}>
       {node}

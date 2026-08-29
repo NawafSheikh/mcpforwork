@@ -15,9 +15,9 @@ const statusStore = {
 };
 
 function paint(seed: (ws: Workspace) => Workspace, compact?: boolean): string {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const initial = seed(store.get());
-  const seeded = createWorkspaceStore({ mode: "demo", persist: false, initial });
+  const seeded = createWorkspaceStore({ mode: "local", persist: false, initial });
   return renderToStaticMarkup(
     <ShellProvider store={seeded} statusStore={statusStore}>
       <FeedbackBox target={target} compact={compact} />

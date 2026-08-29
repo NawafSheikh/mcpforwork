@@ -28,7 +28,7 @@ const AT = new Date("2026-08-29T10:00:00.000Z");
 const later = (minutes: number): Date => new Date(AT.getTime() + minutes * 60_000);
 
 function board(): Workspace {
-  return emptyWorkspace("demo", AT.toISOString());
+  return emptyWorkspace("local", AT.toISOString());
 }
 
 describe("holding a turn", () => {

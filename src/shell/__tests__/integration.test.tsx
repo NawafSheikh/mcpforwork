@@ -3,10 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { App } from "../../App";
 import { ShellProvider } from "../context";
 import { createWorkspaceStore } from "../../store";
-import { sampleWorkspace } from "../../demo/sampleWorkspace";
 import { AboutTab } from "../tabs/AboutTab";
 import { chooseTransport } from "../../rooms";
 import { LOCAL_BOARD_LABEL } from "../lib/constants";
+import { filledBoard } from "./fixture";
 
 const statusStore = {
   get: () => ({ available: true, registered: 24 }),
@@ -15,7 +15,7 @@ const statusStore = {
 
 function shell(node: JSX.Element, seeded = false): string {
   const store = createWorkspaceStore(
-    seeded ? { mode: "demo", initial: sampleWorkspace(new Date()), persist: false } : { mode: "demo", persist: false },
+    seeded ? { mode: "local", initial: filledBoard(), persist: false } : { mode: "local", persist: false },
   );
   return renderToStaticMarkup(
     <ShellProvider store={store} statusStore={statusStore}>

@@ -1,15 +1,13 @@
 /**
  * ADAPTER: WebMCP registration. Wired to src/webmcp (A2), with the monitor handlers from
- * A3, the demo seed handler from A5, the two room tools from A10, the four dataset tools
- * from A11, the three turn tools from A16 and the two capability tools from A20 merged
- * in, so all 30 tools answer. The pack controller from A20 goes to both halves: the
+ * A3, the two room tools from A10, the four dataset tools from A11, the three turn tools
+ * from A16 and the two capability tools from A20 merged in, so all 29 tools answer. The pack controller from A20 goes to both halves: the
  * registry refuses a call to a switched-off pack, and registration follows the switches.
  * Registration is async, so the status is a tiny store the header subscribes to.
  */
 import { capabilityHandlers } from "../../capabilities";
 import { datasetHandlers } from "../../dataset";
 import { createPackController } from "../../packs";
-import { seedDemoHandler } from "../../demo/sampleWorkspace";
 import { monitorHandlers } from "../../monitors";
 import { roomHandlers } from "../../rooms";
 import { turnHandlers } from "../../turns";
@@ -34,7 +32,6 @@ function handlersFor(): HandlerMap {
     ...datasetHandlers,
     ...turnHandlers,
     ...capabilityHandlers,
-    seed_demo_workspace: seedDemoHandler,
   };
 }
 

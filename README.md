@@ -61,7 +61,7 @@ The one honest caveat: reading 50 full threads took about 30 minutes of the 41 m
 That is the connector's time, not the page's; the page's own write phase was 3m 27s. The
 starter prompt shipped in the app is therefore scoped to **subjects, senders and dates of
 30 threads**, which produces the same board without the wait. There is a shorter
-15 thread prompt for a live demo, and `seed_demo_workspace` for no wait at all.
+15 thread prompt for a live demo.
 
 ---
 
@@ -80,11 +80,10 @@ npm test             # vitest
 npm run build        # typecheck then vite build into dist/
 ```
 
-No account, no key and no backend are needed. The app opens in demo mode, which persists
-in the browser. Press **Load sample workspace** for a finished board: four categories with
-dashboards, an overview, two monitors, three runs, six drafts (two held by policy) and
-four notes (three still open). Every name in it is synthetic ("Acme Test Ltd", "Sample
-Supplies GmbH", "Example Recruiting"), and it is labelled as such on screen.
+No account, no key and no backend are needed. The app opens on a local board that persists
+in this browser, and it opens **empty**. There is no sample data anywhere in the product:
+the first run asks your name, tells you whether your agent is connected, and lists the five
+things you control. Every number you ever see on the board was written by a real tool call.
 
 ---
 
@@ -127,8 +126,8 @@ MCP-capable client can drive.
 ### If nothing registers
 
 The page falls back from `document.modelContext` to `navigator.modelContext`. If neither
-exists the status pill says so and the board still works by hand: demo mode, the seed
-button and the human approve path do not need an agent at all.
+exists the status pill says so and the board still works by hand: dropping a file, writing
+a policy and the human approve path do not need an agent at all.
 
 ---
 
@@ -159,7 +158,6 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 | `list_feedback` | yes | The notes humans left on dashboards, the overview, drafts and monitors, and the ones addressed to this caller. The agent reads these before editing anything. |
 | `resolve_feedback` | no | Close one note with a resolution line the human sees next to it. |
 | `share_board` | yes | A read-only snapshot link. The board is compressed into the URL fragment, which is never sent to a server. |
-| `seed_demo_workspace` | no | Demo mode only. Loads the synthetic sample board. |
 | `clear_workspace` | no | Wipe the board. Requires `confirm: true`. The audit trail survives. |
 | `get_room` | yes | Whether this board is a shared room, the join link, and how many browsers and agents are on it. |
 | `create_room` | no | Open a shared room for this board and hand back the link. Anyone with the link can join and edit. |
@@ -184,9 +182,8 @@ A dashboard is rarely right the first time, and the human is the one who knows w
 
 Leave a note on any dashboard, on the overview or on a draft. It stays open until an agent
 calls `list_feedback`, acts on it, and closes it with `resolve_feedback` and a one-line
-resolution that is shown next to the note. The sample workspace ships with three open
-notes and one the agent already resolved, so the loop is visible before any agent has
-touched the page.
+resolution that is shown next to the note. Nothing is pre-filled: the first note on a board
+is one a person or an agent actually left.
 
 Two agents on one board do not queue. Whoever writes gets their name on that card for ten
 minutes, which everybody can see and nobody is blocked by, and a second write inside the
@@ -269,12 +266,12 @@ carrying an instruction that came from an email rather than from you.
 
 ---
 
-## Demo mode and live mode
+## Local mode and live mode
 
-**Demo mode** is the default and needs nothing. State lives in the browser via
-`idb-keyval`. Monitors are simulated by a page timer, so a judge can watch a run produce
-a held draft in a few seconds. Zero tokens, zero credentials, zero risk, and it works even
-if every backend is down.
+**Local mode** is the default and needs nothing. State lives in the browser via
+`idb-keyval`. Monitor runs come only from a real `report_monitor_run` call, so a run on the
+page is a run that happened. Zero tokens, zero credentials, zero risk, and it works even if
+every backend is down.
 
 **Live mode** is opt-in. Sign in with a clawai email and password (or a mailed one-time
 code) and the same board persists in clawai's Supabase, so it shows on any device.
@@ -302,14 +299,12 @@ src/dsl/          dashboard and overview renderers (recharts)
 src/store/        immutable workspace store on idb-keyval
 src/webmcp/       zod schemas, tool registry, rate limiter, audit writer
 src/policy/       the policy engine: auto, pending, or held with a clause
-src/monitors/     schedule parsing, next run, demo run simulator
+src/monitors/     schedule parsing, next run, the shared run path
 src/feedback/     notes humans and agents leave on the same objects
 src/share/        snapshot codec, defensive readers, the read-only shared board
 src/rooms/        multiplayer boards: ?room= slug, patch sync, presence, relay transports
 src/dataset/      client-side CSV and XLSX parsing, column profiling, masking, drop zone
 src/prompts/      the editable prompt library and the JSON board backup
-src/onboarding/   the empty-board hero, the sample ribbon and the replay
-src/demo/         the synthetic sample workspace
 src/live/         Supabase auth, typed API client, clawai adapter
 src/shell/        app shell, tabs, audit rail, monitors UI, theme
 docs/             tool contract, deploy notes, submission text, video script
@@ -327,7 +322,7 @@ pre-existing foundation. They come from the author's own private control-plane w
 (policy evaluation, dedup ledger, per-run blast-radius cap) and predate the challenge.
 They were vendored into this repository as MIT-licensed source rather than rewritten from
 memory. Everything else, including every WebMCP tool, the dashboard DSL, the store, the
-shell, the demo data and the live adapter, was written for this submission.
+shell and the live adapter, was written for this submission.
 
 The clawai.eu API that live mode talks to is an existing production service. It was not
 modified for this entry; the console is a new client against endpoints that already

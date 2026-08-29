@@ -51,7 +51,7 @@ const expectClean = (text: string): void => {
 };
 
 const emptyWorkspace = (): Workspace =>
-  createWorkspaceStore({ mode: "demo", persist: false }).get();
+  createWorkspaceStore({ mode: "local", persist: false }).get();
 
 function setup() {
   const registry = createDatasetRegistry();

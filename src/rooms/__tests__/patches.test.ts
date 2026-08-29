@@ -17,7 +17,7 @@ function board(): Workspace {
   return {
     id: "ws_demo",
     name: "Demo workspace",
-    mode: "demo",
+    mode: "local",
     categories: {},
     monitors: {},
     runs: [],

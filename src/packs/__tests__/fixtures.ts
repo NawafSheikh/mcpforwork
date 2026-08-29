@@ -5,7 +5,7 @@ import type { ModelContextLike } from "../../webmcp/register";
 import type { SocketLike } from "../bridge";
 
 export function defaultPacksFixture(): Workspace {
-  return emptyWorkspace("demo", "2026-08-29T10:00:00.000Z");
+  return emptyWorkspace("local", "2026-08-29T10:00:00.000Z");
 }
 
 export interface FakeContext extends ModelContextLike {

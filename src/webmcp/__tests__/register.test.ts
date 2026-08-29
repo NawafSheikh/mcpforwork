@@ -32,7 +32,7 @@ function fakeContext(): FakeContext {
 }
 
 const bundle = () => {
-  const store = createWorkspaceStore({ mode: "demo", persist: false });
+  const store = createWorkspaceStore({ mode: "local", persist: false });
   const registry = createToolRegistry({ store, handlers: workspaceHandlers });
   return { registry, definitions: createToolDefinitions(registry) };
 };
@@ -51,7 +51,7 @@ describe("registerAllTools", () => {
     expect(findModelContext().api).toBe("none");
   });
 
-  it("registers all 30 tools on document.modelContext", async () => {
+  it("registers all 29 tools on document.modelContext", async () => {
     const context = fakeContext();
     Object.defineProperty(document, "modelContext", { value: context, configurable: true });
     const { registry, definitions } = bundle();
@@ -59,7 +59,7 @@ describe("registerAllTools", () => {
 
     expect(result.api).toBe("document");
     expect(result.available).toBe(true);
-    expect(result.registered).toHaveLength(30);
+    expect(result.registered).toHaveLength(29);
     expect(context.tools.get("get_workspace")?.annotations).toMatchObject({
       readOnlyHint: true,
       untrustedContentHint: true,
@@ -78,7 +78,7 @@ describe("registerAllTools", () => {
     });
 
     expect(result.api).toBe("navigator");
-    expect(context.tools.size).toBe(30);
+    expect(context.tools.size).toBe(29);
     context.fire();
     expect(onToolsChanged).toHaveBeenCalledWith(result.registered);
 

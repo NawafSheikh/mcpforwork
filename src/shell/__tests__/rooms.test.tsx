@@ -84,7 +84,7 @@ describe("the badge in the top bar", () => {
 
 describe("a public room, joined", () => {
   it("renders the whole workspace with the public badge, and no locked card", () => {
-    const store = createWorkspaceStore({ mode: "demo", persist: false });
+    const store = createWorkspaceStore({ mode: "local", persist: false });
     const hub = createMemoryHub();
     configureRooms({ store, transport: hub.transport });
     joinRoom(SLUG);

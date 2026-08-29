@@ -1,6 +1,6 @@
 /**
- * Monitors barrel: schedule parsing, the tool handlers, the shared run path,
- * and the demo simulator.
+ * Monitors barrel: schedule parsing, the tool handlers and the shared run path.
+ * Runs only ever come from a real report_monitor_run call.
  */
 
 export {
@@ -30,6 +30,3 @@ export type { HandlerFn, HandlerResult } from "./handlerTypes";
 
 export { applyRun, autosInRun, countStatuses, nextMonitorId } from "./runCore";
 export type { AppliedRun, RunCounts } from "./runCore";
-
-export { simulateRun, startDemoScheduler } from "./simulator";
-export type { DemoSchedulerOptions, Scenario } from "./simulator";

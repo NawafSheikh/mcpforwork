@@ -2,13 +2,12 @@
  * The top bar is the room: what this board is, who you are on it, what your agent can
  * reach and how somebody else gets in. Nothing about the work lives up here.
  */
-import { NameChip } from "../feedback";
-import { getRoomRuntime } from "../rooms";
 import { PacksPanel } from "./adapters/packs";
 import { useWorkspace } from "./context";
 import { AgentPill } from "./topbar/AgentPill";
 import { InviteMenu } from "./topbar/InviteMenu";
 import { MoreMenu } from "./topbar/MoreMenu";
+import { NameButton } from "./topbar/NameButton";
 import { Popover } from "./topbar/Popover";
 import { LiveRoomBadge, RoomBadge } from "./topbar/RoomBadge";
 import { RoomName } from "./topbar/RoomName";
@@ -57,7 +56,7 @@ export function TopBar({ snapshot = false, editable = true }: TopBarProps): JSX.
         <PacksPanel />
       </Popover>
       <MoreMenu />
-      <NameChip onRename={(name) => getRoomRuntime()?.setLabel(name)} />
+      <NameButton />
       <ThemeToggle />
     </header>
   );

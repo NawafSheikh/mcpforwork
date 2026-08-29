@@ -78,8 +78,9 @@ export const LOCAL_BOARD_NOTE =
 
 /**
  * A room link with no key after the # is a public room, not a broken one: it is the one
- * kind of room this build leaves unencrypted, so a stranger can open the showcase link
- * and start working. Every room minted through Invite carries a key and is unlisted.
+ * kind of room this build leaves unencrypted, so a stranger can open a link somebody
+ * posted and start working. Every room minted through Invite carries a key and is
+ * unlisted.
  */
 export const PUBLIC_ROOM_LABEL = "Public room";
 export const PUBLIC_ROOM_NOTE =
@@ -92,29 +93,27 @@ export const WRONG_KEY_MESSAGE =
 /** How long the page waits for something readable before it says the key is wrong. */
 export const WRONG_KEY_MS = 10_000;
 
-/* ---------- the landing room card ---------- */
+/* ---------- the first run ---------- */
 
-/** The public room the landing page shows. Unencrypted by design, listed on purpose. */
-export const SHOWCASE_ROOM = "showcase";
+/** The address a visitor pastes into the ChatGPT desktop side panel. */
+export const SITE_HOST = "mcpforwork.com";
 
-export interface RobotStatus {
-  readonly name: string;
-  readonly state: "awake" | "asleep";
-  readonly lastRun: string;
-}
+/** The id on the landing name field, so the next step card can focus it. */
+export const NAME_INPUT_ID = "mfw-your-name";
 
-/**
- * The robot that lives in the showcase room. Static until the bridge reports for itself,
- * and it says so on the card rather than pretending to be live.
- */
-export const ROBOT_STATUS: RobotStatus = {
-  name: "Spidey",
-  state: "asleep",
-  lastRun: "28 Aug 2026, 21:40",
-};
+export const NAME_QUESTION = "What should we call you?";
+export const NAME_PLACEHOLDER = "Your name";
+export const NAME_UNSET_CHIP = "Set your name";
+/** What the members rail calls this browser before anybody typed a name. */
+export const YOU = "You";
 
-export const SHOWCASE_UNKNOWN = "open to see who is here";
-export const START_COLLABORATING = "Start collaborating";
+export const AGENT_HEADING = "Your agent";
+export const AGENT_OFF = "Not connected. Your ChatGPT joins when this page runs inside it.";
+export const AGENT_ON = "ChatGPT is in the room";
+export const AGENT_ROW_ON = "ChatGPT";
+export const AGENT_ROW_OFF = "not connected";
+
+export const CONTROLS_HEADING = "What you control";
 
 /* ---------- phone layout ---------- */
 

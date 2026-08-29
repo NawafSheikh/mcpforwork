@@ -12,7 +12,7 @@
  * - with a key (#k=), the room is encrypted end to end and the relay carries sealed
  *   envelopes it cannot read. Every room minted by Invite or create_room is one of these;
  * - without a key, the room is PUBLIC by design (docs/UI.md): unencrypted, listed, and
- *   the reason a stranger can open the showcase link and start working. It joins exactly
+ *   the reason a stranger can open a posted link and start working. It joins exactly
  *   like any other room and registers the same site tools.
  *
  * There is no locked screen at boot any more, because a link cannot be judged from here:
@@ -34,7 +34,6 @@ import {
 } from "./rooms";
 import { hasShareFragment, readShareFromLocation } from "./share";
 import { createStore } from "./shell/adapters/store";
-import { startScheduler } from "./shell/adapters/monitors";
 import { registerTools, type WebmcpStatusStore } from "./shell/adapters/webmcp";
 import { ShellProvider } from "./shell/context";
 import { roomBoot } from "./shell/lib/boot";
@@ -51,7 +50,7 @@ const IDLE_STATUS: WebmcpStatusStore = {
 };
 
 function readMode(): WorkspaceMode {
-  return new URLSearchParams(window.location.search).get("mode") === "live" ? "live" : "demo";
+  return new URLSearchParams(window.location.search).get("mode") === "live" ? "live" : "local";
 }
 
 /** index.html is owned elsewhere, so the shell attaches its own icon. */
@@ -123,19 +122,17 @@ function startRooms(store: WorkspaceStore, slug: string | null, secret?: string)
   if (slug !== null) joinRoom(slug);
 }
 
-/** The visitor's own board: tools registered once, demo monitors ticking. */
+/** The visitor's own board: tools registered once, nothing seeded. */
 async function mountWorkspace(root: Root): Promise<void> {
   const mode = readMode();
   const boot = roomBoot(window.location.href);
   const store = storeFor(mode, boot.slug === null ? null : await storeKeyFor(boot.slug, boot.secret));
   const controller = new AbortController();
   const statusStore = registerTools(store, controller.signal);
-  const stopScheduler = mode === "demo" ? startScheduler(store) : (): void => undefined;
   startRooms(store, boot.slug, boot.secret);
   window.addEventListener(
     "pagehide",
     () => {
-      stopScheduler();
       leaveRoom();
       controller.abort();
       // Best effort: pagehide gives no second chance, so a failed flush has no recovery path.
@@ -147,7 +144,7 @@ async function mountWorkspace(root: Root): Promise<void> {
 }
 
 function mountSnapshot(root: Root, workspace: Workspace): void {
-  const store = createWorkspaceStore({ mode: "demo", persist: false, initial: workspace });
+  const store = createWorkspaceStore({ mode: "local", persist: false, initial: workspace });
   mount(root, { store, statusStore: IDLE_STATUS, snapshot: true, editable: false });
 }
 
