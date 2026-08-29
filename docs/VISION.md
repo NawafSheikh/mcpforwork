@@ -66,3 +66,16 @@ the place where that becomes a team's workday.
 - A Claude-driven browser joined a live room through document.modelContext, saw all 25 tools,
   created a dashboard and left a note addressed to any agent, on the board a ChatGPT had built.
   Turns are addressed requests; the model behind each turn is whatever that person runs.
+
+### MCP marketplace for work (bring your own tools, collaborate through the page)
+- A catalog of work packs on the site: Teams, Power Apps canvas, Fabric, Dynamics 365, Zendesk,
+  Word, Windows, n8n. Several already exist as MCP servers in this portfolio.
+- A local bridge on the user's machine starts the packs they enable and exposes their tools into
+  the page as extra site tools over localhost. The page forwards each call; credentials never
+  leave the laptop. The browser treats localhost as a secure origin, so the only change on the
+  page is a CSP entry for ws://127.0.0.1.
+- Enabled packs appear on the person's capabilities card. A teammate's agent that needs a Teams
+  message or a Fabric query asks this person's agent through a note; it runs under this
+  person's guardrails; the result lands on the board. Access never travels, requests do.
+- Free packs for open tools, paid and private company packs later, installed through one bridge.
+- First spike: page, local bridge, one existing MCP server (fabric-mcp), one tool round trip.
