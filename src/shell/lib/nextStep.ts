@@ -31,6 +31,8 @@ export interface NextStepInput {
 export interface NextStepPrompts {
   readonly starter: string;
   readonly approveAll: string;
+  /** Offered when this board is done: the next piece of work gets its own workspace. */
+  readonly nextProject: string;
 }
 
 export interface NextStepCard {
@@ -106,7 +108,8 @@ export function nextStep(input: NextStepInput, prompts: NextStepPrompts): NextSt
   }
   return {
     id: "steady",
-    title: "Nothing is waiting",
-    body: "Ask for a change on any card, or leave a note and the next agent that calls picks it up.",
+    title: "Nothing is waiting here",
+    body: "Ask for a change on any card, leave a note for the next agent that calls, or start the next piece of work in its own workspace so it does not land on this board.",
+    prompt: prompts.nextProject,
   };
 }

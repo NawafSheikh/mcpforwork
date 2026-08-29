@@ -4,6 +4,7 @@
  */
 import { useDatasets } from "../../../dataset";
 import { usePacks, PacksPanel } from "../../../packs";
+import { savedLabel, useWorkspaces, WorkspacesPanel } from "../../adapters/workspaces";
 import { usePresence } from "../../../rooms";
 import { useWorkspace } from "../../context";
 import { CONTROLS_HEADING } from "../../lib/constants";
@@ -17,12 +18,16 @@ function useControlInput(): ControlInput {
   const workspace = useWorkspace();
   const presence = usePresence();
   const datasets = useDatasets();
+  const workspaces = useWorkspaces();
   const { packs } = usePacks();
   const on = packs.filter((view) => view.enabled);
   const count = (views: typeof packs): number =>
     views.reduce((sum, view) => sum + view.pack.tools.length, 0);
 
   return {
+    workspaces: workspaces.available ? workspaces.entries.length : 0,
+    workspaceName: workspaces.current.name,
+    saved: savedLabel(workspaces.saveState, workspaces.current.savedAt),
     categories: Object.keys(workspace.categories).length,
     monitors: Object.keys(workspace.monitors).length,
     toolsOn: count(on),
@@ -42,6 +47,13 @@ function Action({ row }: { readonly row: ControlRow }): JSX.Element {
     return (
       <Popover label={row.action} title="What agents may do in this room" panelClass="mfw-pop--tools">
         <PacksPanel />
+      </Popover>
+    );
+  }
+  if (row.id === "workspaces") {
+    return (
+      <Popover label={row.action} title="Boards saved in this browser" panelClass="mfw-pop--tools">
+        <WorkspacesPanel />
       </Popover>
     );
   }

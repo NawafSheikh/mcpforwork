@@ -50,7 +50,14 @@ describe("loading", () => {
   it("returns the shipped prompts when nothing is saved", () => {
     const state = loadPromptState(fakeStorage());
     expect(state.v).toBe(PROMPTS_VERSION);
-    expect(state.prompts.map((prompt) => prompt.id)).toEqual(["starter", "quick", "monitor", "approve-all"]);
+    expect(state.prompts.map((prompt) => prompt.id)).toEqual([
+      "starter",
+      "quick",
+      "monitor",
+      "projects",
+      "next-project",
+      "approve-all",
+    ]);
     expect(state.prompts.every((prompt) => prompt.builtIn)).toBe(true);
   });
 
@@ -76,6 +83,8 @@ describe("loading", () => {
     expect(state.prompts.map((prompt) => prompt.id).sort()).toEqual([
       "approve-all",
       "monitor",
+      "next-project",
+      "projects",
       "quick",
       "starter",
     ]);
@@ -99,6 +108,9 @@ describe("loading", () => {
   });
 });
 
+/** Derived, so adding a shipped prompt does not need every index in here edited. */
+const SEEDS = defaultPromptState().prompts.length;
+
 describe("saving", () => {
   it("writes the state under mfw:prompts and reads it back", () => {
     const storage = fakeStorage();
@@ -106,8 +118,8 @@ describe("saving", () => {
     expect(savePromptState(state, storage)).toBe(true);
     expect(JSON.parse(storage.dump() as string).v).toBe(PROMPTS_VERSION);
     const back = loadPromptState(storage);
-    expect(back.prompts).toHaveLength(5);
-    expect(back.prompts[4]?.name).toBe("Weekly");
+    expect(back.prompts).toHaveLength(SEEDS + 1);
+    expect(back.prompts[SEEDS]?.name).toBe("Weekly");
   });
 
   it("uses the documented key", () => {
@@ -123,14 +135,16 @@ describe("saving", () => {
 describe("editing", () => {
   it("adds a user prompt and lets it be deleted", () => {
     const added = addPrompt(defaultPromptState(), "  Weekly  ", "Summarise the week");
-    const mine = added.prompts[4];
+    const mine = added.prompts[SEEDS];
     expect(mine?.name).toBe("Weekly");
     expect(mine?.builtIn).toBe(false);
-    expect(removePrompt(added, mine?.id ?? "").prompts).toHaveLength(4);
+    expect(removePrompt(added, mine?.id ?? "").prompts).toHaveLength(SEEDS);
   });
 
   it("names an unnamed prompt rather than leaving it blank", () => {
-    expect(addPrompt(defaultPromptState(), "   ", "text").prompts[4]?.name).toBe("Untitled prompt");
+    expect(addPrompt(defaultPromptState(), "   ", "text").prompts[SEEDS]?.name).toBe(
+      "Untitled prompt",
+    );
   });
 
   it("stops at twenty prompts", () => {
@@ -163,13 +177,13 @@ describe("editing", () => {
 
   it("leaves a user prompt alone when asked to reset it", () => {
     const added = addPrompt(defaultPromptState(), "Weekly", "text");
-    expect(resetPrompt(added, added.prompts[4]?.id ?? "")).toBe(added);
+    expect(resetPrompt(added, added.prompts[SEEDS]?.id ?? "")).toBe(added);
   });
 
   it("resets everything, dropping the user prompts with it", () => {
     const messy = updatePrompt(fill(defaultPromptState(), 4), STARTER_ID, { text: "mine" });
     expect(resetAllPrompts()).toEqual(defaultPromptState());
-    expect(messy.prompts).toHaveLength(8);
+    expect(messy.prompts).toHaveLength(SEEDS + 4);
   });
 });
 

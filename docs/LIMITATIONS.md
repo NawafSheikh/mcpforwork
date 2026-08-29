@@ -58,6 +58,23 @@ where the edges are.
 - The board lives in the browser unless shared or in a room; a cleared cache loses it. Download
   board exists for that reason; accounts are the real fix.
 
+## Workspaces
+- Many boards in one browser, one per piece of work, listed in a directory under
+  `mfw:workspaces`. Every one of them is still only in that browser: they do not sync to a
+  second machine, they are not in a room, and a cleared cache loses all of them at once.
+  Download board is still the only copy you can keep. Accounts are the real fix.
+- Deleting a workspace deletes its board with it and there is no undo. It is a person's
+  action behind a confirm and no site tool can do it; Copy first if you are unsure.
+- A room board is never one of the workspaces. While the board is a room, create, rename,
+  copy and save are held with a sentence saying why, and nothing about the room board is
+  recorded against a workspace. Switching out reloads the page, which is a real
+  interruption rather than a smooth handover.
+- The directory caches each board's name and counts, refreshed only for the board that is
+  open. A workspace whose board was changed by something other than this page (a restored
+  backup written to its key, say) shows the counts it had when it was last open.
+- 24 workspaces per browser, 60 characters of name, 200 of note. Over the limit the panel
+  says so and nothing is created.
+
 ## Agent behaviour is not ours to guarantee
 - The page enforces its rules (validation, rate limits, policy refusals, audit); it cannot make an
   agent act. A careful model asked to "approve every pending draft" will skip held drafts

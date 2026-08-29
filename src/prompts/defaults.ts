@@ -6,13 +6,22 @@
  * defaults. Rendering a seed with its own defaults gives back the constant character
  * for character, which src/prompts/__tests__/prompts.test.ts checks on every run.
  */
-import { APPROVE_ALL_PROMPT, MONITOR_PROMPT, QUICK_PROMPT, STARTER_PROMPT } from "../shell/lib/constants";
+import {
+  APPROVE_ALL_PROMPT,
+  MONITOR_PROMPT,
+  NEXT_PROJECT_PROMPT,
+  PROJECTS_PROMPT,
+  QUICK_PROMPT,
+  STARTER_PROMPT,
+} from "../shell/lib/constants";
 import { PROMPTS_VERSION, type PromptRecord, type PromptState } from "./types";
 
 export const STARTER_ID = "starter";
 export const QUICK_ID = "quick";
 export const MONITOR_ID = "monitor";
 export const APPROVE_ALL_ID = "approve-all";
+export const PROJECTS_ID = "projects";
+export const NEXT_PROJECT_ID = "next-project";
 
 const SEEDS: readonly PromptRecord[] = [
   {
@@ -35,6 +44,19 @@ const SEEDS: readonly PromptRecord[] = [
     text: MONITOR_PROMPT.replace("on the Invoices category", "on the {{category}} category"),
     builtIn: true,
     vars: { category: "Invoices" },
+  },
+  {
+    id: PROJECTS_ID,
+    name: "A workspace per project (the big one)",
+    text: PROJECTS_PROMPT.replace("last 40 Gmail threads", "last {{threads}} Gmail threads"),
+    builtIn: true,
+    vars: { threads: 40 },
+  },
+  {
+    id: NEXT_PROJECT_ID,
+    name: "Start the next workspace",
+    text: NEXT_PROJECT_PROMPT,
+    builtIn: true,
   },
   {
     id: APPROVE_ALL_ID,

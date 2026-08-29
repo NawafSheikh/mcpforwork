@@ -10,6 +10,7 @@ import { capabilityToolDescriptions } from "../capabilities/tools";
 import { DATASET_TOOL_DESCRIPTIONS } from "../dataset/definitions";
 import { roomToolDescriptions } from "../rooms/handlers";
 import { turnToolDescriptions } from "../turns/tools";
+import { workspaceToolDescriptions } from "../workspaces/tools";
 import { annotationsFor } from "./annotations";
 import { jsonSchemas } from "./jsonSchemas";
 import type { ToolRegistry } from "./registry";
@@ -57,6 +58,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
   ...DATASET_TOOL_DESCRIPTIONS,
   ...turnToolDescriptions,
   ...capabilityToolDescriptions,
+  ...workspaceToolDescriptions,
 };
 
 function definitionFor(registry: ToolRegistry, name: ToolName): ToolDefinition {

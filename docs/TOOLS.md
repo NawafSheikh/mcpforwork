@@ -1,12 +1,12 @@
 # WebMCP tool contract (MCP for Work)
 
-**29 tools**, in five sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
-3 turn tools, 2 capability tools. They live in one registry and one name space
-(`src/webmcp/schemas.ts` merges `roomToolSchemas`, `datasetToolSchemas`, `turnToolSchemas`
-and `capabilityToolSchemas` into `toolSchemas`), so the header pill counts all 29 and the
-sections below are for reading, not for wiring.
+**34 tools**, in six sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
+3 turn tools, 2 capability tools, 5 workspace tools. They live in one registry and one
+name space (`src/webmcp/schemas.ts` merges `roomToolSchemas`, `datasetToolSchemas`,
+`turnToolSchemas`, `capabilityToolSchemas` and `workspaceToolSchemas` into `toolSchemas`),
+so the header pill counts all 34 and the sections below are for reading, not for wiring.
 
-Every one of the 29 belongs to exactly one **pack**, and a pack has a switch on the page.
+Every one of the 34 belongs to exactly one **pack**, and a pack has a switch on the page.
 A tool whose pack is off is unregistered from `document.modelContext` and refused by the
 registry; see "## Packs" below.
 
@@ -158,6 +158,7 @@ exactly `TOOL_NAMES`, each name once, so a tool can never end up with no switch 
 | turns | write | 3: claim, release, list_claims | claims and versions |
 | monitors | send | 7: register_monitor, report_monitor_run, list_monitors, get_run_log, approve_draft, decline_draft, set_policy | policies, runs and the approval queue: the pack that can act on the outside |
 | rooms | write | 5: get_room, create_room, share_board, publish_capabilities, list_capabilities | invite, presence and the capability cards |
+| workspaces | write | 5: list_workspaces, create_workspace, switch_workspace, rename_workspace, save_workspace | more than one board in this browser, one per project |
 
 `risk` is `read`, `write`, `send` or `move`, worst case first in the panel. `move` is the
 level above `send`: it is the one that can knock something over, and only a bridge pack
@@ -197,6 +198,36 @@ pack on this page, registered the same way and unregistered the whole way on dis
 The wire protocol is mcpforwork-bridge/docs/CONTRACT.md; the page needs
 `connect-src ws://127.0.0.1:* ws://localhost:*` in its CSP. Bridge tool names are not in
 `TOOL_NAMES` and are not counted by the header pill.
+
+## Workspaces (5 tools, src/workspaces)
+
+One browser, many boards. Each workspace is a whole Workspace object under its own
+IndexedDB key, listed in a small directory (`mfw:workspaces`) that says which one is open
+and what each one holds. The default workspace keeps the key every board used before this
+existed, so nobody's work moved. Saving is automatic a moment after every change; the
+explicit `save_workspace` flushes and reports the counts that are actually stored.
+
+The agent uses these to keep one job off another job's board: `create_workspace` for a new
+piece of work, `switch_workspace` to go back to an old one, `save_workspace` to close a run
+with a line saying what it holds.
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| list_workspaces | yes | {} | none | JSON: workspaces [{id, name, open, holds, categories, monitors, savedAt}], the open one, and whether everything is on disk. (untrustedContentHint) |
+| create_workspace | no | {name: string(1..60), note?: string(..200), activate?: boolean} | new empty board under a new key; the board being left is written first; opens it unless activate is false | "Workspace X is open and empty..." naming where the old board went |
+| switch_workspace | no | {workspace: name or id} | saves this board, opens the other | "Now on X: 3 categories, 1 monitor." Refused while this board is a room |
+| rename_workspace | no | {name: string(1..60)} | rename the open workspace and its board together | confirmation; a name already taken here gets a number added |
+| save_workspace | no | {note?: string(..200)} | flush to IndexedDB now and stamp the entry | "Saved X in this browser: 3 categories, 1 monitor." or the reason nothing could be stored |
+
+**There is no delete tool, deliberately.** Removing somebody's saved work is a person's
+action, from the Workspaces panel, behind a confirm.
+
+**A room board is not a workspace.** While the board is a shared room it belongs to the
+room, so create, rename, copy and save are all held with one sentence saying why, and
+nothing about the room board is stamped into a workspace entry. Switching is still
+allowed and is the way out: it reloads the page onto the chosen workspace, leaving the
+room. The site tool refuses that, because navigating a page out from under the people in
+a room is a person's decision, not an agent's.
 
 ## Datasets (4 tools, owner A11, src/dataset)
 

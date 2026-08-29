@@ -15,7 +15,8 @@ redesign puts the collaboration in the frame and the objects in the middle.
 ## Layout (three columns on wide screens, stacked on narrow)
 
 ### Top bar (room)
-- Wordmark, room name (editable by host), lock badge (encrypted room or local board), invite
+- Wordmark, room name (editable by host), lock badge (encrypted room or local board),
+  Workspaces (which board is open, whether it is saved, the whole list), invite
   (write link, read-only link), Tools (packs switches), your name chip, theme.
 - Connected-agent pill: "Site tools on: 29" or the exact fix if not.
 
@@ -55,9 +56,11 @@ in this order, in the centre column with the rails already around them:
 2. **"Your agent."** Outside the ChatGPT desktop browser: "Not connected. Your ChatGPT
    joins when this page runs inside it", the three steps, and copy buttons for the address
    and the starter prompt. Inside it: "ChatGPT is in the room" and the prompt card alone.
-3. **"What you control."** Five rows, each with its real state and one action: Board
+3. **"What you control."** Six rows, each with its real state and one action:
+   Workspaces ("My workspace, saved just now" or the name and how many more are here,
+   opens the Workspaces panel), Board
    ("empty, your agent builds it" or a category count), Guardrails ("no monitors yet" or a
-   count, opens Monitors), Tools ("29 tools in 6 packs, all on", opens the Tools popover),
+   count, opens Monitors), Tools ("34 tools in 7 packs, all on", opens the Tools popover),
    Rooms ("only this browser" or the room and its member count, Invite), Data ("nothing
    dropped" or a dataset count, opens Datasets).
 
@@ -88,3 +91,22 @@ FeedbackBox, RoomRequests. Rebuild the shell around them; do not rebuild them.
   clicking a header button.
 - Everything renders on a 390 px phone as a stacked layout with a bottom tab bar
   (Board, Requests, Live, People).
+
+## Workspaces (29 Aug, Nawaf: "allow people to create workspaces and save workspace")
+A person keeps more than one board in one browser, one per piece of work, and can see at
+a glance that it is saved.
+
+- **The button** is in the top bar next to the agent pill and reads "Workspaces", with the
+  count once there is more than one. Its tooltip is the answer to the question this page
+  kept getting asked: `My workspace: Saved just now`.
+- **The panel** is a list. A row is the name and what it holds ("3 categories, 1 monitor,
+  supplier mailbox only"); clicking it opens that board. Above the list: the save state
+  and a Save now button. Below it: one field, "New workspace, for example Invoices", and
+  Create and open. Per row: Copy (a version to fall back to, which does not move you off
+  the board you are on) and Delete (the only thing on the page that asks twice).
+- **Nothing is lost by switching.** The board being left is written to disk before the
+  other is read, and comes back exactly as it was.
+- **A room board is not a workspace**, and the panel says so instead of pretending: the
+  actions are held, and opening a workspace from there is the way out of the room.
+- **The agent has the same five moves** (docs/TOOLS.md, workspaces pack) except deleting,
+  which no tool can do.

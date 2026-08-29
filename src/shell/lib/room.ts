@@ -3,6 +3,7 @@ import type { Workspace } from "../../types";
 
 /** Names the store hands out before anybody renamed anything. */
 export const DEFAULT_WORKSPACE_NAMES: readonly string[] = [
+  "My workspace",
   "Local workspace",
   "Demo workspace",
   "Live workspace",

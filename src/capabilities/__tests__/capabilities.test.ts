@@ -81,7 +81,15 @@ describe("capability tools", () => {
       knows: ["D365 finance"],
     });
     // The site packs are measured, never declared: every pack is on for a local board.
-    expect(rows.capabilities[0]?.packs).toEqual(["board", "datasets", "notes", "turns", "monitors", "rooms"]);
+    expect(rows.capabilities[0]?.packs).toEqual([
+      "board",
+      "workspaces",
+      "datasets",
+      "notes",
+      "turns",
+      "monitors",
+      "rooms",
+    ]);
     expect(Object.keys(store.get().capabilities ?? {})).toEqual(["maria-agent"]);
   });
 

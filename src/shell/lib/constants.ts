@@ -16,6 +16,26 @@ export const QUICK_PROMPT =
   "into 3 or 4 categories, and on this page call create_category and upsert_dashboard for " +
   "each, then compose_overview. Use the real sender names, subjects, suppliers, amounts and dates as labels and notes; only the full message bodies stay in Gmail. Pass caller on every call.";
 
+/**
+ * The prompt that uses the most of ChatGPT in one run: its connectors to read the source,
+ * its sub-agents to read three areas at once, and a workspace per area so the second job
+ * does not land on top of the first. This is what the page is for, in one paste.
+ */
+export const PROJECTS_PROMPT =
+  "Do not put everything on one board. First call list_workspaces to see what is already here. " +
+  "Then read my last 40 Gmail threads, decide the 3 areas of work they are really about, and for each area: " +
+  "call create_workspace with the name a person would use and a line on what belongs in it, run a sub-agent " +
+  "over just that area's threads, and from what it finds call create_category, upsert_dataset_summary and " +
+  "upsert_dashboard per theme, then compose_overview. Finish each area with save_workspace and a note saying " +
+  "what it holds. Pass caller on every call so I can see which sub-agent did what, and tell me at the end " +
+  "what is in each workspace.";
+
+/** Offered once a board is done and nothing is waiting: start the next one beside it. */
+export const NEXT_PROJECT_PROMPT =
+  "This board is done. Call create_workspace for the next thing I am working on, named after it, then fill it " +
+  "from your connectors: create_category and upsert_dashboard per theme, compose_overview on top, and " +
+  "save_workspace with a line on what it holds. Leave this board exactly as it is.";
+
 /** Registers the guardrail and exercises it in the same turn. */
 export const MONITOR_PROMPT =
   "Register a monitor on the Invoices category every morning at 08:00 that holds anything " +

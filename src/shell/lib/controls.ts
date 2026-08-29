@@ -6,7 +6,7 @@
  * reads its state from the board, so an empty board says empty and never pretends.
  */
 
-export type ControlId = "board" | "guardrails" | "tools" | "rooms" | "data";
+export type ControlId = "workspaces" | "board" | "guardrails" | "tools" | "rooms" | "data";
 
 export interface ControlRow {
   readonly id: ControlId;
@@ -18,6 +18,14 @@ export interface ControlRow {
 }
 
 export interface ControlInput {
+  /**
+   * Saved boards in this browser, and whether the open one is on disk. Zero means this
+   * board is not one of them (a room opened from a link), and the row is left out rather
+   * than reporting a save state for a board that is saved with the room.
+   */
+  readonly workspaces: number;
+  readonly workspaceName: string;
+  readonly saved: string;
   readonly categories: number;
   readonly monitors: number;
   /** Tools registered by the packs that are on, and how many exist in total. */
@@ -50,9 +58,25 @@ export function roomsState(input: ControlInput): string {
   return `${input.room}, ${plural(input.people, "member", "members")}`;
 }
 
-/** The five rows, always in this order: the work, the rules, the reach, the people, the data. */
+/** What the Workspaces row says: which board is open, how many there are, saved or not. */
+export function workspacesState(input: ControlInput): string {
+  const others =
+    input.workspaces <= 1 ? "" : `, ${input.workspaces - 1} more here`;
+  return `${input.workspaceName}${others}, ${input.saved.toLowerCase()}`;
+}
+
+/**
+ * Six rows, always in this order: where the work is kept, the work, the rules, the
+ * reach, the people, the data. Workspaces is first because it is the thing everything
+ * else on the list lives inside, and because "is this saved" is the first question.
+ */
 export function controlRows(input: ControlInput): readonly ControlRow[] {
+  const workspaces: readonly ControlRow[] =
+    input.workspaces === 0
+      ? []
+      : [{ id: "workspaces", label: "Workspaces", state: workspacesState(input), action: "Workspaces" }];
   return [
+    ...workspaces,
     { id: "board", label: "Board", state: boardState(input.categories), action: "Open the board" },
     {
       id: "guardrails",

@@ -39,8 +39,8 @@ submission material. The short version:
 
 - One conversation read **50 unique Gmail threads** through ChatGPT's own Google Workspace
   connector and wrote **six category dashboards plus an overview** through the site tools
-  on this page. The header pill read "Site tools on: 15 registered" (waves 2 to 4 have
-  since added thirteen more tools, so a fresh page now registers 30).
+  on this page. The header pill read "Site tools on: 15 registered" (later waves added
+  more, so a fresh page now registers 34).
 - The work **fanned out**: two classification sub-agents ran side by side, shown in the UI
   as `Classify 1 25` and `Classify 26 50`, while the agent had its own aggregate reviewed
   for count drift and privacy leaks before anything was written.
@@ -133,7 +133,7 @@ a policy and the human approve path do not need an agent at all.
 
 ## The tools
 
-Thirty tools, registered once in the top-level page, so tabs never tear them down.
+Thirty-four tools, registered once in the top-level page, so tabs never tear them down.
 Every call is validated with zod, rate limited, audited, and returns a string under 1500
 characters. Read tools set `readOnlyHint`. Tools that echo text derived from your own data
 set `untrustedContentHint`. Full contract, including the zod shapes, is in
@@ -168,11 +168,43 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 | `claim` | no | Optional. Put your name on a dashboard, the overview, a monitor or a note before a long job. Writing already does this; it blocks nobody. |
 | `release` | no | Optional. Take your own name off an object. The write that finishes the work already does. |
 | `list_claims` | yes | Who is working on what right now, with how long they have held it. Expired claims are never listed. |
+| `publish_capabilities` | no | Your card: the packs on for you, the tools you have locally, a line on what you know. It describes you; it grants nothing. |
+| `list_capabilities` | yes | Everyone's cards, so a request can name the capability it needs instead of guessing who has the access. |
+| `list_workspaces` | yes | The saved boards in this browser, what each holds, when it was last saved, and which one is open. |
+| `create_workspace` | no | A new empty board for a new piece of work, opened. The board you were on is saved and one click away. |
+| `switch_workspace` | no | Open another saved board by name. This one is saved first. Refused while the board is a shared room. |
+| `rename_workspace` | no | Rename the open workspace once you can see what the work turned out to be. |
+| `save_workspace` | no | Flush to disk now and say what is in it. Saving is automatic anyway, a moment after every change. |
 
 Every tool also takes an optional `caller` string, at most 40 characters, with which the
 agent names itself. When ChatGPT splits work between sub-agents, the Activity rail shows
 which one wrote what: the 28 August run really did label two halves `Classify 1 25` and
 `Classify 26 50`.
+
+---
+
+## More than one board
+
+One browser holds as many workspaces as you want, one per piece of work. Each is a whole
+board with its own categories, monitors, policies and notes, saved under its own key.
+
+- **Workspaces** in the top bar says which one is open and whether it is on disk
+  ("Saved just now"). The panel is the list: click a row to open it, one field to make a
+  new one, Copy for a version to fall back to, Delete behind a confirm.
+- **Switching loses nothing.** The board being left is written before the next is read,
+  and comes back exactly as it was.
+- **Saving is automatic**, a moment after every change. Save now is there to force it and
+  be told, in words, what is actually stored.
+- **Your agent has the same moves.** `create_workspace` for a new job so it does not land
+  on the last one's board, `switch_workspace` to go back, `save_workspace` to close a run
+  with a line saying what it holds. There is no delete tool: losing your saved work is not
+  something an agent gets to do.
+- **A room board is not a workspace.** It belongs to the room, so the panel holds those
+  actions and says why; opening one of your workspaces is the way out of the room.
+
+The shipped prompt **"A workspace per project"** is the whole idea in one paste: ChatGPT
+reads the source through its own connectors, decides the three areas the work is really
+about, and builds each one in its own workspace with its own sub-agent, saving as it goes.
 
 ---
 

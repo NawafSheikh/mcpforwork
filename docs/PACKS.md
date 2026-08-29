@@ -2,8 +2,9 @@
 
 ## Packs
 A pack is a named group of site tools with a description, a risk level and an owner.
-- Built-in packs: `board` (categories, dashboards, overview), `datasets` (drop and profile files),
-  `notes` (feedback in all four directions), `turns` (claims, versions), `monitors` (policies,
+- Built-in packs: `board` (categories, dashboards, overview), `workspaces` (more than one
+  board in this browser, one per project), `datasets` (drop and profile files), `notes`
+  (feedback in all four directions), `turns` (claims, versions), `monitors` (policies,
   runs, approvals), `rooms` (invite, presence).
 - Work packs (catalog, delivered later through a local bridge): Teams, Power Apps canvas, Fabric,
   Dynamics 365, Zendesk, Word, Windows, n8n. Each lists its tools, what it needs on the

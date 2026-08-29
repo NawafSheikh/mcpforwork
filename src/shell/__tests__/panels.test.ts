@@ -17,7 +17,7 @@ import { pulseFor } from "../lib/pulse";
 import { boardIsEmpty, roomTitle } from "../lib/room";
 
 const NOW = new Date("2026-08-29T10:00:00.000Z");
-const PROMPTS = { starter: "STARTER", approveAll: "APPROVE ALL" };
+const PROMPTS = { starter: "STARTER", approveAll: "APPROVE ALL", nextProject: "NEXT PROJECT" };
 
 function category(name: string, rows: number): Category {
   return {
@@ -232,8 +232,10 @@ describe("the next step card", () => {
     expect(card.prompt).toBeUndefined();
   });
 
-  it("says nothing is waiting when nothing is", () => {
-    expect(nextStep({ ...base, inRoom: true, people: 3 }, PROMPTS).id).toBe("steady");
+  it("offers the next workspace when nothing is waiting", () => {
+    const card = nextStep({ ...base, inRoom: true, people: 3 }, PROMPTS);
+    expect(card.id).toBe("steady");
+    expect(card.prompt).toBe("NEXT PROJECT");
   });
 
   it("puts the board before everything else", () => {
@@ -256,12 +258,15 @@ describe("the next step card", () => {
 
 describe("what you control", () => {
   const input = {
+    workspaces: 1,
+    workspaceName: "My workspace",
+    saved: "Saved just now",
     categories: 0,
     monitors: 0,
-    toolsOn: 29,
-    toolsTotal: 29,
-    packsOn: 6,
-    packsTotal: 6,
+    toolsOn: 34,
+    toolsTotal: 34,
+    packsOn: 7,
+    packsTotal: 7,
     room: null,
     people: 1,
     datasets: 0,
@@ -269,17 +274,28 @@ describe("what you control", () => {
 
   it("says empty when the board is empty, and never invents a number", () => {
     const rows = controlRows(input);
-    expect(rows.map((row) => row.id)).toEqual(["board", "guardrails", "tools", "rooms", "data"]);
-    expect(rows[0]?.state).toBe("empty, your agent builds it");
-    expect(rows[1]?.state).toBe("no monitors yet");
-    expect(rows[2]?.state).toBe("29 tools in 6 packs, all on");
-    expect(rows[3]?.state).toBe("only this browser");
-    expect(rows[4]?.state).toBe("nothing dropped");
+    expect(rows.map((row) => row.id)).toEqual([
+      "workspaces",
+      "board",
+      "guardrails",
+      "tools",
+      "rooms",
+      "data",
+    ]);
+    expect(rows[0]?.state).toBe("My workspace, saved just now");
+    expect(rows[1]?.state).toBe("empty, your agent builds it");
+    expect(rows[2]?.state).toBe("no monitors yet");
+    expect(rows[3]?.state).toBe("34 tools in 7 packs, all on");
+    expect(rows[4]?.state).toBe("only this browser");
+    expect(rows[5]?.state).toBe("nothing dropped");
   });
 
   it("counts what is there once there is something there", () => {
     const rows = controlRows({
       ...input,
+      workspaces: 3,
+      workspaceName: "Invoices",
+      saved: "Saved 4m ago",
       categories: 4,
       monitors: 1,
       toolsOn: 21,
@@ -288,11 +304,12 @@ describe("what you control", () => {
       people: 2,
       datasets: 3,
     });
-    expect(rows[0]?.state).toBe("4 categories");
-    expect(rows[1]?.state).toBe("1 monitor");
-    expect(rows[2]?.state).toBe("21 of 29 tools, 5 of 6 packs on");
-    expect(rows[3]?.state).toBe("Q3 close, 2 members");
-    expect(rows[4]?.state).toBe("3 datasets");
+    expect(rows[0]?.state).toBe("Invoices, 2 more here, saved 4m ago");
+    expect(rows[1]?.state).toBe("4 categories");
+    expect(rows[2]?.state).toBe("1 monitor");
+    expect(rows[3]?.state).toBe("21 of 34 tools, 5 of 7 packs on");
+    expect(rows[4]?.state).toBe("Q3 close, 2 members");
+    expect(rows[5]?.state).toBe("3 datasets");
   });
 });
 

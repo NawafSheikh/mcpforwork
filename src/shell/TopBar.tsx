@@ -12,6 +12,7 @@ import { Popover } from "./topbar/Popover";
 import { LiveRoomBadge, RoomBadge } from "./topbar/RoomBadge";
 import { RoomName } from "./topbar/RoomName";
 import { ThemeToggle } from "./topbar/ThemeToggle";
+import { WorkspaceMenu } from "./topbar/WorkspaceMenu";
 
 function Wordmark(): JSX.Element {
   return (
@@ -51,6 +52,7 @@ export function TopBar({ snapshot = false, editable = true }: TopBarProps): JSX.
       <LiveRoomBadge />
       <span className="mfw-top__spacer" />
       <AgentPill />
+      <WorkspaceMenu />
       <InviteMenu />
       <Popover label="Tools" title="What agents may do in this room" panelClass="mfw-pop--tools">
         <PacksPanel />

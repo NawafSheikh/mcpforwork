@@ -9,7 +9,15 @@
 
 import type { PackRisk } from "../types";
 
-export const PACK_IDS = ["board", "datasets", "notes", "turns", "monitors", "rooms"] as const;
+export const PACK_IDS = [
+  "board",
+  "workspaces",
+  "datasets",
+  "notes",
+  "turns",
+  "monitors",
+  "rooms",
+] as const;
 
 export type PackId = (typeof PACK_IDS)[number];
 
@@ -43,6 +51,20 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
       "get_dashboard",
       "compose_overview",
       "clear_workspace",
+    ],
+  },
+  {
+    id: "workspaces",
+    name: "Workspaces",
+    description:
+      "More than one board in this browser: make one per project, switch between them, save. Deleting one is a person's job, so there is no tool for it.",
+    risk: "write",
+    tools: [
+      "list_workspaces",
+      "create_workspace",
+      "switch_workspace",
+      "rename_workspace",
+      "save_workspace",
     ],
   },
   {

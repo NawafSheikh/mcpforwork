@@ -1,0 +1,97 @@
+/* Workspaces panel. Tokens only, with readable fallbacks so the panel renders inside the
+   shell and on its own. A list, a name field, one state line. */
+
+.mfw-wss {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 460px;
+}
+
+.mfw-wss__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mfw-wss__state {
+  font-size: 12px;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-ws-rename form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mfw-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--mfw-border, #d8e0ea);
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: var(--mfw-surface, #fff);
+  color: var(--mfw-text, #16202b);
+  font: inherit;
+  font-size: 13px;
+}
+
+.mfw-input:focus-visible { outline: 2px solid var(--mfw-accent, #2f6feb); outline-offset: 1px; }
+
+.mfw-ws-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mfw-ws {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--mfw-border-soft, #e6ebf2);
+}
+
+.mfw-ws:last-child { border-bottom: none; }
+
+.mfw-ws__open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mfw-ws__open:hover:not(:disabled) { border-color: var(--mfw-accent, #2f6feb); }
+.mfw-ws__open:disabled { cursor: default; }
+.mfw-ws--open .mfw-ws__open { background: var(--mfw-accent-soft, #eaf1ff); }
+
+.mfw-ws__name { font-size: 13px; font-weight: 600; }
+.mfw-ws__line { font-size: 12px; color: var(--mfw-muted, #5b6b7e); }
+
+.mfw-ws__acts { display: inline-flex; gap: 4px; flex: 0 0 auto; }
+
+.mfw-btn-danger {
+  color: var(--mfw-danger, #b3261e);
+  border-color: color-mix(in srgb, var(--mfw-danger, #b3261e) 45%, transparent);
+}
+
+.mfw-ws-new {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}

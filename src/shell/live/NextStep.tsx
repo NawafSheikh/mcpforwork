@@ -5,20 +5,20 @@
  */
 import { useCallback } from "react";
 import { addressedFeedback } from "../../feedback";
-import { getPrompt, STARTER_ID } from "../../prompts";
+import { getPrompt, NEXT_PROJECT_ID, STARTER_ID } from "../../prompts";
 import { usePresence } from "../../rooms";
 import { useWebmcpStatus, useWorkspace } from "../context";
 import { copyText } from "../lib/clipboard";
-import { APPROVE_ALL_PROMPT } from "../lib/constants";
+import { APPROVE_ALL_PROMPT, NEXT_PROJECT_PROMPT } from "../lib/constants";
 import { useMyName } from "../lib/name";
 import { nextStep, type NextStepCard } from "../lib/nextStep";
 import { boardIsEmpty } from "../lib/room";
 import { useToast } from "../Toasts";
 
-/** The visitor's own edit of the shipped prompt, falling back to the shipped text. */
-function approveAllPrompt(): string {
-  const stored = getPrompt("approve-all");
-  return stored.trim().length === 0 ? APPROVE_ALL_PROMPT : stored;
+/** The visitor's own edit of a shipped prompt, falling back to the shipped text. */
+function editedPrompt(id: string, shipped: string): string {
+  const stored = getPrompt(id);
+  return stored.trim().length === 0 ? shipped : stored;
 }
 
 export function useNextStep(): NextStepCard {
@@ -36,7 +36,11 @@ export function useNextStep(): NextStepCard {
       inRoom: presence.slug !== null,
       people: presence.people,
     },
-    { starter: getPrompt(STARTER_ID), approveAll: approveAllPrompt() },
+    {
+      starter: getPrompt(STARTER_ID),
+      approveAll: editedPrompt("approve-all", APPROVE_ALL_PROMPT),
+      nextProject: editedPrompt(NEXT_PROJECT_ID, NEXT_PROJECT_PROMPT),
+    },
   );
 }
 

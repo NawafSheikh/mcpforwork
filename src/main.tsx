@@ -39,7 +39,15 @@ import { ShellProvider } from "./shell/context";
 import { roomBoot } from "./shell/lib/boot";
 import { initTheme } from "./shell/lib/theme";
 /** Snapshots need a store that never persists, which the shell adapter does not expose. */
-import { createWorkspaceStore } from "./store";
+import { createWorkspaceStore, workspaceKey, type PersistentWorkspaceStore } from "./store";
+import {
+  boardKeyFor,
+  configureWorkspaces,
+  createDirectoryStorage,
+  currentEntry,
+} from "./workspaces";
+import { setWorkspaceRoomCheck } from "./workspaces/tools";
+import { inRoom } from "./packs/host";
 import type { Workspace, WorkspaceMode, WorkspaceStore } from "./types";
 import "./styles/app.css";
 import "./styles/shell.css";
@@ -96,6 +104,19 @@ function storeFor(mode: WorkspaceMode, key: string | null): WorkspaceStore {
   return key === null ? createStore({ mode }) : createWorkspaceStore({ mode, key });
 }
 
+/**
+ * Which board this browser opens with.
+ *
+ * A room link opens the room's board, which belongs to the room and is not one of this
+ * browser's workspaces. Everything else opens whichever workspace was last in front of
+ * the person, which for a first visit is the board they already had under its old key.
+ */
+async function localBoot(): Promise<{ key: string; storage: ReturnType<typeof createDirectoryStorage> }> {
+  const storage = createDirectoryStorage();
+  const directory = await storage.load();
+  return { key: boardKeyFor(currentEntry(directory).id), storage };
+}
+
 /** Rooms, for the visitor's own board only. A #share snapshot never reaches this. */
 function startRooms(store: WorkspaceStore, slug: string | null, secret?: string): void {
   configureRooms({
@@ -126,7 +147,24 @@ function startRooms(store: WorkspaceStore, slug: string | null, secret?: string)
 async function mountWorkspace(root: Root): Promise<void> {
   const mode = readMode();
   const boot = roomBoot(window.location.href);
-  const store = storeFor(mode, boot.slug === null ? null : await storeKeyFor(boot.slug, boot.secret));
+  const local = boot.slug === null ? await localBoot() : null;
+  // The default workspace keeps the plain key, so createStore's own legacy fallback
+  // still finds a board saved before either workspaces or the rename existed.
+  const key =
+    boot.slug !== null
+      ? await storeKeyFor(boot.slug, boot.secret)
+      : local !== null && local.key === workspaceKey(mode)
+        ? null
+        : (local?.key ?? null);
+  const store = storeFor(mode, key);
+  if (local !== null) {
+    configureWorkspaces({
+      store: store as PersistentWorkspaceStore,
+      storage: local.storage,
+      inRoom,
+    });
+    setWorkspaceRoomCheck(inRoom);
+  }
   const controller = new AbortController();
   const statusStore = registerTools(store, controller.signal);
   startRooms(store, boot.slug, boot.secret);

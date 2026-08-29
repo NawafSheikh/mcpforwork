@@ -189,7 +189,7 @@ describe("the first run", () => {
     }
     expect(html).toContain("empty, your agent builds it");
     expect(html).toContain("no monitors yet");
-    expect(html).toContain("29 tools in 6 packs, all on");
+    expect(html).toContain("34 tools in 7 packs, all on");
     expect(html).toContain("only this browser");
     expect(html).toContain("nothing dropped");
   });

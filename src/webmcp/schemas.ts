@@ -15,6 +15,7 @@ import { capabilityToolSchemas } from "../capabilities/tools";
 import { datasetToolSchemas } from "../dataset/schemas";
 import { roomToolSchemas } from "../rooms/handlers";
 import { turnToolSchemas } from "../turns/tools";
+import { workspaceToolSchemas } from "../workspaces/tools";
 
 export const kpiSchema = z.object({
   label: z.string().min(1).max(40),
@@ -180,6 +181,7 @@ export const toolSchemas = {
   ...datasetToolSchemas,
   ...turnToolSchemas,
   ...capabilityToolSchemas,
+  ...workspaceToolSchemas,
 } as const;
 
 export type ToolName = keyof typeof toolSchemas;
