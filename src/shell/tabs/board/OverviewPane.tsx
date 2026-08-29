@@ -32,7 +32,7 @@ export function OverviewPane(props: OverviewPaneProps): JSX.Element {
   return (
     <div className="mfw-pane">
       {overview ? <OverviewSection {...props} spec={overview} /> : <NoOverview readOnly={readOnly} />}
-      <DropPanel readOnly={readOnly} />
+      <DropPanel readOnly={readOnly} folded />
       <DomainGrid
         categories={categories}
         onOpen={onOpen}

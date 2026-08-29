@@ -78,6 +78,8 @@ export function derivePatches(prev: Workspace, next: Workspace, origin: string, 
     ...recordPatches("feedback", prev.feedback, next.feedback, ctx),
     ...recordPatches("claim", prev.claims ?? {}, next.claims ?? {}, ctx),
     ...recordPatches("write", prev.lastWriter ?? {}, next.lastWriter ?? {}, ctx),
+    ...recordPatches("pack", prev.packs ?? {}, next.packs ?? {}, ctx),
+    ...recordPatches("capability", prev.capabilities ?? {}, next.capabilities ?? {}, ctx),
     ...listPatches("run", prev.runs, next.runs, runId, ctx, true),
     ...listPatches("audit", prev.audit, next.audit, eventId, ctx, false),
   ];
@@ -114,6 +116,8 @@ export function emptyLike(ws: Workspace): Workspace {
     feedback: {},
     claims: {},
     lastWriter: {},
+    packs: {},
+    capabilities: {},
     runs: [],
     audit: [],
   };

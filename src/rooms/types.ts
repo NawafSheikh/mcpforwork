@@ -21,6 +21,8 @@ export type PatchKind =
   | "feedback"
   | "claim"
   | "write"
+  | "pack"
+  | "capability"
   | "audit";
 
 export const PATCH_KINDS: readonly PatchKind[] = [
@@ -32,6 +34,8 @@ export const PATCH_KINDS: readonly PatchKind[] = [
   "feedback",
   "claim",
   "write",
+  "pack",
+  "capability",
   "audit",
 ];
 
@@ -39,8 +43,9 @@ export const PATCH_KINDS: readonly PatchKind[] = [
 export interface RoomPatch {
   readonly kind: PatchKind;
   /**
-   * Category name, monitor id, draft id, run id, feedback id, audit id, "overview", or
-   * the "<kind>:<id>" key a claim and a write mark share (docs/TURNS.md).
+   * Category name, monitor id, draft id, run id, feedback id, audit id, "overview", a
+   * pack id, a capability owner name, or the "<kind>:<id>" key a claim and a write mark
+   * share (docs/TURNS.md).
    */
   readonly key: string;
   readonly value: unknown;

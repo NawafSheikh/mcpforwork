@@ -7,7 +7,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useWorkspace } from "../../context";
-import { EmptyState } from "../EmptyState";
+import { Hero } from "../../../onboarding";
 import { CategoryNav, OVERVIEW_ID } from "./CategoryNav";
 import { CategoryPane } from "./CategoryPane";
 import { DropPanel } from "./DropPanel";
@@ -47,7 +47,7 @@ export function Board({ readOnly = false }: BoardProps): JSX.Element {
   if (categories.length === 0 && !workspace.overview) {
     return (
       <>
-        <EmptyState />
+        <Hero />
         <DropPanel readOnly={readOnly} />
       </>
     );

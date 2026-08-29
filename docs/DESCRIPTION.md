@@ -54,7 +54,7 @@ lets the agent chart a file it is never allowed to read.
 
 ## How WebMCP was implemented
 
-Twenty-eight tools registered once from the top-level page via `document.modelContext`
+Thirty tools registered once from the top-level page via `document.modelContext`
 (falling back to `navigator.modelContext`). Tabs are React state, never navigation, so the
 tool set survives the conversation. A shared snapshot registers nothing at all.
 

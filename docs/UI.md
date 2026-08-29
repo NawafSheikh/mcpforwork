@@ -17,7 +17,7 @@ redesign puts the collaboration in the frame and the objects in the middle.
 ### Top bar (room)
 - Wordmark, room name (editable by host), lock badge (encrypted room or local board), invite
   (write link, read-only link), Tools (packs switches), your name chip, theme.
-- Connected-agent pill: "Site tools on: 28" or the exact fix if not.
+- Connected-agent pill: "Site tools on: 30" or the exact fix if not.
 
 ### Left rail (people, agents, places)
 - Members: every person with their name, what they are viewing, what they hold. Every agent

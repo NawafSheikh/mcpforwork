@@ -1,9 +1,8 @@
 /** Activity: the audit rail, newest first, filterable by actor and by caller. */
 import { useMemo, useState } from "react";
 import type { Actor, AuditEvent } from "../../types";
-import { callerName } from "../AgentRail";
 import { useWorkspace } from "../context";
-import { actorIcon, formatClock, formatRelative } from "../lib/format";
+import { actorIcon, callerName, formatClock, formatRelative } from "../lib/format";
 
 type Filter = Actor | "all";
 

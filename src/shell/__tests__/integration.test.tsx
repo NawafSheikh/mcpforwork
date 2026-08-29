@@ -6,6 +6,7 @@ import { createWorkspaceStore } from "../../store";
 import { sampleWorkspace } from "../../demo/sampleWorkspace";
 import { AboutTab } from "../tabs/AboutTab";
 import { chooseTransport } from "../../rooms";
+import { LOCAL_BOARD_LABEL } from "../lib/constants";
 
 const statusStore = {
   get: () => ({ available: true, registered: 24 }),
@@ -24,10 +25,15 @@ function shell(node: JSX.Element, seeded = false): string {
 }
 
 describe("integration wiring", () => {
-  it("shows the invite button and no chip outside a room", () => {
+  it("shows the invite button and the local badge outside a room", () => {
     const html = shell(<App />);
-    expect(html).toContain("Invite to room");
+    expect(html).toContain("Invite");
+    expect(html).toContain(LOCAL_BOARD_LABEL);
     expect(html).not.toContain("people, ");
+  });
+
+  it("publishes the tool count in the top bar", () => {
+    expect(shell(<App />)).toContain("Site tools on: 24");
   });
 
   it("mounts the drop zone on the board and hides it in a snapshot", () => {

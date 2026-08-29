@@ -7,6 +7,10 @@
  */
 
 import type { ToolAnnotations } from "../types";
+import {
+  CAPABILITY_READ_ONLY_TOOLS,
+  CAPABILITY_UNTRUSTED_TOOLS,
+} from "../capabilities/tools";
 import { DATASET_READ_ONLY_TOOLS, DATASET_UNTRUSTED_TOOLS } from "../dataset/definitions";
 import { ROOM_READ_ONLY_TOOLS, ROOM_UNTRUSTED_CONTENT_TOOLS } from "../rooms/handlers";
 import { TURN_READ_ONLY_TOOLS, TURN_UNTRUSTED_CONTENT_TOOLS } from "../turns/tools";
@@ -22,6 +26,7 @@ export const READ_ONLY_TOOLS: readonly ToolName[] = [
   ...ROOM_READ_ONLY_TOOLS,
   ...DATASET_READ_ONLY_TOOLS,
   ...TURN_READ_ONLY_TOOLS,
+  ...CAPABILITY_READ_ONLY_TOOLS,
 ];
 
 export const UNTRUSTED_CONTENT_TOOLS: readonly ToolName[] = [
@@ -32,6 +37,7 @@ export const UNTRUSTED_CONTENT_TOOLS: readonly ToolName[] = [
   ...ROOM_UNTRUSTED_CONTENT_TOOLS,
   ...DATASET_UNTRUSTED_TOOLS,
   ...TURN_UNTRUSTED_CONTENT_TOOLS,
+  ...CAPABILITY_UNTRUSTED_TOOLS,
 ];
 
 export function annotationsFor(name: string, base?: ToolAnnotations): ToolAnnotations {

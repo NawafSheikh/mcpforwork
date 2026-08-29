@@ -40,7 +40,7 @@ submission material. The short version:
 - One conversation read **50 unique Gmail threads** through ChatGPT's own Google Workspace
   connector and wrote **six category dashboards plus an overview** through the site tools
   on this page. The header pill read "Site tools on: 15 registered" (waves 2 to 4 have
-  since added thirteen more tools, so a fresh page now registers 28).
+  since added thirteen more tools, so a fresh page now registers 30).
 - The work **fanned out**: two classification sub-agents ran side by side, shown in the UI
   as `Classify 1 25` and `Classify 26 50`, while the agent had its own aggregate reviewed
   for count drift and privacy leaks before anything was written.
@@ -134,7 +134,7 @@ button and the human approve path do not need an agent at all.
 
 ## The tools
 
-Twenty-eight tools, registered once in the top-level page, so tabs never tear them down.
+Thirty tools, registered once in the top-level page, so tabs never tear them down.
 Every call is validated with zod, rate limited, audited, and returns a string under 1500
 characters. Read tools set `readOnlyHint`. Tools that echo text derived from your own data
 set `untrustedContentHint`. Full contract, including the zod shapes, is in

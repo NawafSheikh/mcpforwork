@@ -30,8 +30,8 @@ export function formatRelative(iso: string, from: number = Date.now()): string {
   return `${Math.round(hours / 24)}d ago`;
 }
 
-/** Pull a category name out of an args preview without trusting its shape. */
-function readArgValue(preview: string | undefined, key: string): string | undefined {
+/** Pull a named value out of an args preview without trusting its shape. */
+export function argValue(preview: string | undefined, key: string): string | undefined {
   if (!preview) return undefined;
   const quoted = new RegExp(`"${key}"\s*:\s*"([^"]{1,60})"`).exec(preview);
   if (quoted?.[1]) return quoted[1];
@@ -68,9 +68,9 @@ export function describeToolEvent(event: AuditEvent): string {
   if (!event.ok && event.result) return truncate(event.result, REFUSAL_CHARS);
   const phrase = event.tool ? TOOL_PHRASES[event.tool] : undefined;
   const subject =
-    readArgValue(event.argsPreview, "category") ??
-    readArgValue(event.argsPreview, "name") ??
-    readArgValue(event.argsPreview, "title");
+    argValue(event.argsPreview, "category") ??
+    argValue(event.argsPreview, "name") ??
+    argValue(event.argsPreview, "title");
   if (!phrase) {
     const fallback = event.tool ?? "Tool call";
     return subject ? `${fallback}: ${truncate(subject, 40)}` : fallback;
@@ -84,3 +84,8 @@ export function actorIcon(actor: AuditEvent["actor"]): string {
   return "Sys";
 }
 
+/** Sub-agents name themselves; anything that did not is plain ChatGPT. */
+export function callerName(event: AuditEvent): string {
+  const caller = event.caller?.trim();
+  return caller !== undefined && caller.length > 0 ? caller : "ChatGPT";
+}

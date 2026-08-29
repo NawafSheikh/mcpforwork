@@ -8,14 +8,21 @@
  * A ?room= slug is the opposite: a live shared board. The fragment is checked first, so a
  * snapshot link never joins anything even when both are present.
  *
- * Rooms are encrypted end to end and the key rides in the same fragment (#k=). A room link
- * that arrives without its key cannot be read at all, so this file shows the locked card
- * and never joins: there is nothing useful a browser without the key could do in the room.
+ * Two kinds of room, and the difference is the key after the "#":
+ * - with a key (#k=), the room is encrypted end to end and the relay carries sealed
+ *   envelopes it cannot read. Every room minted by Invite or create_room is one of these;
+ * - without a key, the room is PUBLIC by design (docs/UI.md): unencrypted, listed, and
+ *   the reason a stranger can open the showcase link and start working. It joins exactly
+ *   like any other room and registers the same site tools.
+ *
+ * There is no locked screen at boot any more, because a link cannot be judged from here:
+ * the only honest signal is envelopes arriving that this browser cannot open, which the
+ * centre column reports ten seconds in (src/shell/center/useWrongKey.ts).
  */
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { App } from "./App";
-import { fingerprint, parseInvite } from "./crypto";
+import { fingerprint } from "./crypto";
 import { displayName } from "./feedback";
 import {
   configureRooms,
@@ -25,17 +32,18 @@ import {
   roomStorageKey,
   roomStoreKey,
 } from "./rooms";
-import { LockedRoom } from "./shell/LockedRoom";
 import { hasShareFragment, readShareFromLocation } from "./share";
 import { createStore } from "./shell/adapters/store";
 import { startScheduler } from "./shell/adapters/monitors";
 import { registerTools, type WebmcpStatusStore } from "./shell/adapters/webmcp";
 import { ShellProvider } from "./shell/context";
+import { roomBoot } from "./shell/lib/boot";
 import { initTheme } from "./shell/lib/theme";
 /** Snapshots need a store that never persists, which the shell adapter does not expose. */
 import { createWorkspaceStore } from "./store";
 import type { Workspace, WorkspaceMode, WorkspaceStore } from "./types";
 import "./styles/app.css";
+import "./styles/shell.css";
 
 const IDLE_STATUS: WebmcpStatusStore = {
   get: () => ({ available: false, registered: 0 }),
@@ -56,16 +64,19 @@ function ensureFavicon(): void {
   document.head.appendChild(link);
 }
 
-function mount(
-  root: Root,
-  store: WorkspaceStore,
-  statusStore: WebmcpStatusStore,
-  snapshot: boolean,
-): void {
+interface MountOptions {
+  readonly store: WorkspaceStore;
+  readonly statusStore: WebmcpStatusStore;
+  readonly snapshot: boolean;
+  /** False for a read-only room link. */
+  readonly editable: boolean;
+}
+
+function mount(root: Root, options: MountOptions): void {
   root.render(
     <StrictMode>
-      <ShellProvider store={store} statusStore={statusStore}>
-        <App snapshot={snapshot} />
+      <ShellProvider store={options.store} statusStore={options.statusStore}>
+        <App snapshot={options.snapshot} editable={options.editable} />
       </ShellProvider>
     </StrictMode>,
   );
@@ -73,8 +84,9 @@ function mount(
 
 /**
  * A room-scoped board persists under its own key, so two rooms and the local board never
- * overwrite each other. The key fingerprint is part of it, so the same slug under a
- * different room key never reads back a board this browser cannot decrypt anyway.
+ * overwrite each other. The key fingerprint is part of it for an encrypted room, so the
+ * same slug under a different room key never reads back a board this browser cannot
+ * decrypt anyway. A public room has no key, so it persists under the plain slug.
  */
 async function storeKeyFor(slug: string, secret: string | undefined): Promise<string> {
   const base = roomStoreKey(slug);
@@ -91,11 +103,12 @@ function startRooms(store: WorkspaceStore, slug: string | null, secret?: string)
     store,
     // The name on this browser's notes is the name other people see in presence too.
     label: displayName(),
-    agent: false, // The header flips this from the WebMCP status once tools register.
+    agent: false, // The top bar flips this from the WebMCP status once tools register.
     ...(secret === undefined ? {} : { secret }),
     onRoom: (opened: string) => {
-      // The invite URL, not the bare join URL: the key lives in the fragment, so dropping
-      // it from the address bar would lock this browser out of its own room on reload.
+      // The invite URL, not the bare join URL: an encrypted room keeps its key in the
+      // fragment, so dropping it from the address bar would lock this browser out of its
+      // own room on reload. For a public room the two are the same string.
       window.history.replaceState(null, "", inviteUrl(opened));
       // Move persistence to the room key rather than copying the board once: a one-shot
       // copy saves the board as it looked the instant the room opened, and every later
@@ -113,22 +126,12 @@ function startRooms(store: WorkspaceStore, slug: string | null, secret?: string)
 /** The visitor's own board: tools registered once, demo monitors ticking. */
 async function mountWorkspace(root: Root): Promise<void> {
   const mode = readMode();
-  const invite = parseInvite(window.location.href);
-  if (invite !== null && invite.locked) {
-    root.render(
-      <StrictMode>
-        <LockedRoom />
-      </StrictMode>,
-    );
-    return;
-  }
-  const slug = invite?.slug ?? null;
-  const secret = invite?.secret ?? undefined;
-  const store = storeFor(mode, slug === null ? null : await storeKeyFor(slug, secret));
+  const boot = roomBoot(window.location.href);
+  const store = storeFor(mode, boot.slug === null ? null : await storeKeyFor(boot.slug, boot.secret));
   const controller = new AbortController();
   const statusStore = registerTools(store, controller.signal);
   const stopScheduler = mode === "demo" ? startScheduler(store) : (): void => undefined;
-  startRooms(store, slug, secret);
+  startRooms(store, boot.slug, boot.secret);
   window.addEventListener(
     "pagehide",
     () => {
@@ -140,12 +143,12 @@ async function mountWorkspace(root: Root): Promise<void> {
     },
     { once: true },
   );
-  mount(root, store, statusStore, false);
+  mount(root, { store, statusStore, snapshot: false, editable: boot.role !== "read" });
 }
 
 function mountSnapshot(root: Root, workspace: Workspace): void {
   const store = createWorkspaceStore({ mode: "demo", persist: false, initial: workspace });
-  mount(root, store, IDLE_STATUS, true);
+  mount(root, { store, statusStore: IDLE_STATUS, snapshot: true, editable: false });
 }
 
 initTheme();

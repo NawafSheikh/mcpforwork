@@ -16,10 +16,20 @@ export interface DropPanelProps {
   readonly readOnly: boolean;
   /** Category pages pass their name and get the folded variant. */
   readonly compactFor?: string;
+  /** The overview folds it too: the summary is what a visitor should read first. */
+  readonly folded?: boolean;
 }
 
-export function DropPanel({ readOnly, compactFor }: DropPanelProps): JSX.Element | null {
+export function DropPanel({ readOnly, compactFor, folded = false }: DropPanelProps): JSX.Element | null {
   if (readOnly) return null;
+  if (compactFor === undefined && folded) {
+    return (
+      <details className="mfw-card mfw-drop">
+        <summary className="mfw-drop__summary">{HEADLINE}</summary>
+        <DropZone />
+      </details>
+    );
+  }
   if (compactFor === undefined) {
     return (
       <section className="mfw-card mfw-drop" aria-label={HEADLINE}>

@@ -75,19 +75,22 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 .mfw-muted { color: var(--mfw-muted); }
 .mfw-danger { color: var(--mfw-danger); }
 
-/* ---------- header ---------- */
+/* ---------- top bar (the room) ---------- */
 
-.mfw-header {
+.mfw-top {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: 14px;
+  padding: 10px 0 12px;
   border-bottom: 1px solid var(--mfw-border-soft);
+  background: var(--mfw-bg);
 }
 
-.mfw-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mfw-brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 
 .mfw-mark {
   display: inline-grid;
@@ -102,7 +105,45 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   letter-spacing: 0.02em;
 }
 
-.mfw-wordmark { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+.mfw-wordmark { font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+.mfw-top__spacer { flex: 1 1 auto; }
+
+.mfw-roomname {
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--mfw-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mfw-text);
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mfw-roomname--btn { background: none; font: inherit; font-weight: 600; cursor: text; }
+.mfw-roomname--btn:hover { border-color: var(--mfw-border); }
+.mfw-roomname--edit { background: var(--mfw-surface); border-color: var(--mfw-accent); }
+
+.mfw-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 5px 11px;
+  border: 1px solid var(--mfw-border);
+  border-radius: 999px;
+  background: var(--mfw-surface);
+  color: var(--mfw-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mfw-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.mfw-pill-ok { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 35%, transparent); }
+.mfw-pill-warn { color: var(--mfw-warn); border-color: color-mix(in srgb, var(--mfw-warn) 35%, transparent); }
 
 .mfw-badge {
   padding: 2px 8px;
@@ -114,28 +155,7 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   color: var(--mfw-muted);
 }
 
-.mfw-badge-live { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 40%, transparent); }
-
-.mfw-header-right { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-
-.mfw-header .mfw-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  max-width: 100%;
-  padding: 5px 11px;
-  border: 1px solid var(--mfw-border);
-  border-radius: 999px;
-  background: var(--mfw-surface);
-  color: var(--mfw-muted);
-  font-size: 12px;
-}
-
-.mfw-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
-.mfw-header .mfw-pill-ok { color: var(--mfw-ok); border-color: color-mix(in srgb, var(--mfw-ok) 35%, transparent); }
-.mfw-header .mfw-pill-warn { color: var(--mfw-warn); border-color: color-mix(in srgb, var(--mfw-warn) 35%, transparent); }
-
-/* ---------- buttons and tabs ---------- */
+/* ---------- buttons ---------- */
 
 .mfw-btn {
   padding: 7px 13px;
@@ -154,74 +174,38 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 .mfw-btn-primary { background: var(--mfw-accent-soft); border-color: color-mix(in srgb, var(--mfw-accent) 45%, transparent); color: var(--mfw-accent); }
 .mfw-btn-ghost { background: transparent; color: var(--mfw-muted); }
 
-.mfw-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 14px 0 18px; border-bottom: 1px solid var(--mfw-border-soft); }
-
-.mfw-tab {
-  padding: 9px 14px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--mfw-muted);
-  font: inherit;
-  font-size: 14px;
-  cursor: pointer;
+.mfw-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.mfw-tab:hover { color: var(--mfw-text); }
-.mfw-tab-active { color: var(--mfw-text); border-bottom-color: var(--mfw-accent); }
+/* ---------- popovers ---------- */
 
-/* ---------- layout ---------- */
+.mfw-pop-wrap { position: relative; display: inline-flex; }
 
-.mfw-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
-.mfw-main { min-width: 0; }
-
-.mfw-card {
-  padding: 18px;
-  border: 1px solid var(--mfw-border-soft);
+.mfw-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 35;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--mfw-border);
   border-radius: var(--mfw-radius);
   background: var(--mfw-surface);
   box-shadow: var(--mfw-shadow);
-  min-width: 0;
 }
 
-.mfw-board { display: flex; flex-direction: column; gap: var(--mfw-gap); }
-.mfw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--mfw-gap); }
-.mfw-monitors { display: flex; flex-direction: column; gap: var(--mfw-gap); }
-
-/* ---------- rail ---------- */
-
-.mfw-rail {
-  position: sticky;
-  top: 20px;
-  padding: 16px;
-  border: 1px solid var(--mfw-border-soft);
-  border-radius: var(--mfw-radius);
-  background: var(--mfw-bg-soft);
-}
-
-.mfw-rail-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mfw-muted); }
-.mfw-rail-empty { font-size: 13px; }
-.mfw-rail-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-.mfw-rail-item { display: flex; gap: 9px; align-items: flex-start; }
-.mfw-rail-body { display: flex; flex-direction: column; min-width: 0; }
-.mfw-rail-text { font-size: 13px; word-break: break-word; }
-.mfw-rail-meta { font-size: 11px; color: var(--mfw-muted); }
-
-.mfw-actor {
-  flex: none;
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 20px;
-  border-radius: 6px;
-  background: var(--mfw-surface-2);
-  color: var(--mfw-muted);
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.mfw-actor-agent { color: var(--mfw-accent); background: var(--mfw-accent-soft); }
-.mfw-actor-human { color: var(--mfw-ok); background: color-mix(in srgb, var(--mfw-ok) 12%, transparent); }
+.mfw-pop h4 { margin: 0 0 8px; }
+.mfw-pop__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.mfw-pop__note { margin: 8px 0 0; font-size: 12px; color: var(--mfw-muted); }
 
 /* ---------- board extras (src/dsl owns the dashboards themselves) ---------- */
 
@@ -388,49 +372,4 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
 .mfw-toast-ok { border-left-color: var(--mfw-ok); }
 .mfw-toast-warn { border-left-color: var(--mfw-warn); }
 
-/* ---------- narrow screens ---------- */
-
-@media (max-width: 1100px) {
-  .mfw-body { grid-template-columns: minmax(0, 1fr); }
-  .mfw-rail { display: none; }
-}
-
-@media (max-width: 640px) {
-  .mfw-grid, .mfw-steps { grid-template-columns: minmax(0, 1fr); }
-  .mfw-header-right { width: 100%; }
-  .mfw-draft-actions { width: 100%; }
-  .mfw-draft-actions .mfw-btn { flex: 1 1 auto; }
-  .mfw-run { grid-template-columns: minmax(0, 1fr); }
-}
-
-/* Locked room: a room link that arrived without its key (A16, src/shell/LockedRoom.tsx). */
-.mfw-locked { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-
-.mfw-locked-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: 460px;
-  padding: 24px;
-  border: 1px solid var(--mfw-border);
-  border-radius: var(--mfw-radius);
-  background: var(--mfw-surface);
-}
-
-.mfw-locked-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--mfw-accent);
-  color: var(--mfw-bg);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.mfw-locked-title { margin: 0; font-size: 18px; }
-.mfw-locked-body { margin: 0; color: var(--mfw-muted); }
 .mfw-monitor-flags { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }

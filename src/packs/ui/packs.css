@@ -1,0 +1,114 @@
+/* Tool packs panel. Owner A20.
+   Tokens only. Every colour is a --mfw-* variable with a readable fallback, so the panel
+   renders inside the shell and on its own. No ceremony: a list, a switch, a chip. */
+
+.mfw-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 320px;
+  max-width: 520px;
+}
+
+.mfw-packs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mfw-packs-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mfw-packs-head h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-packs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mfw-pack {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--mfw-border-soft, #e6ebf2);
+}
+
+.mfw-pack:last-child { border-bottom: none; }
+
+.mfw-pack-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.mfw-pack-switch input[disabled] { cursor: not-allowed; }
+
+.mfw-pack-name {
+  font-weight: 600;
+  color: var(--mfw-text, #14263c);
+}
+
+.mfw-pack-count {
+  font-size: 11px;
+  color: var(--mfw-muted, #5b6b7e);
+  white-space: nowrap;
+}
+
+.mfw-pack-desc,
+.mfw-pack-who {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-pack-who { font-style: italic; }
+
+.mfw-packs-warn {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mfw-warn, #b47d0e);
+}
+
+.mfw-chip-risk-send { color: var(--mfw-warn, #b47d0e); border-color: color-mix(in srgb, var(--mfw-warn, #b47d0e) 40%, transparent); }
+.mfw-chip-risk-move { color: var(--mfw-danger, #d64545); border-color: color-mix(in srgb, var(--mfw-danger, #d64545) 45%, transparent); }
+
+.mfw-robot {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--mfw-border, #d8e0ea);
+  border-radius: var(--mfw-radius-sm, 8px);
+  background: var(--mfw-surface-2, #f3f6fa);
+}
+
+.mfw-robot-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mfw-robot-line {
+  font-size: 12px;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-robot-safety { color: var(--mfw-ok, #1f9d6b); }

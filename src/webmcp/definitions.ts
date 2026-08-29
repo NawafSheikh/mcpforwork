@@ -1,11 +1,12 @@
 /**
- * The 28 tool definitions from docs/TOOLS.md, ready for registerTool.
+ * The 30 tool definitions from docs/TOOLS.md, ready for registerTool.
  * Every execute is the same one line: hand the name and the raw input to the registry,
  * which validates, rate limits, audits and truncates. Tools whose handler is owned by
  * another module still register: they answer "not wired yet" until that handler lands.
  */
 
 import { LIMITS, type ToolDefinition } from "../types";
+import { capabilityToolDescriptions } from "../capabilities/tools";
 import { DATASET_TOOL_DESCRIPTIONS } from "../dataset/definitions";
 import { roomToolDescriptions } from "../rooms/handlers";
 import { turnToolDescriptions } from "../turns/tools";
@@ -57,6 +58,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
   ...roomToolDescriptions,
   ...DATASET_TOOL_DESCRIPTIONS,
   ...turnToolDescriptions,
+  ...capabilityToolDescriptions,
 };
 
 function definitionFor(registry: ToolRegistry, name: ToolName): ToolDefinition {

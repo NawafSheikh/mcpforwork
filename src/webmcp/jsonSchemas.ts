@@ -6,6 +6,7 @@
  */
 
 import { LIMITS } from "../types";
+import { capabilityJsonSchemas } from "../capabilities/tools";
 import { datasetJsonSchemas } from "../dataset/jsonSchemas";
 import { roomJsonSchemas } from "../rooms/handlers";
 import { turnJsonSchemas } from "../turns/tools";
@@ -335,6 +336,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
   ...roomJsonSchemas,
   ...datasetJsonSchemas,
   ...turnJsonSchemas,
+  ...capabilityJsonSchemas,
 };
 
 /** caller is added once here so no tool can forget it. */

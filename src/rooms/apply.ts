@@ -17,6 +17,8 @@
  * The audit rail is the exception to rule 1: it is never overwritten and never deleted,
  * only merged by event id and capped, because a trail one peer can rewrite is not a trail.
  */
+import { coerceCapability } from "../capabilities/coerce";
+import { coercePackState } from "../packs/coerce";
 import { capAudit } from "../store/audit";
 import {
   coerceClaim,
@@ -30,6 +32,7 @@ import { coerceCategory, coerceOverview } from "../share/specs";
 import { isSafeKey } from "../share/coerce";
 import type {
   AuditEvent,
+  Capability,
   Category,
   Claim,
   DraftAction,
@@ -37,6 +40,7 @@ import type {
   Monitor,
   MonitorRun,
   OverviewSpec,
+  PackState,
   Workspace,
   WriteMark,
 } from "../types";
@@ -62,6 +66,8 @@ export type NormalPatch =
   | (PatchMeta & { readonly kind: "feedback"; readonly value: Feedback | null })
   | (PatchMeta & { readonly kind: "claim"; readonly value: Claim | null })
   | (PatchMeta & { readonly kind: "write"; readonly value: WriteMark | null })
+  | (PatchMeta & { readonly kind: "pack"; readonly value: PackState | null })
+  | (PatchMeta & { readonly kind: "capability"; readonly value: Capability | null })
   | (PatchMeta & { readonly kind: "audit"; readonly value: AuditEvent });
 
 export interface NormalizeResult {
@@ -168,6 +174,14 @@ function normalizeOne(patch: RoomPatch, at: string): NormalPatch | null {
       return gone
         ? { ...meta, kind: "write", value: null }
         : wrap(meta, "write", coerceWriteMark(patch.value, at));
+    case "pack":
+      return gone
+        ? { ...meta, kind: "pack", value: null }
+        : wrap(meta, "pack", coercePackState(patch.value, at));
+    case "capability":
+      return gone
+        ? { ...meta, kind: "capability", value: null }
+        : wrap(meta, "capability", coerceCapability(patch.value, at));
     case "audit": {
       const event = coerceAuditEvent(patch.value, at);
       return event === null ? null : { ...meta, kind: "audit", value: event };
@@ -194,6 +208,10 @@ function effectiveKey(patch: NormalPatch): string {
       return patch.value.name;
     case "claim":
       return `${patch.value.target.kind}:${patch.value.target.id}`;
+    case "pack":
+      return patch.value.id;
+    case "capability":
+      return patch.value.owner.name;
     case "monitor":
     case "run":
     case "draft":
@@ -254,6 +272,14 @@ function place(ws: Workspace, patch: NormalPatch): Workspace {
       return patch.value === null
         ? { ...ws, lastWriter: dropKey(ws.lastWriter ?? {}, patch.key) }
         : { ...ws, lastWriter: { ...ws.lastWriter, [patch.key]: patch.value } };
+    case "pack":
+      return patch.value === null
+        ? { ...ws, packs: dropKey(ws.packs ?? {}, patch.key) }
+        : { ...ws, packs: { ...ws.packs, [patch.value.id]: patch.value } };
+    case "capability":
+      return patch.value === null
+        ? { ...ws, capabilities: dropKey(ws.capabilities ?? {}, patch.key) }
+        : { ...ws, capabilities: { ...ws.capabilities, [patch.value.owner.name]: patch.value } };
     case "run":
       return patch.value === null
         ? { ...ws, runs: ws.runs.filter((run) => run.id !== patch.key) }

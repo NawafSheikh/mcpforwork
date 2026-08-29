@@ -236,6 +236,47 @@ export interface WriteMark {
   readonly byKind: "agent" | "person";
 }
 
+/* ---------- Tool packs and capabilities (docs/PACKS.md) ---------- */
+
+/**
+ * What a pack can do at its worst, shown next to the switch in the Tools panel.
+ * `move` is the level above `send`: it is the one that can knock something over.
+ */
+export type PackRisk = "read" | "write" | "send" | "move";
+
+/**
+ * One switch. Absent from the workspace means "never touched", which reads as the
+ * built-in default rather than as off, so a fresh board needs no state at all.
+ */
+export interface PackState {
+  readonly id: string;
+  readonly enabled: boolean;
+  /** Display name of the person, or caller name of the agent, that last flipped it. */
+  readonly changedBy: string;
+  readonly changedAt: ISODate;
+}
+
+export type CapabilityOwnerKind = "person" | "agent" | "robot";
+
+export interface CapabilityOwner {
+  readonly kind: CapabilityOwnerKind;
+  readonly name: string;
+}
+
+/**
+ * What one person, agent or robot can reach. `packs` is measured (the site packs on for
+ * them), `local` and `knows` are free text they declare about themselves. None of it is
+ * an identity claim and none of it authorises anything: it is a card to read before
+ * asking somebody for access to a system.
+ */
+export interface Capability {
+  readonly owner: CapabilityOwner;
+  readonly packs: readonly string[];
+  readonly local: readonly string[];
+  readonly knows: readonly string[];
+  readonly updatedAt: ISODate;
+}
+
 /* ---------- Workspace (the whole board) ---------- */
 
 export type WorkspaceMode = "demo" | "live";
@@ -254,6 +295,13 @@ export interface Workspace {
   readonly claims: Readonly<Record<string, Claim>>;
   /** Last writer per object, same key shape as claims. The version check reads this. */
   readonly lastWriter: Readonly<Record<string, WriteMark>>;
+  /**
+   * Tool packs that were switched by hand, keyed by pack id (docs/PACKS.md). Optional:
+   * a pack with no entry is at its built-in default, so an untouched board carries none.
+   */
+  readonly packs?: Readonly<Record<string, PackState>>;
+  /** Capability cards keyed by owner name. Optional for the same reason. */
+  readonly capabilities?: Readonly<Record<string, Capability>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -304,4 +352,8 @@ export const LIMITS = {
   conflictSeconds: 60,
   maxClaims: 40,
   maxWriteMarks: 80,
+  /** Capability cards kept on one board, and the caps on what one card may declare. */
+  maxCapabilities: 40,
+  maxCapabilityLines: 12,
+  maxCapabilityChars: 80,
 } as const;

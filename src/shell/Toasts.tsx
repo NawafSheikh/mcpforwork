@@ -1,6 +1,7 @@
 /** Toast host plus the bridge that turns new agent tool calls into toasts. */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { packToasts } from "../packs";
 import { useWorkspace } from "./context";
 import { describeToolEvent } from "./lib/format";
 import { newId } from "./lib/ids";
@@ -56,6 +57,16 @@ export function ToastProvider({ children }: { readonly children: ReactNode }): J
 
 export function useToast(): PushToast {
   return useContext(ToastContext);
+}
+
+/**
+ * The local bridge talks while nobody is looking at the packs panel: a queued action, a
+ * boundary refusal, a run that finished. Those are toasts like any other.
+ */
+export function PackToastBridge(): null {
+  const push = useToast();
+  useEffect(() => packToasts.subscribe((toast) => push(toast.text, toast.tone)), [push]);
+  return null;
 }
 
 /** Watches the audit rail and announces every new agent tool call once. */

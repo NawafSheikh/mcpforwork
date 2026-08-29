@@ -9,6 +9,7 @@
 import type { z } from "zod";
 import { LIMITS, type Workspace, type WorkspaceStore } from "../types";
 import { appendAudit, makeAuditEvent, truncate } from "../store/audit";
+import { packOffText } from "../packs/registry";
 import { withFeedbackNotice } from "./feedbackTools";
 import { openTurn, settleTurn } from "../turns/gate";
 import {
@@ -38,6 +39,16 @@ export interface ToolCallContext {
   readonly signal?: AbortSignal;
 }
 
+/**
+ * Which packs are on right now (docs/PACKS.md). Supplied by src/packs; without one every
+ * tool answers, which is what a board with no Tools panel wired should do.
+ */
+export interface PackGate {
+  /** The pack a tool belongs to, or null for a tool no pack claims. */
+  packOf(tool: string): string | null;
+  enabled(packId: string): boolean;
+}
+
 export interface ToolRegistry {
   call(name: string, input: unknown, ctx?: ToolCallContext): Promise<string>;
   /** True when the name is part of the published contract. */
@@ -50,6 +61,8 @@ export interface ToolRegistry {
 export interface RegistryOptions {
   readonly store: WorkspaceStore;
   readonly handlers: HandlerMap;
+  /** Pack switches. A tool whose pack is off is refused here as well as unregistered. */
+  readonly packs?: PackGate;
   readonly maxCallsPerMinute?: number;
   readonly windowMs?: number;
   readonly now?: () => number;
@@ -150,6 +163,12 @@ export function createToolRegistry(opts: RegistryOptions): ToolRegistry {
     const caller = readCaller(input);
     if (!limiter.take()) return record(name, input, rateLimitText(maxCalls), false, caller);
     if (!isToolName(name)) return record(name, input, unknownText(name), false, caller);
+    // A pack switched off in the Tools panel is off for everybody, including an agent
+    // still holding a tool list from before the switch moved.
+    const pack = opts.packs?.packOf(name) ?? null;
+    if (pack !== null && opts.packs?.enabled(pack) === false) {
+      return record(name, input, packOffText(pack), false, caller);
+    }
     const schema: z.ZodTypeAny = toolSchemas[name];
     const parsed = schema.safeParse(input ?? {});
     if (!parsed.success) {

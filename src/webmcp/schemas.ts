@@ -11,6 +11,7 @@ import { LIMITS } from "../types";
  * leaf files rather than the module barrels, so registering a tool never drags a React
  * component or a spreadsheet parser into the validation layer.
  */
+import { capabilityToolSchemas } from "../capabilities/tools";
 import { datasetToolSchemas } from "../dataset/schemas";
 import { roomToolSchemas } from "../rooms/handlers";
 import { turnToolSchemas } from "../turns/tools";
@@ -179,6 +180,7 @@ export const toolSchemas = {
   ...roomToolSchemas,
   ...datasetToolSchemas,
   ...turnToolSchemas,
+  ...capabilityToolSchemas,
 } as const;
 
 export type ToolName = keyof typeof toolSchemas;

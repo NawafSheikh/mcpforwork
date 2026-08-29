@@ -67,17 +67,66 @@ export const CHATGPT_STEPS_NOTE =
 /** Kept as the name the About tab and any older importer already use. */
 export const SETUP_STEPS: readonly string[] = CHATGPT_STEPS;
 
-export const TAB_IDS = ["board", "monitors", "activity", "about"] as const;
-export type TabId = (typeof TAB_IDS)[number];
+/** How many events the live feed keeps on screen. */
+export const RAIL_EVENT_COUNT = 40;
 
-export const TAB_LABELS: Readonly<Record<TabId, string>> = {
-  board: "Board",
-  monitors: "Monitors",
-  activity: "Activity",
-  about: "About",
+/* ---------- the room line in the top bar ---------- */
+
+export const LOCAL_BOARD_LABEL = "Local · this browser only";
+export const LOCAL_BOARD_NOTE =
+  "This board lives in this browser. Invite somebody and it becomes an encrypted room.";
+
+/**
+ * A room link with no key after the # is a public room, not a broken one: it is the one
+ * kind of room this build leaves unencrypted, so a stranger can open the showcase link
+ * and start working. Every room minted through Invite carries a key and is unlisted.
+ */
+export const PUBLIC_ROOM_LABEL = "Public room";
+export const PUBLIC_ROOM_NOTE =
+  "Anyone with the link can read and edit. Nothing here is private.";
+
+/** Shown in the centre when this browser holds a key that does not open the room. */
+export const WRONG_KEY_MESSAGE =
+  "This link's key does not open this room. Ask the person who invited you for the full link.";
+
+/** How long the page waits for something readable before it says the key is wrong. */
+export const WRONG_KEY_MS = 10_000;
+
+/* ---------- the landing room card ---------- */
+
+/** The public room the landing page shows. Unencrypted by design, listed on purpose. */
+export const SHOWCASE_ROOM = "showcase";
+
+export interface RobotStatus {
+  readonly name: string;
+  readonly state: "awake" | "asleep";
+  readonly lastRun: string;
+}
+
+/**
+ * The robot that lives in the showcase room. Static until the bridge reports for itself,
+ * and it says so on the card rather than pretending to be live.
+ */
+export const ROBOT_STATUS: RobotStatus = {
+  name: "Spidey",
+  state: "asleep",
+  lastRun: "28 Aug 2026, 21:40",
 };
 
-export const RAIL_EVENT_COUNT = 8;
+export const SHOWCASE_UNKNOWN = "open to see who is here";
+export const START_COLLABORATING = "Start collaborating";
+
+/* ---------- phone layout ---------- */
+
+export const PHONE_PANES = ["board", "requests", "live", "people"] as const;
+export type PhonePane = (typeof PHONE_PANES)[number];
+
+export const PHONE_LABELS: Readonly<Record<PhonePane, string>> = {
+  board: "Board",
+  requests: "Requests",
+  live: "Live",
+  people: "People",
+};
 
 /** Names the held items on purpose: an agent asked for "pending" will correctly skip held drafts. */
 export const APPROVE_ALL_PROMPT =

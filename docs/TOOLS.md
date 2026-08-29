@@ -1,9 +1,14 @@
 # WebMCP tool contract (MCP for Work)
 
-**28 tools**, in four sections: 19 board and monitor tools, 2 room tools, 4 dataset tools,
-3 turn tools. They live in one registry and one name space (`src/webmcp/schemas.ts` merges
-`roomToolSchemas`, `datasetToolSchemas` and `turnToolSchemas` into `toolSchemas`), so the
-header pill counts all 28 and the sections below are for reading, not for wiring.
+**30 tools**, in five sections: 19 board and monitor tools, 2 room tools, 4 dataset tools,
+3 turn tools, 2 capability tools. They live in one registry and one name space
+(`src/webmcp/schemas.ts` merges `roomToolSchemas`, `datasetToolSchemas`, `turnToolSchemas`
+and `capabilityToolSchemas` into `toolSchemas`), so the header pill counts all 30 and the
+sections below are for reading, not for wiring.
+
+Every one of the 30 belongs to exactly one **pack**, and a pack has a switch on the page.
+A tool whose pack is off is unregistered from `document.modelContext` and refused by the
+registry; see "## Packs" below.
 
 All tools register once, in the top-level page, via `document.modelContext.registerTool`
 (fallback `navigator.modelContext`). Tabs are React state, never navigation, so tools
@@ -139,6 +144,60 @@ asks a human for permission. The design is docs/TURNS.md.
    other one added survives the merge.
 3. Nothing in the turn model asks a human to unblock it. Humans get decisions (held
    drafts) and information (badges, the room thread, the rail), never gates.
+
+## Packs (owner A20, src/packs and src/capabilities)
+
+Every published tool belongs to exactly one pack, and a pack is one switch in the Tools
+panel (docs/PACKS.md). `src/packs/registry.ts` is the grouping; a test asserts it is
+exactly `TOOL_NAMES`, each name once, so a tool can never end up with no switch over it.
+
+| Pack | Risk | Tools | What it is |
+|---|---|---|---|
+| board | write | 8: get_workspace, create_category, upsert_dataset_summary, upsert_dashboard, get_dashboard, compose_overview, seed_demo_workspace, clear_workspace | categories, dashboards and the overview |
+| datasets | write | 4: list_datasets, get_dataset_profile, aggregate_dataset, attach_dataset_to_category | profile and aggregate dropped files; rows never leave the browser |
+| notes | write | 3: add_feedback, list_feedback, resolve_feedback | requests in all four directions |
+| turns | write | 3: claim, release, list_claims | claims and versions |
+| monitors | send | 7: register_monitor, report_monitor_run, list_monitors, get_run_log, approve_draft, decline_draft, set_policy | policies, runs and the approval queue: the pack that can act on the outside |
+| rooms | write | 5: get_room, create_room, share_board, publish_capabilities, list_capabilities | invite, presence and the capability cards |
+
+`risk` is `read`, `write`, `send` or `move`, worst case first in the panel. `move` is the
+level above `send`: it is the one that can knock something over, and only a bridge pack
+carrying a robot profile with a stop and a boundary is ever allowed to be one.
+
+### Switching
+- **Defaults**: everything on. In a room, a pack whose risk is `send` or `move` starts
+  **off**, because a room is other people's tools as well as yours. A pack nobody has
+  touched carries no state at all, so every peer computes the same default from the same
+  rules; a hand-flipped switch is stored on the Workspace as `packs[id]` and syncs as the
+  `pack` entity, last writer wins.
+- **Who**: outside a room, the person looking at the page. Inside a room, only the host,
+  and everybody else sees the switches disabled with the reason. Rooms exposes no host
+  yet, so the fallback is the lowest client id in presence, which every browser computes
+  identically.
+- **Effect**: switching a pack off unregisters exactly its tools from
+  `document.modelContext` at once (one AbortController per pack), so an agent mid-task
+  loses them on its next call. A call that arrives anyway is refused by the registry with
+  `The <pack> pack is off in this room; ask the host.` and audited as `ok: false`.
+
+### Capability tools (2 tools, part of the `rooms` pack)
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| publish_capabilities | no | {owner?: {kind: "person"\|"agent"\|"robot", name}, local?: string[0..12], knows?: string[0..12]} | store one card, keyed by owner name; `packs` is measured from the switches, never declared | confirmation naming the packs on, what is held locally and what the owner knows |
+| list_capabilities | yes | {} | none | JSON: capabilities [{name, kind, packs, local, knows, updatedAt}], newest first, trimmed from the end to fit. (untrustedContentHint) |
+
+A card says what one person, agent or robot can reach. It is a description, never a
+permission: publishing one unlocks nothing and not having one denies nothing. The point is
+that an agent can find who has access to a system before asking for it, and then address
+the request with `add_feedback` to that name instead of guessing.
+
+### Bridge packs (local, not on the site)
+A visitor can switch on **Local bridge** in the panel, which connects to
+`ws://127.0.0.1:7331` (never automatically) and turns each pack the bridge serves into a
+pack on this page, registered the same way and unregistered the whole way on disconnect.
+The wire protocol is mcpforwork-bridge/docs/CONTRACT.md; the page needs
+`connect-src ws://127.0.0.1:* ws://localhost:*` in its CSP. Bridge tool names are not in
+`TOOL_NAMES` and are not counted by the header pill.
 
 ## Datasets (4 tools, owner A11, src/dataset)
 

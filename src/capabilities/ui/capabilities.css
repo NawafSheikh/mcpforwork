@@ -1,0 +1,51 @@
+/* Capability cards. Owner A20.
+   Tokens only: every colour is a --mfw-* variable with a readable fallback, so a card
+   renders on its own (a test page, a shared snapshot) as well as inside the shell. */
+
+.mfw-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--mfw-border, #d8e0ea);
+  border-radius: var(--mfw-radius-sm, 8px);
+  background: var(--mfw-surface, #ffffff);
+}
+
+.mfw-cap-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mfw-cap-name {
+  font-weight: 600;
+  color: var(--mfw-text, #14263c);
+}
+
+.mfw-cap-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mfw-cap-label {
+  min-width: 76px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-cap-ask {
+  align-self: flex-start;
+}
+
+.mfw-cap-robot { border-color: color-mix(in srgb, var(--mfw-warn, #b47d0e) 45%, transparent); }
+.mfw-cap-agent { border-color: color-mix(in srgb, var(--mfw-accent, #2f6fed) 35%, transparent); }
+
+.mfw-cap-list {
+  display: grid;
+  gap: 8px;
+}

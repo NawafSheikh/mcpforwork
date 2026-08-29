@@ -62,6 +62,8 @@ export function emptyWorkspace(mode: WorkspaceMode, at: string = new Date().toIS
     feedback: {},
     claims: {},
     lastWriter: {},
+    packs: {},
+    capabilities: {},
     audit: [],
     updatedAt: at,
   };
@@ -90,6 +92,8 @@ export function coerceWorkspace(raw: unknown, mode: WorkspaceMode): Workspace | 
     feedback: isRecord(raw.feedback) ? (raw.feedback as Workspace["feedback"]) : {},
     claims: isRecord(raw.claims) ? (raw.claims as Workspace["claims"]) : {},
     lastWriter: isRecord(raw.lastWriter) ? (raw.lastWriter as Workspace["lastWriter"]) : {},
+    packs: isRecord(raw.packs) ? (raw.packs as Workspace["packs"]) : {},
+    capabilities: isRecord(raw.capabilities) ? (raw.capabilities as Workspace["capabilities"]) : {},
     audit: capAudit(raw.audit as readonly AuditEvent[]),
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : base.updatedAt,
   };
