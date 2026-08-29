@@ -92,3 +92,13 @@ the place where that becomes a team's workday.
 - Parts requests and new robots are ordinary objects: a note to the owner, a capabilities card
   for any robot whose bridge speaks the pack contract.
 - Snapshots land on the board so the room sees what the robot sees.
+
+### One robot, many hands (29 Aug 2026)
+- One action queue per robot: requests carry who asked, what, and the predicted end position.
+  Arrival order by default; a person's request goes ahead of an agent's; the owner's stop
+  interrupts anything. The queue is visible to the room.
+- Every executed action leaves a run record: position before and after, clearance, snapshot,
+  cycles, time. The room collaborates on records, not opinions.
+- Actions are versioned recipes with parameters. Anyone proposes a change with a note; it runs
+  as a trial, is measured against the records, and is kept only if it beats the current version.
+  One change per round, keep only regression-free wins, the harness rule.

@@ -44,6 +44,19 @@ redesign puts the collaboration in the frame and the objects in the middle.
 - Next step card for the connected agent: the exact prompt to paste next, updated by state
   (empty board: starter; open requests: "check list_feedback"; held drafts: approve prompt).
 
+
+## Landing page: the live room card (29 Aug, Nawaf)
+- The first thing on mcpforwork.com is a live public room: room code and link, who is in it now
+  (people, agents, the robot as a constant presence with status: awake, asleep, last run), and
+  one button, Start collaborating. Joining is one click; nothing else is asked.
+- The next step card reacts to what the visitor does: opened ChatGPT beside the page, typed,
+  closed it, joined a room. It always shows the one most useful thing to do next, in plain
+  words, with the prompt ready to copy.
+- Output appears live on the same page as people and agents work, so a newcomer sees the room
+  working before they do anything.
+- Public rooms are listed and unencrypted by design (boundary and queue enforced by the robot
+  bridge); every other room is encrypted and unlisted.
+
 ## States
 - First visit outside ChatGPT: the hero with the three steps and Watch it build, inside the
   center column, with the rails already visible (empty members list explains rooms).
