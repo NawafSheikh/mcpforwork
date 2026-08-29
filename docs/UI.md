@@ -99,8 +99,8 @@ a glance that it is saved.
 - **The button** is in the top bar next to the agent pill and reads "Workspaces", with the
   count once there is more than one. Its tooltip is the answer to the question this page
   kept getting asked: `My workspace: Saved just now`.
-- **The panel** is a list. A row is the name and what it holds ("3 categories, 1 monitor,
-  supplier mailbox only"); clicking it opens that board. Above the list: the save state
+- **The panel** is a list. A row is the name and what is in it ("3 things on the go,
+  1 request waiting, supplier side only"); clicking it opens that workspace. Above the list: the save state
   and a Save now button. Below it: one field, "New workspace, for example Invoices", and
   Create and open. Per row: Copy (a version to fall back to, which does not move you off
   the board you are on) and Delete (the only thing on the page that asks twice).

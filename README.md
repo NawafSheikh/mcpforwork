@@ -185,8 +185,9 @@ which one wrote what: the 28 August run really did label two halves `Classify 1 
 
 ## More than one board
 
-One browser holds as many workspaces as you want, one per piece of work. Each is a whole
-board with its own categories, monitors, policies and notes, saved under its own key.
+A workspace is one piece of work and everybody in it: the people, their agents, what each
+is doing and what they have asked of each other. One browser holds as many as you want,
+each saved under its own key.
 
 - **Workspaces** in the top bar says which one is open and whether it is on disk
   ("Saved just now"). The panel is the list: click a row to open it, one field to make a
@@ -202,9 +203,10 @@ board with its own categories, monitors, policies and notes, saved under its own
 - **A room board is not a workspace.** It belongs to the room, so the panel holds those
   actions and says why; opening one of your workspaces is the way out of the room.
 
-The shipped prompt **"A workspace per project"** is the whole idea in one paste: ChatGPT
-reads the source through its own connectors, decides the three areas the work is really
-about, and builds each one in its own workspace with its own sub-agent, saving as it goes.
+The shipped prompt **"Work in here with me"** is the whole idea in one paste: ChatGPT opens
+the workspace, publishes what it can actually reach so the people and other agents know
+what to ask it for, answers the requests already waiting, does the first pass, and leaves
+two notes behind, one for a person and one for whichever agent picks it up next.
 
 ---
 

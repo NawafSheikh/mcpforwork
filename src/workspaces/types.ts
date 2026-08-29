@@ -7,7 +7,13 @@
  * the picker can show real counts without loading five boards.
  */
 
-/** One saved board. The counts are a cache of that board, refreshed when it is open. */
+/**
+ * One saved workspace: a place people and their agents work together on one thing.
+ *
+ * The two numbers are what somebody scanning the list actually wants to know: how much
+ * is on it, and how much is waiting on somebody. They are a cache of that board,
+ * refreshed while it is open.
+ */
 export interface WorkspaceEntry {
   readonly id: string;
   readonly name: string;
@@ -16,8 +22,10 @@ export interface WorkspaceEntry {
   readonly createdAt: string;
   /** The last time this board was written to storage, not the last time it changed. */
   readonly savedAt: string;
-  readonly categories: number;
-  readonly monitors: number;
+  /** Things being worked on here. */
+  readonly work: number;
+  /** Requests nobody has answered yet, in any of the four directions. */
+  readonly requests: number;
 }
 
 export interface WorkspaceDirectory {

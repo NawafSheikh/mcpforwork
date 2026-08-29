@@ -56,8 +56,9 @@ function coerceEntry(raw: unknown): WorkspaceEntry | null {
     ...(note === undefined ? {} : { note }),
     createdAt,
     savedAt: text(raw.savedAt, 40) ?? createdAt,
-    categories: count(raw.categories),
-    monitors: count(raw.monitors),
+    // `categories` is what an entry written before the rename called its work count.
+    work: count(raw.work ?? raw.categories),
+    requests: count(raw.requests),
   };
 }
 
@@ -68,8 +69,8 @@ export function defaultEntry(at: string = new Date().toISOString()): WorkspaceEn
     name: DEFAULT_WORKSPACE_NAME,
     createdAt: at,
     savedAt: at,
-    categories: 0,
-    monitors: 0,
+    work: 0,
+    requests: 0,
   };
 }
 

@@ -69,9 +69,10 @@ where the edges are.
   copy and save are held with a sentence saying why, and nothing about the room board is
   recorded against a workspace. Switching out reloads the page, which is a real
   interruption rather than a smooth handover.
-- The directory caches each board's name and counts, refreshed only for the board that is
-  open. A workspace whose board was changed by something other than this page (a restored
-  backup written to its key, say) shows the counts it had when it was last open.
+- The directory caches each workspace's name, how much is on the go and how many requests
+  are waiting, refreshed only while it is open. A workspace changed by something other
+  than this page (a restored backup written to its key, say) shows what it held when it
+  was last open.
 - 24 workspaces per browser, 60 characters of name, 200 of note. Over the limit the panel
   says so and nothing is created.
 

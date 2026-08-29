@@ -109,7 +109,7 @@ export function nextStep(input: NextStepInput, prompts: NextStepPrompts): NextSt
   return {
     id: "steady",
     title: "Nothing is waiting here",
-    body: "Ask for a change on any card, leave a note for the next agent that calls, or start the next piece of work in its own workspace so it does not land on this board.",
+    body: "Ask for a change, leave a note for the next person or agent that arrives, or open the next piece of work in its own workspace so it does not land on this one.",
     prompt: prompts.nextProject,
   };
 }

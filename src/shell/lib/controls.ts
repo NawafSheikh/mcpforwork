@@ -58,7 +58,7 @@ export function roomsState(input: ControlInput): string {
   return `${input.room}, ${plural(input.people, "member", "members")}`;
 }
 
-/** What the Workspaces row says: which board is open, how many there are, saved or not. */
+/** Which workspace you are in, how many more are here, and whether it is on disk. */
 export function workspacesState(input: ControlInput): string {
   const others =
     input.workspaces <= 1 ? "" : `, ${input.workspaces - 1} more here`;
@@ -66,9 +66,9 @@ export function workspacesState(input: ControlInput): string {
 }
 
 /**
- * Six rows, always in this order: where the work is kept, the work, the rules, the
- * reach, the people, the data. Workspaces is first because it is the thing everything
- * else on the list lives inside, and because "is this saved" is the first question.
+ * Six rows, always in this order: which piece of work you are in, the work itself, the
+ * rules, what agents can reach, who is here, the data. Workspaces is first because it is
+ * the thing everything else lives inside, and because "is this saved" is asked first.
  */
 export function controlRows(input: ControlInput): readonly ControlRow[] {
   const workspaces: readonly ControlRow[] =

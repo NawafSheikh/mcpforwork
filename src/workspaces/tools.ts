@@ -125,15 +125,15 @@ export const WORKSPACE_UNTRUSTED_TOOLS: readonly WorkspaceToolName[] = ["list_wo
 
 export const workspaceToolDescriptions: Readonly<Record<WorkspaceToolName, string>> = {
   list_workspaces:
-    "List the saved boards in this browser: name, what each one holds, when it was last saved, and which one is open. Call it before you start building so you extend the right board instead of piling a second job onto the first one. Each workspace is a separate board with its own categories, monitors, policies and notes.",
+    "List the workspaces in this browser: what each one is for, how much is on the go in it, how many requests are still waiting on somebody, and which one is open. Call it before you start so you join the right piece of work instead of piling a second job on top of the first. A workspace is a place people and their agents work together, and each one is separate.",
   create_workspace:
-    "Make a new empty board for a new piece of work and open it, so this job does not land on top of the last one. Give it the name a person would use (\"Invoices\", \"Q3 hiring\") and a line on what belongs in it. The board you were on is saved and stays one click away. Use one workspace per project, then fill it with create_category and upsert_dashboard.",
+    "Open a new workspace for a new piece of work, so this job does not land on top of the last one. Name it the way a person would (\"Q3 hiring\", \"Supplier invoices\") and add a line on what belongs in it. It is a place people and their agents share: the work, who is doing what, the requests between them and the rules they agreed. The one you were in is saved and one click away.",
   switch_workspace:
-    "Open another saved board by name or id, from list_workspaces. The board you are on is saved first, so nothing is lost either way. After switching, call get_workspace: you are looking at different categories, different monitors and different notes. Refused while this board is a shared room, because a room board belongs to the room.",
+    "Go into another workspace by name or id, from list_workspaces. The one you are in is saved first, so nothing is lost either way. Call get_workspace and list_feedback once you arrive: different work, different people asking for different things. Refused while this is a shared room, because a room belongs to the people in it, not to this browser.",
   rename_workspace:
-    "Rename the workspace that is open. Use it once you can see what the work actually turned out to be, so the picker says \"Supplier invoices\" instead of whatever it was called at the start. A name already used by another workspace here gets a number added.",
+    "Rename the workspace you are in. Use it once you can see what the work actually turned out to be, so the people who join later read \"Supplier invoices\" instead of whatever it was called at the start. A name another workspace here already uses gets a number added.",
   save_workspace:
-    "Write this board to disk now and say what is in it. Saving is automatic a moment after every change, so this is for the end of a run: it flushes anything still in flight, stamps the workspace, and takes a one-line note of what it now holds. The reply names the counts that are actually stored, so you can tell the person what survived.",
+    "Write this workspace to disk now and say what is in it. Saving is automatic a moment after every change, so this is for the end of a run: it flushes anything still in flight and takes a one-line note of what the workspace now holds. The reply names what is actually stored, so you can tell the person what survived.",
 };
 
 const NO_RUNTIME =
@@ -185,8 +185,8 @@ const list: WorkspaceToolHandler = () =>
       name: entry.name,
       open: entry.id === current.id,
       holds: entryLine(entry),
-      categories: entry.categories,
-      monitors: entry.monitors,
+      work: entry.work,
+      openRequests: entry.requests,
       savedAt: entry.savedAt,
     }));
     return {

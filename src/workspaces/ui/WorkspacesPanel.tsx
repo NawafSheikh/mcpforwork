@@ -202,8 +202,9 @@ export function WorkspacesPanel(): JSX.Element {
         </p>
       )}
       <p className="mfw-pop__note">
-        Each workspace is its own board: its own categories, monitors, policies and notes. Your
-        agent can make and switch them too, with create_workspace and switch_workspace.
+        A workspace is one piece of work and everybody in it: the people, their agents, what
+        each is doing and what they have asked of each other. Your agent opens and switches
+        them too, with create_workspace and switch_workspace.
       </p>
     </div>
   );

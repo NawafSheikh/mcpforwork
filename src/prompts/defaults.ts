@@ -47,14 +47,13 @@ const SEEDS: readonly PromptRecord[] = [
   },
   {
     id: PROJECTS_ID,
-    name: "A workspace per project (the big one)",
-    text: PROJECTS_PROMPT.replace("last 40 Gmail threads", "last {{threads}} Gmail threads"),
+    name: "Work in here with me (the big one)",
+    text: PROJECTS_PROMPT,
     builtIn: true,
-    vars: { threads: 40 },
   },
   {
     id: NEXT_PROJECT_ID,
-    name: "Start the next workspace",
+    name: "Open the next workspace",
     text: NEXT_PROJECT_PROMPT,
     builtIn: true,
   },

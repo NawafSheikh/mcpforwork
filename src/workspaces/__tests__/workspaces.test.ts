@@ -152,8 +152,8 @@ describe("the directory", () => {
       name: "Invoices",
       createdAt: "t",
       savedAt: "t",
-      categories: 2,
-      monitors: 0,
+      work: 2,
+      requests: 0,
     });
     expect(findEntry(dir, "x1")?.name).toBe("Invoices");
     expect(findEntry(dir, "  invoices ")?.id).toBe("x1");
@@ -167,10 +167,12 @@ describe("the directory", () => {
 
   it("says what a workspace holds in words, not in a schema", () => {
     const base = currentEntry(firstDirectory());
-    expect(entryLine(base)).toBe("empty");
-    expect(entryLine({ ...base, categories: 3, monitors: 1 })).toBe("3 categories, 1 monitor");
-    expect(entryLine({ ...base, categories: 1, monitors: 0, note: "Q3 only" })).toBe(
-      "1 category, 0 monitors, Q3 only",
+    expect(entryLine(base)).toBe("nothing here yet");
+    expect(entryLine({ ...base, work: 3, requests: 1 })).toBe(
+      "3 things on the go, 1 request waiting",
+    );
+    expect(entryLine({ ...base, work: 1, note: "supplier side only" })).toBe(
+      "1 thing on the go, supplier side only",
     );
   });
 });
@@ -279,7 +281,7 @@ describe("the controller", () => {
     expect((await runtime.create({ name: "Hiring" })).ok).toBe(false);
     // The room board did not rename or recount the workspace it was opened from.
     expect(runtime.current().name).toBe("My workspace");
-    expect(runtime.current().categories).toBe(0);
+    expect(runtime.current().work).toBe(0);
 
     const out = await runtime.switchTo("My workspace");
 
@@ -296,7 +298,7 @@ describe("the controller", () => {
     const saved = await runtime.save("everything from the supplier mailbox");
 
     expect(saved.ok).toBe(true);
-    expect(saved.message).toContain("1 category");
+    expect(saved.message).toContain("1 thing on the go");
     expect(runtime.current().note).toBe("everything from the supplier mailbox");
     expect(runtime.saveState()).toBe("saved");
     runtime.dispose();

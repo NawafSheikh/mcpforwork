@@ -87,12 +87,16 @@ const ROOM_HELD =
 const plural = (count: number, one: string, many: string): string =>
   `${count} ${count === 1 ? one : many}`;
 
-/** "3 categories, 1 monitor", the only summary the picker and the tools both need. */
+/**
+ * What a person scanning the list needs: how much is here, and how much is waiting on
+ * somebody. This is a place people and their agents work in, so the summary is about the
+ * work and the asks, never about how the board happens to be rendered.
+ */
 export function entryLine(entry: WorkspaceEntry): string {
-  const board =
-    entry.categories === 0
-      ? "empty"
-      : `${plural(entry.categories, "category", "categories")}, ${plural(entry.monitors, "monitor", "monitors")}`;
+  const parts: string[] = [];
+  if (entry.work > 0) parts.push(`${plural(entry.work, "thing", "things")} on the go`);
+  if (entry.requests > 0) parts.push(`${plural(entry.requests, "request", "requests")} waiting`);
+  const board = parts.length === 0 ? "nothing here yet" : parts.join(", ");
   return entry.note === undefined ? board : `${board}, ${entry.note}`;
 }
 
@@ -100,10 +104,12 @@ function blankBoard(name: string, at: string): Workspace {
   return { ...emptyWorkspace("local", at), name };
 }
 
-function countsOf(ws: Workspace): { categories: number; monitors: number } {
+/** Work being done here, and what is still asked of somebody. Resolved notes are done. */
+function countsOf(ws: Workspace): { work: number; requests: number } {
   return {
-    categories: Object.keys(ws.categories).length,
-    monitors: Object.keys(ws.monitors).length,
+    work: Object.keys(ws.categories).length,
+    requests: Object.values(ws.feedback ?? {}).filter((note) => note.resolvedAt === undefined)
+      .length,
   };
 }
 
@@ -225,8 +231,8 @@ export function createWorkspaces(options: WorkspacesOptions): WorkspacesRuntime 
         : { note: input.note.trim().slice(0, WORKSPACE_LIMITS.maxNoteChars) }),
       createdAt: at,
       savedAt: at,
-      categories: 0,
-      monitors: 0,
+      work: 0,
+      requests: 0,
     };
     const activate = input.activate !== false;
     switching = activate;
