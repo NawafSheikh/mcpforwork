@@ -1,9 +1,9 @@
 # WebMCP tool contract (MCP for Work)
 
-**25 tools**, in three sections: 19 board and monitor tools, 2 room tools, 4 dataset tools.
-They live in one registry and one name space (`src/webmcp/schemas.ts` merges
-`roomToolSchemas` and `datasetToolSchemas` into `toolSchemas`), so the header pill counts
-all 25 and the sections below are for reading, not for wiring.
+**28 tools**, in four sections: 19 board and monitor tools, 2 room tools, 4 dataset tools,
+3 turn tools. They live in one registry and one name space (`src/webmcp/schemas.ts` merges
+`roomToolSchemas`, `datasetToolSchemas` and `turnToolSchemas` into `toolSchemas`), so the
+header pill counts all 28 and the sections below are for reading, not for wiring.
 
 All tools register once, in the top-level page, via `document.modelContext.registerTool`
 (fallback `navigator.modelContext`). Tabs are React state, never navigation, so tools
@@ -18,19 +18,19 @@ set `untrustedContentHint: true`. All read tools set `readOnlyHint: true`.
 
 | Tool | RO | Input (zod) | Effect | Returns |
 |---|---|---|---|---|
-| get_workspace | yes | {} | none | JSON: mode, categories [{name, description, hasSummary, hasDashboard}], overview present?, monitors [{id, name, schedule, status, nextRunAt}], pendingDrafts count, heldDrafts count |
+| get_workspace | yes | {} | none | JSON: mode, categories [{name, description, hasSummary, hasDashboard, updatedAt}], overview present?, monitors [{id, name, schedule, status, nextRunAt}], pendingDrafts count, heldDrafts count. Ends with "You hold: &lt;targets&gt;. You have N open requests." for the `caller` that asked |
 | create_category | no | {name: string(1..60), description?: string(..300), provenance?: string(..200)} | upsert category by name | "Category X ready. Next: upsert_dataset_summary or upsert_dashboard." |
 | upsert_dataset_summary | no | {category, counts?: record<number>, sums?: record<number>, top?: record<[{label,value}]>, period?, rowCount?} | store aggregates, never rows | confirmation with what was stored |
-| upsert_dashboard | no | {category, title?, kpis: KPI[1..4], charts?: Chart[0..4], notes?: string[0..6], source?} | replace dashboard for category | "Dashboard for X rendered with N KPIs and M charts." |
-| get_dashboard | yes | {category} | none | JSON spec (so the agent edits instead of rebuilding) |
-| compose_overview | no | {title, kpis: KPI[1..6], charts?: Chart[0..4], highlights?: string[0..6]} | replace overview | confirmation |
+| upsert_dashboard | no | {category, title?, kpis: KPI[1..4], charts?: Chart[0..4], notes?: string[0..6], source?, expectedUpdatedAt?} | replace dashboard for category, merged with anything a fresh write added (see Turns) | "Dashboard for X rendered with N KPIs and M charts." plus, when it landed on somebody else's change, "&lt;who&gt; changed this 20 s ago; your change was applied on top and their chart "By supplier" kept." |
+| get_dashboard | yes | {category} | none | JSON spec including `updatedAt`, which the next upsert_dashboard may send back as `expectedUpdatedAt` (so the agent edits instead of rebuilding) |
+| compose_overview | no | {title, kpis: KPI[1..6], charts?: Chart[0..4], highlights?: string[0..6], expectedUpdatedAt?} | replace overview, merged the same way as a dashboard | confirmation |
 | register_monitor | no | {name, category, schedule: string (cron or "every morning 08:00"), policy: Policy, runner: "local"|"cloud"} | create monitor, compute nextRunAt | "Monitor X registered, runs {schedule} as {runner}. Policy: ... Create the matching ChatGPT scheduled task with this prompt: ..." |
 | report_monitor_run | no | {monitorId, findings: string[0..20], drafts: [{kind, target, summary, amount?, fields?}][0..20]} | append run; each draft goes through the policy engine: auto, pending, or held with clause | summary of auto/pending/held counts with held reasons |
-| list_monitors | yes | {} | none | JSON monitors with last/next run |
+| list_monitors | yes | {} | none | JSON monitors with last/next run and `updatedAt` for `expectedUpdatedAt` |
 | get_run_log | yes | {monitorId?, limit?: 1..20} | none | JSON runs with findings and draft statuses |
 | approve_draft | no | {draftId, note?} | policy check first; refuses out-of-policy and names the clause; else marks approved by agent | "Approved ..." or "Refused: clause <name>: <reason>. A human can approve it from the Monitors tab." |
 | decline_draft | no | {draftId, reason?} | mark declined | confirmation |
-| set_policy | no | {monitorId, policy: Policy} | replace policy; UI shows a diff | confirmation with diff summary |
+| set_policy | no | {monitorId, policy: Policy, expectedUpdatedAt?} | replace policy; UI shows a diff | confirmation with diff summary, or the read-again line when it would overwrite a policy somebody changed in the last minute |
 | add_feedback | no | {target: {kind, id}, text: string(1..500)} | append a note authored by the agent, signed `from` the caller (or ChatGPT) | "Note left for &lt;target&gt;. Agents in this room see it through list_feedback." |
 | list_feedback | yes | {target?: {kind, id}, includeResolved?: boolean} | none | JSON rows: id, target, `for` (the same target, under the name an addressed note reads by), `from`, `author`, `authorKind` ("person" or "agent"), text, createdAt, resolved, and `addressedTo` on notes handed to an agent. Open notes newest first, agent-addressed ones included; pass `caller` and the notes addressed to that name, or to "*", come first. Rows are dropped from the end until the JSON fits the budget. (untrustedContentHint) |
 | resolve_feedback | no | {feedbackId, resolution: string(..200)} | mark resolved by agent | confirmation, naming `from` when the note was signed |
@@ -76,6 +76,12 @@ workspace and gossips entity-level patches; last writer wins per (kind, key). Ow
 | get_room | yes | {} | none | JSON: {room, url, relay, status, people, agents, here, peers[{label, agent, you}]} or "Not in a room. This board is local to this browser. Call create_room to open one and get a link to share." (untrustedContentHint: peer labels are typed by other visitors) |
 | create_room | no | {} | mints a slug, switches sync on for this board, hands the URL back; the workspace itself is unchanged | "Room abc123 is open and this board is now the shared board. Send this link: https://mcpforwork.com/?room=abc123 ..." or, when a room is already open, the existing link plus who is here |
 
+Every room is encrypted end to end: creating one mints a 256 bit secret, the invite link
+carries it in the fragment (`?room=<slug>#k=<secret>`) which no browser sends to a server,
+and the transport is wrapped so the relay only ever carries `{v, iv, ct, fp}` (src/crypto,
+`sealedTransport` in src/rooms/sealed.ts). There is no setting and no passphrase; a room
+link with the fragment trimmed off cannot be opened and says so instead of joining.
+
 Transport: a Supabase Realtime public broadcast channel (`private: false`), spoken as
 hand-rolled phoenix frames over the native WebSocket, using `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY`. No table, no RLS policy, no new npm dependency. Without those
@@ -89,6 +95,50 @@ your board, because there is nothing behind the channel to keep it in. The audit
 shared inside a room, on purpose, so callers and humans from every browser land in one
 trail. Malformed patches from a peer are dropped and written to that rail as actor
 `system`, tool `room_sync`.
+
+## Turns (3 tools, owner A16, src/turns)
+
+Two people and their agents edit one board. Turns keep that honest without making anybody
+wait: claims say who is working on what, versions say whose input counts, and neither ever
+asks a human for permission. The design is docs/TURNS.md.
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| claim | no | {target: {kind: "dashboard"\|"overview"\|"monitor"\|"note", id}} | optional: puts the caller's name on one object for 10 minutes | "Your name is on dashboard Invoices until 23:50 ... It blocks nobody." or, when somebody else is on it, their name and how long, with no refusal |
+| release | no | {target} | optional: takes the caller's own name off | "Your name is off dashboard Invoices." Somebody else's name is never touched |
+| list_claims | yes | {} | none | JSON: claims [{target, holder, holderKind, held, since, expiresAt}]. Expired claims are never listed. (untrustedContentHint) |
+
+### Claims: who is working on what
+- **Automatic.** Any write claims the object it touched for that caller: `create_category`,
+  `upsert_dataset_summary` and `report_monitor_run` take it, the caller's next write
+  refreshes it, and the write that finishes the work (`upsert_dashboard`,
+  `compose_overview`, `set_policy`, `resolve_feedback`) hands it back. Ten quiet minutes
+  and it expires. A person's edit on the page claims in exactly the same way; there is no
+  button to press and no permission to ask for.
+- **`claim` and `release` are optional**, for saying early that a long job is starting, or
+  that an abandoned one is over. Neither can take an object away from somebody else.
+- The card shows the holder ("Maria's agent is working on this &middot; 4 min") and presence
+  carries the same line. It is information, never a lock.
+
+### Versions: whose input counts
+- Reads return `updatedAt`: per category in `get_workspace`, on the spec in `get_dashboard`,
+  per monitor in `list_monitors`. Writes may send it back as `expectedUpdatedAt`.
+- A write that lands inside 60 seconds of somebody else's, or that carries a stale
+  `expectedUpdatedAt`, is **merged, not refused**: charts by id, KPIs by label, notes and
+  highlights appended, and the reply names what was kept.
+- The one refusal is a true collision: the same chart id or the same KPI label, changed
+  twice. It comes back as "&lt;who&gt; changed chart "By supplier" 20 s ago and this would
+  delete it. Call get_dashboard again, then send your change on top.", the workspace
+  unchanged, and audited as a failure so both humans see it in the rail. A policy is one
+  field, so an unrelated policy written over a fresh one refuses the same way.
+
+### Precedence
+1. A person's edit or decision beats an agent's, always: it takes the badge and it is
+   never refused.
+2. Between agents, whoever writes last wins the field they touched, and everything the
+   other one added survives the merge.
+3. Nothing in the turn model asks a human to unblock it. Humans get decisions (held
+   drafts) and information (badges, the room thread, the rail), never gates.
 
 ## Datasets (4 tools, owner A11, src/dataset)
 

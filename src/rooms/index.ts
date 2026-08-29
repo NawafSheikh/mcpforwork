@@ -10,6 +10,11 @@
  * - the relay is a broadcast channel with no table behind it, so it forwards and forgets;
  * - the shared board does include the audit rail, on purpose, because the people in a room
  *   are meant to see one trail; do not open a room on a board you would not show them.
+ *
+ * What a room is NOT open about is its content: every room this build opens is encrypted
+ * end to end with a key that rides in the invite link's fragment (src/crypto), so the
+ * relay carries sealed envelopes and can read nothing. The link is still the whole
+ * credential: anyone holding it is in the room.
  */
 
 export { ROOM_LIMITS, PATCH_KINDS } from "./types";
@@ -37,7 +42,7 @@ export {
 } from "./slug";
 
 export { byteLength, coerceAuditEvent, coerceMessage, coercePatch, coercePeer, encodeMessage } from "./wire";
-export { capAuditPatches, derivePatches, fullPatches, tooManyPatches } from "./diff";
+export { boardSize, capAuditPatches, derivePatches, emptyLike, fullPatches, tooManyPatches } from "./diff";
 export { applyNormalized, applyPatches, isFresh, mergeAudit, normalizePatches, noteLocal } from "./apply";
 export type { ApplyResult, LwwClock, NormalPatch, NormalizeResult } from "./apply";
 
@@ -48,6 +53,8 @@ export { roomSnapshot, snapshotPatches } from "./snapshot";
 export type { RoomSnapshot } from "./snapshot";
 
 export { chooseTransport, createMemoryHub, createNullTransport, createRoomTransport } from "./transport";
+export { roomSecrets, sealedTransport } from "./sealed";
+export type { RoomSecrets, SealedTransport } from "./sealed";
 export type { TransportChoice } from "./transport";
 export { createBroadcastTransport, channelName, hasBroadcastChannel } from "./broadcast";
 export {
@@ -56,6 +63,7 @@ export {
   heartbeatFrame,
   joinFrame,
   readFrame,
+  readFramePayload,
   realtimeSocketUrl,
   roomTopic,
   supabaseRealtimeConfig,
@@ -73,6 +81,10 @@ export {
   isJoinFailure,
   joinRoom,
   leaveRoom,
+  resetRoomSecret,
+  roomFingerprint,
+  roomSecret,
+  roomStorageKey,
   subscribeRoomRuntime,
 } from "./runtime";
 export type { JoinFailure, RoomHost } from "./runtime";

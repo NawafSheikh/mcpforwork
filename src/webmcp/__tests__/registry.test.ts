@@ -77,7 +77,7 @@ describe("tool registry", () => {
 
     expect(result).toContain("not wired yet");
     expect(registry.wired()).not.toContain("report_monitor_run");
-    expect(registry.names()).toHaveLength(25);
+    expect(registry.names()).toHaveLength(28);
   });
 
   it("names an unknown tool instead of throwing", async () => {
@@ -101,7 +101,7 @@ describe("tool registry", () => {
     const { registry } = setup();
     const definitions = createToolDefinitions(registry);
 
-    expect(definitions).toHaveLength(25);
+    expect(definitions).toHaveLength(28);
     for (const definition of definitions) {
       expect(definition.description.length).toBeLessThanOrEqual(LIMITS.toolDescriptionChars);
       expect(definition.inputSchema).toHaveProperty("type", "object");

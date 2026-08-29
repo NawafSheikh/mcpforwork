@@ -39,8 +39,8 @@ submission material. The short version:
 
 - One conversation read **50 unique Gmail threads** through ChatGPT's own Google Workspace
   connector and wrote **six category dashboards plus an overview** through the site tools
-  on this page. The header pill read "Site tools on: 15 registered" (waves 2 and 3 have
-  since added nine more tools, so a fresh page now registers 24).
+  on this page. The header pill read "Site tools on: 15 registered" (waves 2 to 4 have
+  since added thirteen more tools, so a fresh page now registers 28).
 - The work **fanned out**: two classification sub-agents ran side by side, shown in the UI
   as `Classify 1 25` and `Classify 26 50`, while the agent had its own aggregate reviewed
   for count drift and privacy leaks before anything was written.
@@ -134,7 +134,7 @@ button and the human approve path do not need an agent at all.
 
 ## The tools
 
-Twenty-four tools, registered once in the top-level page, so tabs never tear them down.
+Twenty-eight tools, registered once in the top-level page, so tabs never tear them down.
 Every call is validated with zod, rate limited, audited, and returns a string under 1500
 characters. Read tools set `readOnlyHint`. Tools that echo text derived from your own data
 set `untrustedContentHint`. Full contract, including the zod shapes, is in
@@ -155,7 +155,8 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 | `approve_draft` | no | Policy check first. Refuses out-of-policy drafts and names the clause. |
 | `decline_draft` | no | Decline with a reason. |
 | `set_policy` | no | Replace a monitor's policy; the UI renders the diff. |
-| `list_feedback` | yes | The notes humans left on dashboards, the overview, drafts and monitors. The agent reads these before editing anything. |
+| `add_feedback` | no | Leave a note for somebody on this board: an object, a named agent, a named person, or the whole room. |
+| `list_feedback` | yes | The notes humans left on dashboards, the overview, drafts and monitors, and the ones addressed to this caller. The agent reads these before editing anything. |
 | `resolve_feedback` | no | Close one note with a resolution line the human sees next to it. |
 | `share_board` | yes | A read-only snapshot link. The board is compressed into the URL fragment, which is never sent to a server. |
 | `seed_demo_workspace` | no | Demo mode only. Loads the synthetic sample board. |
@@ -166,6 +167,9 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 | `get_dataset_profile` | yes | One file's shape: per column the type, null rate, distinct count, min, max, mean, date range and top values, plus masked example rows. |
 | `aggregate_dataset` | yes | Group a dropped file by one column and measure another, with an optional filter. Returns up to 12 labelled points, computed in the browser. |
 | `attach_dataset_to_category` | no | Store a dropped file's profile as a category's summary, with provenance naming the file. |
+| `claim` | no | Optional. Put your name on a dashboard, the overview, a monitor or a note before a long job. Writing already does this; it blocks nobody. |
+| `release` | no | Optional. Take your own name off an object. The write that finishes the work already does. |
+| `list_claims` | yes | Who is working on what right now, with how long they have held it. Expired claims are never listed. |
 
 Every tool also takes an optional `caller` string, at most 40 characters, with which the
 agent names itself. When ChatGPT splits work between sub-agents, the Activity rail shows
@@ -183,6 +187,13 @@ calls `list_feedback`, acts on it, and closes it with `resolve_feedback` and a o
 resolution that is shown next to the note. The sample workspace ships with three open
 notes and one the agent already resolved, so the loop is visible before any agent has
 touched the page.
+
+Two agents on one board do not queue. Whoever writes gets their name on that card for ten
+minutes, which everybody can see and nobody is blocked by, and a second write inside the
+minute is merged with the first: charts by id, KPIs by label, notes appended, and the
+reply says what it kept. The one thing handed back is a write that would delete the very
+chart somebody just changed, with the single call that fixes it. A person's edit always
+wins and is never refused. The whole model is [docs/TURNS.md](docs/TURNS.md).
 
 Notes are text a human typed, so `list_feedback` is annotated `untrustedContentHint`, the
 same as any tool that echoes your own data back.
@@ -236,10 +247,15 @@ carrying an instruction that came from an email rather than from you.
   instruction.
 - **Snapshots are not state.** A shared link opens in memory only, never persists, and
   never registers a tool.
-- **A room is unlisted, not private.** `?room=<slug>` puts two browsers on one live board,
-  and the slug is the whole access control: anyone holding the link can read and write it,
-  and the audit rail is shared on purpose. There is no sign-in in v1, the relay stores
-  nothing, and patches arriving from a peer are re-coerced exactly like a share fragment.
+- **A room is encrypted, and the link is the whole access control.** `?room=<slug>#k=<key>`
+  puts two browsers on one live board. The key is minted when the room is opened, rides in
+  the fragment, which no browser sends to a server, and never reaches the relay: what
+  crosses the wire is `{v, iv, ct, fp}` under AES-GCM, and a peer on another key has its
+  messages counted and dropped. There is still no sign-in, so anyone holding the whole
+  link can read and write, and the audit rail is shared on purpose. A link with the `#`
+  part trimmed off cannot open the room and says so. Patches arriving from a peer are
+  re-coerced exactly like a share fragment, and a joiner that has never seen the room's
+  state cannot delete anything on it.
 - **Dropped files stay in the tab.** A CSV or XLSX is parsed in the browser into a
   module-level Map that dies with the tab. It never reaches the workspace, IndexedDB or a
   share URL, and the dataset tools return a masked profile and aggregates, never a row.

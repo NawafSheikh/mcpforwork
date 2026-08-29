@@ -5,6 +5,9 @@
  */
 import type {
   Actor,
+  Claim,
+  ClaimTarget,
+  ClaimTargetKind,
   DraftAction,
   DraftStatus,
   Decider,
@@ -17,6 +20,7 @@ import type {
   Runner,
   Threshold,
   ThresholdOp,
+  WriteMark,
 } from "../types";
 import { CAP } from "./caps";
 import {
@@ -37,7 +41,23 @@ const RUNNERS: readonly Runner[] = ["local", "cloud", "demo"];
 const STATUSES: readonly DraftStatus[] = ["pending", "held", "approved", "declined", "auto"];
 const DECIDERS: readonly Decider[] = ["human", "agent", "policy"];
 const ACTORS: readonly Actor[] = ["agent", "human", "system"];
-const FEEDBACK_KINDS: readonly FeedbackTargetKind[] = ["dashboard", "overview", "draft", "monitor"];
+/**
+ * Every target a note can carry, including the three that address somebody rather than an
+ * object. Widened for A15: without "agent", "room" and "person" here, a note handed to
+ * another visitor's agent arrived in their browser as a plain dashboard note.
+ */
+const FEEDBACK_KINDS: readonly FeedbackTargetKind[] = [
+  "dashboard",
+  "overview",
+  "draft",
+  "monitor",
+  "agent",
+  "room",
+  "person",
+];
+
+const CLAIM_KINDS: readonly ClaimTargetKind[] = ["dashboard", "overview", "monitor", "note"];
+const HOLDER_KINDS: readonly Claim["holderKind"][] = ["agent", "person"];
 
 const MAX_AUTO_ACTIONS = 999;
 
@@ -160,14 +180,56 @@ export function coerceFeedback(raw: unknown, at: string): Feedback | null {
   const resolvedAt = asString(rec.resolvedAt, 40) ? asIso(rec.resolvedAt, at) : undefined;
   const resolvedBy = asOptionalEnum(rec.resolvedBy, ACTORS);
   const resolution = asString(rec.resolution, CAP.text);
+  const from = asString(rec.from, CAP.from);
   return {
     id,
     target,
     text,
     author: asEnum(rec.author, ACTORS, "human"),
+    ...(from ? { from } : {}),
     createdAt: asIso(rec.createdAt, at),
     ...(resolvedAt ? { resolvedAt } : {}),
     ...(resolvedBy ? { resolvedBy } : {}),
     ...(resolution ? { resolution } : {}),
   };
+}
+
+/* ---------- turns: who is working on what, and who wrote last (docs/TURNS.md) ---------- */
+
+function coerceClaimTarget(raw: unknown): ClaimTarget | null {
+  const rec = asRecord(raw);
+  if (rec === null) return null;
+  const id = asString(rec.id, CAP.name);
+  const kind = asOptionalEnum(rec.kind, CLAIM_KINDS);
+  if (id === undefined || kind === undefined) return null;
+  return { kind, id };
+}
+
+/**
+ * A claim from somebody else's browser. The expiry is theirs to state and ours to check:
+ * a claim that arrives already expired is simply never live, so a hostile peer cannot
+ * freeze this board by claiming everything forever.
+ */
+export function coerceClaim(raw: unknown, at: string): Claim | null {
+  const rec = asRecord(raw);
+  if (rec === null) return null;
+  const target = coerceClaimTarget(rec.target);
+  const holder = asString(rec.holder, CAP.holder);
+  if (target === null || holder === undefined) return null;
+  const since = asIso(rec.since, at);
+  return {
+    target,
+    holder,
+    holderKind: asEnum(rec.holderKind, HOLDER_KINDS, "agent"),
+    since,
+    expiresAt: asIso(rec.expiresAt, since),
+  };
+}
+
+export function coerceWriteMark(raw: unknown, at: string): WriteMark | null {
+  const rec = asRecord(raw);
+  if (rec === null) return null;
+  const by = asString(rec.by, CAP.holder);
+  if (by === undefined) return null;
+  return { at: asIso(rec.at, at), by, byKind: asEnum(rec.byKind, HOLDER_KINDS, "agent") };
 }

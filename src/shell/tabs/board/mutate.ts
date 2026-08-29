@@ -14,7 +14,7 @@ import {
   setDashboardCharts,
   setOverviewCharts,
 } from "../../../dsl";
-import type { Chart, DashboardSpec, OverviewSpec, Workspace } from "../../../types";
+import type { Chart, ClaimTarget, DashboardSpec, OverviewSpec, Workspace } from "../../../types";
 
 export type EditTarget =
   | { readonly kind: "dashboard"; readonly category: string }
@@ -23,6 +23,13 @@ export type EditTarget =
 /** Human readable name of the target, for audit lines and toasts. */
 export function targetLabel(target: EditTarget): string {
   return target.kind === "overview" ? "the overview" : target.category;
+}
+
+/** The same object, in the shape the turn model names things (docs/TURNS.md). */
+export function claimTargetFor(target: EditTarget): ClaimTarget {
+  return target.kind === "overview"
+    ? { kind: "overview", id: "overview" }
+    : { kind: "dashboard", id: target.category };
 }
 
 /** Replace one category dashboard. A category with no dashboard is left alone. */

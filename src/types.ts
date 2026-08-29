@@ -200,6 +200,42 @@ export interface Feedback {
   readonly resolution?: string;
 }
 
+/* ---------- Turns (claims and versions, docs/TURNS.md) ---------- */
+
+/**
+ * What a claim can be taken on. A turn belongs to an object, never to the room, so this
+ * is deliberately shorter than FeedbackTargetKind: you claim a thing that gets edited.
+ */
+export type ClaimTargetKind = "dashboard" | "overview" | "monitor" | "note";
+
+export interface ClaimTarget {
+  readonly kind: ClaimTargetKind;
+  /** Category name, "overview", a monitor id, or a feedback id. */
+  readonly id: string;
+}
+
+/**
+ * Somebody is working on this object. Taken automatically by any write, refreshed by the
+ * holder's next write, released by the write that finishes the work, and expired after
+ * LIMITS.claimMinutes of quiet. It is information, never a lock: nobody is ever blocked
+ * by somebody else's claim, and `holder` is self-reported and authorises nothing.
+ */
+export interface Claim {
+  readonly target: ClaimTarget;
+  readonly holder: string;
+  readonly holderKind: "agent" | "person";
+  readonly since: ISODate;
+  readonly expiresAt: ISODate;
+}
+
+/** Who last wrote one object, so a stale write can be refused by name and time. */
+export interface WriteMark {
+  readonly at: ISODate;
+  /** Caller name of the agent, or display name of the person. */
+  readonly by: string;
+  readonly byKind: "agent" | "person";
+}
+
 /* ---------- Workspace (the whole board) ---------- */
 
 export type WorkspaceMode = "demo" | "live";
@@ -214,6 +250,10 @@ export interface Workspace {
   readonly runs: readonly MonitorRun[];
   readonly drafts: Readonly<Record<string, DraftAction>>;
   readonly feedback: Readonly<Record<string, Feedback>>;
+  /** Live turns, keyed "<kind>:<id>". Expired entries are ignored and swept on write. */
+  readonly claims: Readonly<Record<string, Claim>>;
+  /** Last writer per object, same key shape as claims. The version check reads this. */
+  readonly lastWriter: Readonly<Record<string, WriteMark>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -258,4 +298,10 @@ export const LIMITS = {
   maxFeedbackChars: 500,
   maxCallerChars: 40,
   maxShareBytes: 60000,
+  /** A claim dies this many minutes after the holder's last write (docs/TURNS.md). */
+  claimMinutes: 10,
+  /** Inside this many seconds of somebody else's write, a write is merged, not blind. */
+  conflictSeconds: 60,
+  maxClaims: 40,
+  maxWriteMarks: 80,
 } as const;

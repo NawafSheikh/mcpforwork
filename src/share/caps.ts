@@ -21,6 +21,8 @@ export const CAP = {
   target: 120,
   summary: 300,
   clause: 120,
+  from: LIMITS.maxCallerChars,
+  holder: LIMITS.maxCallerChars,
 
   /** collections */
   categories: LIMITS.maxCategories,
@@ -44,4 +46,6 @@ export const CAP = {
   drafts: 60,
   fields: 12,
   feedback: LIMITS.maxFeedbackItems,
+  claims: LIMITS.maxClaims,
+  writeMarks: LIMITS.maxWriteMarks,
 } as const;

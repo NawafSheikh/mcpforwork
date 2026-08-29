@@ -46,6 +46,8 @@ function workspace(over: Partial<Workspace> = {}): Workspace {
     monitors: { [MONITOR.id]: MONITOR },
     runs: [],
     drafts: {},
+    claims: {},
+    lastWriter: {},
     feedback: {},
     audit: [],
     updatedAt: "2026-08-28T06:00:00.000Z",

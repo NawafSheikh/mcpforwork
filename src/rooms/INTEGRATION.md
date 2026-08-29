@@ -115,3 +115,19 @@ No new npm dependency. The phoenix frames are hand rolled over the native WebSoc
 - Free-plan Supabase Realtime caps: 200 concurrent clients, 100 messages per second and a
   256 KB payload. A board too big for one message is not synced to a late joiner; the drop
   is written to the rail as actor `system`, tool `room_sync`.
+
+## Encryption (A17, wired 29 Aug 2026)
+
+Every room this build opens is encrypted and there is nothing to configure. `createRoom()`
+mints a secret (`generateRoomSecret`), `inviteUrl(slug)` returns
+`buildInviteUrl(location.href, slug, secret, "write")` so the key rides in the fragment,
+and `joinRoom` wraps the chosen transport in `sealedTransport(inner, roomSecrets(secret,
+slug))` before `startRoomSync` sees it. The transport seam therefore carries `unknown`,
+not `RoomMessage`: coercion happens once, in the sync engine, on whatever comes back out
+of the envelope. Envelopes this browser cannot open are counted (`runtime.unreadable()`)
+and dropped, never applied.
+
+`src/main.tsx` reads `parseInvite(location.href)` on boot: a `?room=` link with no `#k=`
+renders `LockedRoom` and never joins, and a room-scoped board persists under
+`roomStoreKey(slug) + ":" + fingerprint`, so the same slug under a different key never
+reads back a board this browser could not have decrypted anyway.

@@ -8,11 +8,20 @@
  * In: a Workspace rebuilt field by field from untrusted JSON, in demo mode, named
  * "<name> (shared)". Nothing is ever spread from the parsed object.
  */
-import type { Category, DraftAction, Feedback, Monitor, MonitorRun, Workspace } from "../types";
+import type {
+  Category,
+  Claim,
+  DraftAction,
+  Feedback,
+  Monitor,
+  MonitorRun,
+  Workspace,
+  WriteMark,
+} from "../types";
 import { CAP } from "./caps";
 import { asArray, asRecord, asString, asText, asIso, isSafeKey } from "./coerce";
 import { coerceCategory, coerceOverview } from "./specs";
-import { coerceDraft, coerceFeedback, coerceMonitor, coerceRun } from "./ops";
+import { coerceClaim, coerceDraft, coerceFeedback, coerceMonitor, coerceRun, coerceWriteMark } from "./ops";
 
 export const SNAPSHOT_VERSION = 1;
 export const SHARED_SUFFIX = " (shared)";
@@ -27,6 +36,9 @@ export interface Snapshot {
   readonly runs: readonly MonitorRun[];
   readonly drafts: Readonly<Record<string, DraftAction>>;
   readonly feedback: Readonly<Record<string, Feedback>>;
+  /** Live turns travel too, so a late joiner sees who is mid-edit (docs/TURNS.md). */
+  readonly claims: Readonly<Record<string, Claim>>;
+  readonly lastWriter: Readonly<Record<string, WriteMark>>;
   readonly updatedAt: string;
 }
 
@@ -42,6 +54,8 @@ export function toSnapshot(ws: Workspace): Snapshot {
     runs: ws.runs,
     drafts: ws.drafts,
     feedback: ws.feedback,
+    claims: ws.claims ?? {},
+    lastWriter: ws.lastWriter ?? {},
     updatedAt: ws.updatedAt,
   };
 }
@@ -63,6 +77,33 @@ function mapRecord<T>(
     if (item === null) continue;
     const key = keyOf(item);
     if (!isSafeKey(key)) continue;
+    out[key] = item;
+    kept += 1;
+  }
+  return out;
+}
+
+/**
+ * A record keyed by its own key, or by whatever keyOf derives from the coerced value:
+ * the "<kind>:<id>" maps of the turn model are keyed by the claim's own target, so a
+ * stranger cannot file a claim under a key that does not match the object it names.
+ */
+function keyedRecord<T>(
+  raw: unknown,
+  max: number,
+  one: (item: unknown) => T | null,
+  keyOf?: (item: T) => string,
+): Readonly<Record<string, T>> {
+  const rec = asRecord(raw);
+  if (rec === null) return {};
+  const out: Record<string, T> = {};
+  let kept = 0;
+  for (const [rawKey, value] of Object.entries(rec)) {
+    if (kept >= max) break;
+    const item = one(value);
+    if (item === null) continue;
+    const key = asString(keyOf ? keyOf(item) : rawKey, CAP.name);
+    if (key === undefined || !isSafeKey(key)) continue;
     out[key] = item;
     kept += 1;
   }
@@ -121,6 +162,13 @@ export function fromSnapshot(raw: unknown, now: Date = new Date()): Workspace | 
     runs: readRuns(rec.runs, at),
     drafts: mapRecord(rec.drafts, CAP.drafts, (i) => coerceDraft(i, at), (d) => d.id),
     feedback: mapRecord(rec.feedback, CAP.feedback, (i) => coerceFeedback(i, at), (f) => f.id),
+    claims: keyedRecord(
+      rec.claims,
+      CAP.claims,
+      (i) => coerceClaim(i, at),
+      (claim) => `${claim.target.kind}:${claim.target.id}`,
+    ),
+    lastWriter: keyedRecord(rec.lastWriter, CAP.writeMarks, (i) => coerceWriteMark(i, at)),
     audit: [],
     updatedAt: asIso(rec.updatedAt, at),
   };

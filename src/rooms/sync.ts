@@ -14,7 +14,7 @@
 import { appendAudit, makeAuditEvent } from "../store/audit";
 import type { Workspace, WorkspaceStore } from "../types";
 import { applyNormalized, normalizePatches, noteLocal, type LwwClock } from "./apply";
-import { capAuditPatches, derivePatches, tooManyPatches } from "./diff";
+import { boardSize, capAuditPatches, derivePatches, emptyLike, tooManyPatches } from "./diff";
 import { createPresenceController, type PresenceState, type PresenceStore } from "./presence";
 import { roomJoinUrl, mintRoomSlug } from "./slug";
 import { roomSnapshot, snapshotPatches } from "./snapshot";
@@ -28,7 +28,7 @@ import {
   type RoomTransport,
   type RoomTransportKind,
 } from "./types";
-import { encodeMessage } from "./wire";
+import { coerceMessage, encodeMessage } from "./wire";
 
 const EMPTY_CLOCK: LwwClock = {};
 const SNAPSHOT_ATTEMPTS = 3;
@@ -54,6 +54,8 @@ export interface RoomRuntime {
   readonly presence: PresenceStore;
   joinUrl(): string;
   status(): RoomStatus;
+  /** Messages this browser could not decrypt: a wrong key, or a peer on another room. */
+  unreadable(): number;
   peers(): PresenceState;
   setAgent(present: boolean): void;
   setLabel(label: string): void;
@@ -78,6 +80,13 @@ interface SyncState {
   agent: boolean;
   adopted: boolean;
   asks: number;
+  /**
+   * True once this browser knows what the room holds: it adopted a snapshot, or it asked
+   * the agreed number of times and nobody answered, so its own board is the room's board.
+   * Until then it never sends a delete, because it cannot yet tell "this was removed"
+   * from "I have not been told about it".
+   */
+  settled: boolean;
 }
 
 export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
@@ -87,12 +96,15 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
   const presence = createPresenceController(slug, transport.kind);
   const backups = new Map<string, ReturnType<typeof setTimeout>>();
   const state: SyncState = {
-    baseline: store.get(),
+    // What the peers have been told, which on arrival is nothing: the first flush
+    // therefore offers this browser's whole board to the room instead of keeping it.
+    baseline: emptyLike(store.get()),
     clock: EMPTY_CLOCK,
     label: options.label ?? `Guest ${clientId.slice(1, 5)}`,
     agent: options.agent === true,
     adopted: false,
     asks: 0,
+    settled: false,
   };
   let sendTimer: ReturnType<typeof setTimeout> | null = null;
   let heartbeat: ReturnType<typeof setInterval> | null = null;
@@ -121,6 +133,7 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
     label: state.label,
     agent: state.agent,
     updatedAt: store.get().updatedAt,
+    entities: boardSize(store.get()),
   });
 
   const touchSelf = (): void => presence.seen(selfInfo(), Date.now(), true);
@@ -166,12 +179,19 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
     // arriving after a reconnect cannot talk this browser out of what it changed offline.
     state.clock = noteLocal(state.clock, patches);
     if (transport.status() !== "open") return;
-    state.baseline = current;
-    if (tooManyPatches(patches)) {
+    // A browser still waiting to hear what the room holds sends what it has and nothing
+    // else. Deletes wait for the snapshot: a joiner that has never seen an entity must
+    // never be the reason it disappears from somebody else's board.
+    const sendable = state.settled ? patches : patches.filter((patch) => patch.value !== null);
+    // The baseline only advances over what actually went out, so a held-back delete is
+    // still in the next diff once this browser knows the room.
+    if (sendable.length === patches.length) state.baseline = current;
+    if (sendable.length === 0) return;
+    if (tooManyPatches(sendable)) {
       sendState(BROADCAST_TO_ALL);
       return;
     }
-    postPatches(capAuditPatches(patches));
+    postPatches(capAuditPatches(sendable));
   };
 
   const flush = (): void => {
@@ -216,9 +236,13 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
     backups.delete(requester);
   };
 
-  /** The freshest board answers. Everybody else stands by in case it never does. */
+  /**
+   * The freshest board answers, and an empty board never does. A joiner holding nothing
+   * has nothing to say about the room, and saying it is how a full board gets emptied.
+   */
   const answerNeed = (requester: string): void => {
     touchSelf();
+    if (boardSize(store.get()) === 0) return;
     const best = presence.freshest(requester);
     if (best !== null && best.clientId === clientId) {
       sendState(requester);
@@ -229,14 +253,22 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
       requester,
       setTimeout(() => {
         backups.delete(requester);
+        if (boardSize(store.get()) === 0) return;
         sendState(requester);
       }, ROOM_LIMITS.snapshotBackupMs),
     );
   };
 
+  /**
+   * A snapshot is merged into this board entity by entity, last writer wins. It never
+   * replaces the store and it never removes anything: a peer holding categories the
+   * sender has never seen keeps them, and the next flush sends them to the room.
+   */
   const adoptState = (message: Extract<RoomMessage, { t: "state" }>): void => {
     state.adopted = true;
+    state.settled = true;
     applyRemote(snapshotPatches(message.snapshot, message.from, message.at), message.from);
+    scheduleSend();
   };
 
   const onMessage = (message: RoomMessage): void => {
@@ -271,7 +303,12 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
   /* ---------- joining ---------- */
 
   const askForState = (): void => {
-    if (stopped || state.adopted || state.asks >= SNAPSHOT_ATTEMPTS) return;
+    if (stopped || state.adopted) return;
+    if (state.asks >= SNAPSHOT_ATTEMPTS) {
+      // Nobody answered, so this board is the room's board and its deletes are real.
+      state.settled = true;
+      return;
+    }
     state.asks += 1;
     post({ t: "need", from: clientId, at: nowIso() });
     askTimer = setTimeout(askForState, ROOM_LIMITS.snapshotRetryMs);
@@ -292,13 +329,21 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
     joined = true;
     state.adopted = false;
     state.asks = 0;
+    // A board with something on it is a source, not a joiner: it may delete from the
+    // first message. An empty one waits until it knows what the room already holds.
+    state.settled = boardSize(store.get()) > 0;
     announce();
     flush();
     askForState();
   };
 
   const unsubscribeStore = store.subscribe(scheduleSend);
-  const unsubscribeMessages = transport.onMessage(onMessage);
+  // One coercion point for the whole engine: what comes off the transport is unknown,
+  // because an encrypted room carries envelopes and the wrapper hands back a plain object.
+  const unsubscribeMessages = transport.onMessage((raw: unknown) => {
+    const message = coerceMessage(raw);
+    if (message !== null) onMessage(message);
+  });
   const unsubscribeStatus = transport.onStatus(onStatus);
 
   touchSelf();
@@ -316,6 +361,7 @@ export function startRoomSync(options: RoomSyncOptions): RoomRuntime {
     presence,
     joinUrl: () => roomJoinUrl(slug),
     status: () => transport.status(),
+    unreadable: () => transport.unreadable?.() ?? 0,
     peers: () => presence.get(),
     setAgent(present: boolean): void {
       if (state.agent === present) return;

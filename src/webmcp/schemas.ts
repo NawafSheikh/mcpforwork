@@ -13,6 +13,7 @@ import { LIMITS } from "../types";
  */
 import { datasetToolSchemas } from "../dataset/schemas";
 import { roomToolSchemas } from "../rooms/handlers";
+import { turnToolSchemas } from "../turns/tools";
 
 export const kpiSchema = z.object({
   label: z.string().min(1).max(40),
@@ -89,8 +90,15 @@ const addressedTool = <T extends z.ZodRawShape>(shape: T) =>
 
 const emptyInput = tool({});
 
+/**
+ * The stamp a read handed back. When it is present and the object has moved since, the
+ * write is refused instead of overwriting whatever the other party did (docs/TURNS.md).
+ */
+const expectedUpdatedAt = z.string().max(40).optional();
+
 export const toolSchemas = {
-  get_workspace: emptyInput,
+  /** Addressed: it answers "you hold X, N requests are waiting on you" for this caller. */
+  get_workspace: addressedTool({}),
   create_category: tool({
     name: categoryName,
     description: z.string().max(300).optional(),
@@ -111,6 +119,7 @@ export const toolSchemas = {
     charts: z.array(chartSchema).max(LIMITS.maxCharts).optional(),
     notes: z.array(z.string().max(160)).max(6).optional(),
     source: z.string().max(120).optional(),
+    expectedUpdatedAt,
   }),
   get_dashboard: tool({ category: categoryName }),
   compose_overview: tool({
@@ -118,6 +127,7 @@ export const toolSchemas = {
     kpis: z.array(kpiSchema).min(1).max(6),
     charts: z.array(chartSchema).max(LIMITS.maxCharts).optional(),
     highlights: z.array(z.string().max(160)).max(6).optional(),
+    expectedUpdatedAt,
   }),
   register_monitor: tool({
     name: z.string().min(1).max(60),
@@ -147,6 +157,7 @@ export const toolSchemas = {
   set_policy: tool({
     monitorId: z.string().min(1).max(60),
     policy: policySchema,
+    expectedUpdatedAt,
   }),
   add_feedback: addressedTool({
     target: feedbackTargetSchema,
@@ -167,6 +178,7 @@ export const toolSchemas = {
   }),
   ...roomToolSchemas,
   ...datasetToolSchemas,
+  ...turnToolSchemas,
 } as const;
 
 export type ToolName = keyof typeof toolSchemas;
@@ -205,3 +217,6 @@ export type ResolveFeedbackInput = ToolInputs["resolve_feedback"];
 export type ShareBoardInput = ToolInputs["share_board"];
 export type SeedDemoWorkspaceInput = ToolInputs["seed_demo_workspace"];
 export type ClearWorkspaceInput = ToolInputs["clear_workspace"];
+export type ClaimInput = ToolInputs["claim"];
+export type ReleaseInput = ToolInputs["release"];
+export type ListClaimsInput = ToolInputs["list_claims"];

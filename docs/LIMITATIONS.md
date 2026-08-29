@@ -13,15 +13,26 @@ where the edges are.
   pill before prompting, or the run starts with no tools.
 
 ## Turns and coordination
-- Today there are no turns: everyone writes, last writer wins per object, and the audit rail
-  tells you afterwards. Fine for a demo, wrong for a team.
-- Fix in progress (docs/TURNS.md): claims with expiry ("Maria's agent is working on Invoices"),
-  addressed requests as the handoff, version-checked writes that refuse to overwrite something
-  that changed since the agent last read it, and humans outranking agents on claims.
+- Turns shipped (docs/TURNS.md): writing claims the object for ten minutes and the card says
+  who has it, a write landing on somebody else's fresh change is merged rather than blocked
+  (charts by id, KPIs by label, notes appended), and reads hand back an `updatedAt` a write
+  can send back as `expectedUpdatedAt`.
+- What is still crude: the merge understands the dashboard DSL and nothing else, so a policy
+  is one field and a second policy change inside the minute is handed back instead of merged.
+  Claim expiry is wall-clock and per browser, so two boards can disagree about who holds a
+  card for a few seconds. Nobody is ever blocked by that, which is the point, but it is not a
+  lock and must not be sold as one.
+- Better: field-level merge for policies too, and claims that survive a reload.
 
 ## Identity and rooms
-- Rooms are unlisted links: anyone with the link can join and edit. No accounts, no roles, no
-  kick, no server-side history; a late joiner gets a snapshot only from a live peer.
+- Rooms are encrypted end to end and the link is the whole credential: anyone holding the
+  full link (slug plus the key after the #) can join and edit. No accounts, no roles, no
+  kick, no server-side history; a late joiner gets a snapshot only from a live peer that
+  actually holds a board. A link with the fragment trimmed off cannot open the room at all,
+  which is a common accident with a one-line fix: ask for the whole link.
+- The read-only role in an invite is a UI promise, not a permission: both roles carry the
+  same key in v1, so a determined holder of a "read" link can still write. Signing keys are
+  the fix and they are not in this build.
 - The relay is Supabase Realtime broadcast on the free tier (200 concurrent clients, 256 KB per
   message). It forwards patches and stores nothing, which is the privacy promise and also the
   limit.

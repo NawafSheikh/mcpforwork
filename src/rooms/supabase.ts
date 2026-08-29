@@ -74,7 +74,7 @@ export function heartbeatFrame(ref: string): string {
   return JSON.stringify({ topic: "phoenix", event: "heartbeat", payload: {}, ref });
 }
 
-export function broadcastFrame(topic: string, ref: string, message: RoomMessage): string {
+export function broadcastFrame(topic: string, ref: string, message: unknown): string {
   return JSON.stringify({
     topic,
     event: "broadcast",
@@ -89,8 +89,12 @@ interface Frame {
   readonly payload?: unknown;
 }
 
-/** Pull our message out of an inbound frame, or null when the frame is not ours. */
-export function readFrame(raw: string, topic: string, now: Date = new Date()): RoomMessage | null {
+/**
+ * What one of our broadcast frames is carrying, or null when the frame is not ours. It is
+ * returned raw because an encrypted room carries a sealed envelope here, and only the
+ * transport wrapper above can turn that back into something with a `t` on it.
+ */
+export function readFramePayload(raw: string, topic: string): unknown | null {
   let frame: Frame;
   try {
     frame = JSON.parse(raw) as Frame;
@@ -101,8 +105,13 @@ export function readFrame(raw: string, topic: string, now: Date = new Date()): R
   const payload = frame.payload;
   if (typeof payload !== "object" || payload === null) return null;
   const inner = payload as { event?: unknown; payload?: unknown };
-  if (inner.event !== EVENT) return null;
-  return coerceMessage(inner.payload, now);
+  return inner.event === EVENT ? inner.payload ?? null : null;
+}
+
+/** The same frame, coerced into a RoomMessage. Kept for callers that speak plain rooms. */
+export function readFrame(raw: string, topic: string, now: Date = new Date()): RoomMessage | null {
+  const payload = readFramePayload(raw, topic);
+  return payload === null ? null : coerceMessage(payload, now);
 }
 
 type SocketFactory = (url: string) => WebSocket;
@@ -123,7 +132,7 @@ export function createSupabaseTransport(
   options: SupabaseTransportOptions = {},
 ): RoomTransport {
   const topic = roomTopic(slug);
-  const messageListeners = new Set<(message: RoomMessage) => void>();
+  const messageListeners = new Set<(message: unknown) => void>();
   const statusListeners = new Set<(status: RoomStatus) => void>();
   const factory = options.socketFactory ?? ((url: string) => new WebSocket(url));
 
@@ -194,9 +203,9 @@ export function createSupabaseTransport(
     };
     created.onmessage = (event: MessageEvent): void => {
       if (typeof event.data !== "string") return;
-      const message = readFrame(event.data, topic);
-      if (message === null) return;
-      for (const listener of [...messageListeners]) listener(message);
+      const payload = readFramePayload(event.data, topic);
+      if (payload === null) return;
+      for (const listener of [...messageListeners]) listener(payload);
     };
     created.onerror = (): void => setStatus("error");
     created.onclose = (): void => {
@@ -217,7 +226,7 @@ export function createSupabaseTransport(
     slug,
     connect: open,
     status: () => status,
-    send(message: RoomMessage): void {
+    send(message: unknown): void {
       const frame = broadcastFrame(topic, nextRef(), message);
       if (frame.length <= ROOM_LIMITS.maxMessageBytes * 2) push(frame);
     },
@@ -233,7 +242,7 @@ export function createSupabaseTransport(
         // A socket that refuses to close politely is already gone.
       }
     },
-    onMessage(listener: (message: RoomMessage) => void): () => void {
+    onMessage(listener: (message: unknown) => void): () => void {
       messageListeners.add(listener);
       return () => {
         messageListeners.delete(listener);

@@ -402,3 +402,35 @@ code { font-family: var(--mfw-mono); font-size: 12px; }
   .mfw-draft-actions .mfw-btn { flex: 1 1 auto; }
   .mfw-run { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Locked room: a room link that arrived without its key (A16, src/shell/LockedRoom.tsx). */
+.mfw-locked { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+
+.mfw-locked-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 460px;
+  padding: 24px;
+  border: 1px solid var(--mfw-border);
+  border-radius: var(--mfw-radius);
+  background: var(--mfw-surface);
+}
+
+.mfw-locked-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--mfw-accent);
+  color: var(--mfw-bg);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.mfw-locked-title { margin: 0; font-size: 18px; }
+.mfw-locked-body { margin: 0; color: var(--mfw-muted); }
+.mfw-monitor-flags { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }

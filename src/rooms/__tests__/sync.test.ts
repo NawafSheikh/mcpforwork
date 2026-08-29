@@ -195,7 +195,7 @@ describe("the room tools", () => {
     const host = store();
     configureRooms({ store: host, label: "Ana", transport: (slug) => hub.transport(slug) });
     const opened = create_room({}, host.get());
-    expect(opened.result).toContain("Send this link:");
+    expect(opened.result).toContain("Send this link whole:");
     expect(opened.result).toContain("room=");
     expect(opened.next).toBeUndefined();
 

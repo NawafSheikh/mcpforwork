@@ -104,6 +104,8 @@ function board(): Workspace {
         heldReason: "threshold:amount>5000",
       },
     },
+    claims: {},
+    lastWriter: {},
     feedback: {
       fb_1: {
         id: "fb_1",

@@ -35,19 +35,25 @@ export function AboutTab(): JSX.Element {
         overview or a draft, and it stays open until an agent reads it back with list_feedback,
         acts on it and resolves it with a resolution line. Every tool call can carry a caller
         label, so when ChatGPT splits the work between sub-agents the rail shows which one wrote
-        what. Press Share to put a read-only copy of the whole board in a link: the state travels
-        in the URL fragment, which browsers never send to a server, so a snapshot needs no account
-        and no backend.
+        what. Whoever writes to an object gets their name on its card for ten minutes, and nobody
+        is ever blocked by that badge: a second agent writing the same dashboard keeps what the
+        first one added, and only a write that would delete the very chart somebody just changed
+        comes back asking to be read again. Press Share to put a read-only copy of the whole board
+        in a link: the state travels in the URL fragment, which browsers never send to a server,
+        so a snapshot needs no account and no backend.
       </p>
       <h4>Sharing a board as a room</h4>
       <p>
-        Press Invite to room and this board gets a short slug in the address bar. Everyone who
-        opens that link works on the same board, and each change shows up on the other side in
-        about a second. A room is unlisted, not private: the slug is the whole access control, so
-        anyone holding the link can read and write, and the audit rail is shared on purpose so the
-        people in a room see one trail. Drop a CSV or XLSX on the board and the file is parsed here
-        instead: the rows sit in memory until the tab closes, and the agent only ever sees the
-        column profile and the aggregates it asks for.
+        Press Invite to room and this board gets a short slug in the address bar and a key after
+        the #. Everyone who opens that whole link works on the same board, and each change shows up
+        on the other side in about a second. The room is encrypted end to end: the key is minted
+        here, never leaves the fragment, and the relay carries sealed envelopes it cannot read.
+        There is no setting and no passphrase, but the link is the whole access control, so anyone
+        holding it can read and write, and a link with the # part trimmed off cannot open the room
+        at all. The audit rail is shared on purpose, so the people in a room see one trail. Drop a
+        CSV or XLSX on the board and the file is parsed here instead: the rows sit in memory until
+        the tab closes, and the agent only ever sees the column profile and the aggregates it asks
+        for.
       </p>
       <p className="mfw-muted">{chooseTransport().note}</p>
 

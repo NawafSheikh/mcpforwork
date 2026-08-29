@@ -53,8 +53,19 @@ const TOOL_PHRASES: Readonly<Record<string, string>> = {
   clear_workspace: "Workspace cleared",
 };
 
-/** One short line describing a tool call, safe for a toast. */
+/** Refusals are quoted, never summarised: the sentence is the whole point of them. */
+const REFUSAL_CHARS = 120;
+
+/**
+ * One short line describing a tool call, safe for a toast.
+ *
+ * A call that did not go through says why, in the words the agent was given: "Ana changed
+ * chart "By supplier" 20 s ago and this would delete it." A toast that said "ChatGPT built
+ * dashboard: Invoices | failed" would tell the person nothing they can act on, and the
+ * rail and the toast would disagree about what happened.
+ */
 export function describeToolEvent(event: AuditEvent): string {
+  if (!event.ok && event.result) return truncate(event.result, REFUSAL_CHARS);
   const phrase = event.tool ? TOOL_PHRASES[event.tool] : undefined;
   const subject =
     readArgValue(event.argsPreview, "category") ??

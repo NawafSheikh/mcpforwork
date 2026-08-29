@@ -78,11 +78,13 @@ export function coercePeer(raw: unknown, fallbackId: string, at: string): PeerIn
   if (rec === null) return null;
   const clientId = asString(rec.clientId, CLIENT_ID_CHARS) ?? fallbackId;
   if (!isSafeKey(clientId)) return null;
+  const entities = typeof rec.entities === "number" && Number.isFinite(rec.entities) ? rec.entities : 0;
   return {
     clientId,
     label: asText(rec.label, ROOM_LIMITS.labelChars, "Someone"),
     agent: rec.agent === true,
     updatedAt: asIso(rec.updatedAt, at),
+    entities: Math.max(0, Math.floor(entities)),
   };
 }
 

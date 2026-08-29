@@ -9,6 +9,8 @@
 import { LIMITS, type Category, type Chart, type DashboardSpec, type DatasetSummary, type OverviewSpec, type TopItem, type Workspace } from "../types";
 import { clampDashboard, clampOverview } from "../dsl/validate";
 import { workspaceSummary } from "../store/selectors";
+import { isFor, openFeedback } from "../feedback/store";
+import { describeClaimTarget, isHolder, liveClaims } from "../turns";
 import { feedbackHandlers, openFeedbackLine } from "./feedbackTools";
 import type { HandlerMap, ToolHandler } from "./registry";
 import type {
@@ -125,8 +127,25 @@ function describeSummary(summary: DatasetSummary): string {
   return parts.length > 0 ? parts.join(", ") : "no aggregates";
 }
 
-const getWorkspace: ToolHandler<GetWorkspaceInput> = (_input, ws) => {
-  const tail = openFeedbackLine(ws);
+/**
+ * What this caller owes the room: the turns it is holding and the notes waiting on it.
+ * An agent starts every task by reading what was asked of it (docs/TURNS.md).
+ */
+function turnLine(ws: Workspace, caller: string | undefined): string {
+  const name = caller?.trim();
+  if (name === undefined || name.length === 0) return "";
+  const held = liveClaims(ws).filter((claim) => isHolder(claim, name));
+  const requests = openFeedback(ws).filter((item) => isFor(item, name)).length;
+  const parts: string[] = [];
+  if (held.length > 0) {
+    parts.push(`You hold: ${held.map((claim) => describeClaimTarget(claim.target)).join(", ")}.`);
+  }
+  if (requests > 0) parts.push(`You have ${countLabel(requests, "open request")}.`);
+  return parts.length === 0 ? "" : ` ${parts.join(" ")}`;
+}
+
+const getWorkspace: ToolHandler<GetWorkspaceInput> = (input, ws) => {
+  const tail = `${openFeedbackLine(ws)}${turnLine(ws, input.from)}`;
   return { result: `${summaryText(ws, LIMITS.toolOutputChars - tail.length)}${tail}` };
 };
 

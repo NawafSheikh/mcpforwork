@@ -17,7 +17,10 @@ import { monitorHandlers } from "../../monitors";
 import { seedDemoHandler } from "../../demo/sampleWorkspace";
 import { datasetHandlers } from "../../dataset/handlers";
 import { roomHandlers } from "../../rooms/handlers";
+import { turnHandlers } from "../../turns/tools";
 import { workspaceHandlers } from "../../webmcp/handlers";
+import { LOCKED_ROOM_ACTION, LOCKED_ROOM_MESSAGE, parseInvite } from "../../crypto";
+import { LockedRoom } from "../LockedRoom";
 
 
 const statusStore = {
@@ -67,11 +70,11 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 25 tools", () => {
+  it("publishes all 28 tools", () => {
     const store = createWorkspaceStore({ mode: "demo", persist: false });
     const bundle = createWebmcp({ store, handlers: { ...monitorHandlers, seed_demo_workspace: seedDemoHandler } });
-    expect(bundle.definitions.length).toBe(25);
-    expect(TOOL_NAMES.length).toBe(25);
+    expect(bundle.definitions.length).toBe(28);
+    expect(TOOL_NAMES.length).toBe(28);
   });
 
   it("leaves no tool without a handler", () => {
@@ -80,8 +83,27 @@ describe("shell wiring", () => {
       ...Object.keys(monitorHandlers),
       ...Object.keys(roomHandlers),
       ...Object.keys(datasetHandlers),
+      ...Object.keys(turnHandlers),
       "seed_demo_workspace",
     ]);
     expect(TOOL_NAMES.filter((name) => !wired.has(name))).toEqual([]);
+  });
+});
+
+describe("a room link that lost its key", () => {
+  it("is recognised as locked before anything joins", () => {
+    const locked = parseInvite("https://mcpforwork.com/?room=proofq7m2k4");
+    const whole = parseInvite("https://mcpforwork.com/?room=proofq7m2k4#k=" + "a".repeat(43));
+
+    expect(locked?.locked).toBe(true);
+    expect(whole?.locked).toBe(false);
+  });
+
+  it("says the one sentence and offers the one way out", () => {
+    const html = renderToStaticMarkup(<LockedRoom />);
+
+    expect(html).toContain(LOCKED_ROOM_MESSAGE);
+    expect(html).toContain(LOCKED_ROOM_ACTION);
+    expect(html).not.toContain("room=");
   });
 });

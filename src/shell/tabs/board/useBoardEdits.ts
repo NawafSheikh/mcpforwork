@@ -2,9 +2,15 @@
  * Human edits on the board, routed through the same store the agent writes to.
  * Every one is audited as actor "human" with tool "human_edit", so the activity
  * rail shows exactly who changed what and the agent can read it back.
+ *
+ * Every one also puts this person's name on the object it touched, the same way an
+ * agent's write does (docs/TURNS.md). Nobody presses anything to claim a turn: editing
+ * is the claim, and the agent finds out on its next call.
  */
 
 import { useCallback, useMemo } from "react";
+import { displayName } from "../../../feedback";
+import { humanWrite } from "../../../turns";
 import { useShell } from "../../context";
 import { withAudit } from "../../adapters/store";
 import {
@@ -14,6 +20,7 @@ import {
   applyRename,
   applyReplace,
   chartAt,
+  claimTargetFor,
   targetLabel,
   type EditTarget,
 } from "./mutate";
@@ -41,10 +48,19 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
   const { store } = useShell();
 
   const run = useCallback(
-    (change: (ws: Workspace, at: string) => Workspace, args: unknown, result: string): void => {
-      void store.update((ws) =>
-        withAudit(change(ws, new Date().toISOString()), { actor: "human", tool: TOOL, args, result }),
-      );
+    (
+      change: (ws: Workspace, at: string) => Workspace,
+      args: unknown,
+      result: string,
+      target?: EditTarget,
+    ): void => {
+      void store.update((ws) => {
+        const now = new Date();
+        const edited = change(ws, now.toISOString());
+        const owned =
+          target === undefined ? edited : humanWrite(edited, claimTargetFor(target), displayName(), now);
+        return withAudit(owned, { actor: "human", tool: TOOL, args, result });
+      });
     },
     [store],
   );
@@ -57,6 +73,7 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
           (ws, at) => applyRename(ws, target, title, at),
           { edit: "rename", target: label, title },
           `Renamed ${label} to "${title.trim()}"`,
+          target,
         );
       },
 
@@ -67,6 +84,7 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
           (ws, at) => applyMove(ws, target, index, delta, at),
           { edit: "reorder", target: label, index, delta },
           `Moved chart ${index + 1} ${where} on ${label}`,
+          target,
         );
       },
 
@@ -78,6 +96,7 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
           (ws, at) => applyRemove(ws, target, index, at),
           { edit: "delete_chart", target: label, chart: chart.title },
           `Removed chart "${chart.title}" from ${label}`,
+          target,
         );
         onRemoved?.({ target, index, chart });
       },
@@ -88,6 +107,7 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
           (ws, at) => applyInsert(ws, removed.target, removed.index, removed.chart, at),
           { edit: "undo_delete", target: label, chart: removed.chart.title },
           `Restored chart "${removed.chart.title}" on ${label}`,
+          removed.target,
         );
       },
 
@@ -97,6 +117,7 @@ export function useBoardEdits(onRemoved?: (removed: RemovedChart) => void): Boar
           (ws, at) => applyReplace(ws, target, index, chart, at),
           { edit: "keep_view", target: label, chart: chart.title, kind: chart.kind },
           `Kept the ${chart.kind} view of "${chart.title}" on ${label}`,
+          target,
         );
       },
 

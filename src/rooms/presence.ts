@@ -50,6 +50,14 @@ export function presenceLabel(state: PresenceState): string {
   return `${people}, ${agents} here`;
 }
 
+/** Most recent board first, then the richer board, then the lower client id. */
+function beats(peer: RoomPeer, best: RoomPeer): boolean {
+  const newer = peer.updatedAt.localeCompare(best.updatedAt);
+  if (newer !== 0) return newer > 0;
+  if (peer.entities !== best.entities) return peer.entities > best.entities;
+  return peer.clientId < best.clientId;
+}
+
 function order(a: RoomPeer, b: RoomPeer): number {
   if (a.self !== b.self) return a.self ? -1 : 1;
   const byLabel = a.label.localeCompare(b.label);
@@ -80,7 +88,11 @@ export interface PresenceController extends PresenceStore {
   /** Drop peers unseen for ROOM_LIMITS.peerTtlMs. */
   prune(atMs: number): void;
   setStatus(status: RoomStatus): void;
-  /** The freshest peer answers a snapshot request; ties break on client id. */
+  /**
+   * Who should answer a snapshot request: the peer with the most recent board, ties
+   * broken on the richer board and then on client id. A peer holding nothing is never
+   * the answer, because a joiner's empty board is not the room's state.
+   */
   freshest(exclude: string): RoomPeer | null;
   peer(clientId: string): RoomPeer | null;
 }
@@ -133,13 +145,8 @@ export function createPresenceController(
     freshest(exclude: string): RoomPeer | null {
       let best: RoomPeer | null = null;
       for (const peer of peers.values()) {
-        if (peer.clientId === exclude) continue;
-        if (best === null) {
-          best = peer;
-          continue;
-        }
-        const newer = peer.updatedAt.localeCompare(best.updatedAt);
-        if (newer > 0 || (newer === 0 && peer.clientId < best.clientId)) best = peer;
+        if (peer.clientId === exclude || peer.entities <= 0) continue;
+        if (best === null || beats(peer, best)) best = peer;
       }
       return best;
     },

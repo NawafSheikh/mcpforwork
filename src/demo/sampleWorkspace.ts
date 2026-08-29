@@ -51,6 +51,9 @@ export function sampleWorkspace(now: Date): Workspace {
     runs: sampleRuns(clock),
     drafts: sampleDrafts(clock),
     feedback: sampleFeedback(clock),
+    // No claims in the sample: a seeded turn would refuse the visitor's own first write.
+    claims: {},
+    lastWriter: {},
     audit: sampleAudit(clock),
     updatedAt: clock.nowIso,
   };

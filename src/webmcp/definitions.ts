@@ -1,5 +1,5 @@
 /**
- * The 25 tool definitions from docs/TOOLS.md, ready for registerTool.
+ * The 28 tool definitions from docs/TOOLS.md, ready for registerTool.
  * Every execute is the same one line: hand the name and the raw input to the registry,
  * which validates, rate limits, audits and truncates. Tools whose handler is owned by
  * another module still register: they answer "not wired yet" until that handler lands.
@@ -8,6 +8,7 @@
 import { LIMITS, type ToolDefinition } from "../types";
 import { DATASET_TOOL_DESCRIPTIONS } from "../dataset/definitions";
 import { roomToolDescriptions } from "../rooms/handlers";
+import { turnToolDescriptions } from "../turns/tools";
 import { annotationsFor } from "./annotations";
 import { jsonSchemas } from "./jsonSchemas";
 import type { ToolRegistry } from "./registry";
@@ -22,7 +23,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
   upsert_dataset_summary:
     "Store aggregates for one category (real names welcome in labels and top lists): named counts, named sums, top lists, the period they cover and how many source rows were behind them. Send numbers you already computed, never raw records and never personal data. The summary feeds the category card and gives you a base to build a dashboard from.",
   upsert_dashboard:
-    "Render or replace the dashboard for one category: one to four KPI cards plus up to four charts (bar, line, donut or table) built from aggregated points. Call get_dashboard first when you want to edit rather than rebuild. Anything over the limits is dropped, never sampled.",
+    "Render or replace the dashboard for one category: one to four KPI cards plus up to four charts (bar, line, donut or table) built from aggregated points. Call get_dashboard first when you want to edit rather than rebuild, and pass its updatedAt back as expectedUpdatedAt so you never overwrite a change made since. Anything over the limits is dropped.",
   get_dashboard:
     "Return the dashboard spec for one category as JSON so you can change one KPI or chart and send the whole spec back through upsert_dashboard. Very large dashboards come back with points trimmed and truncated set to true.",
   compose_overview:
@@ -55,6 +56,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
     "Wipe categories, the overview, monitors, runs and drafts. Pass confirm true. The audit trail is kept, so the record of what happened survives the reset.",
   ...roomToolDescriptions,
   ...DATASET_TOOL_DESCRIPTIONS,
+  ...turnToolDescriptions,
 };
 
 function definitionFor(registry: ToolRegistry, name: ToolName): ToolDefinition {

@@ -1,0 +1,40 @@
+/* Claim badges. Owner A16.
+   Colours come from the shell's --mfw-* tokens; the fallbacks keep the badge readable
+   if it is ever rendered on its own (a test page, a story, a shared snapshot). */
+
+.mfw-claim {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border: 1px solid var(--mfw-border, #263141);
+  border-radius: 999px;
+  background: var(--mfw-surface-2, #182029);
+  font-size: 11px;
+  color: var(--mfw-muted, #93a1b0);
+  white-space: nowrap;
+}
+
+.mfw-claim-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mfw-accent, #5aa9ff);
+}
+
+.mfw-claim-agent { border-color: rgba(90, 169, 255, 0.4); }
+.mfw-claim-person .mfw-claim-dot { background: var(--mfw-ok, #47c08a); }
+.mfw-claim-person { border-color: rgba(71, 192, 138, 0.4); }
+.mfw-claim-age { color: var(--mfw-muted, #93a1b0); opacity: 0.8; }
+
+.mfw-req-badge {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--mfw-accent, #5aa9ff);
+  color: var(--mfw-bg, #0b0f14);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mfw-req-pop { min-width: 320px; max-width: 420px; }

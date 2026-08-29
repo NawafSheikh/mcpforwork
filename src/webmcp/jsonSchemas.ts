@@ -8,6 +8,7 @@
 import { LIMITS } from "../types";
 import { datasetJsonSchemas } from "../dataset/jsonSchemas";
 import { roomJsonSchemas } from "../rooms/handlers";
+import { turnJsonSchemas } from "../turns/tools";
 import type { ToolName } from "./schemas";
 
 export type JsonSchema = Record<string, unknown>;
@@ -169,6 +170,12 @@ const feedbackTarget: JsonSchema = object(
   ["kind", "id"],
 );
 
+/** The stamp a read returned, so a write built on a stale copy is refused, not applied. */
+const expectedUpdatedAt: JsonSchema = text(
+  40,
+  "The updatedAt you last read for this object. The write is refused if it changed since.",
+);
+
 /** The one field every tool shares, so parallel sub-agents show up by name in the rail. */
 const caller: JsonSchema = text(
   LIMITS.maxCallerChars,
@@ -223,6 +230,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
       charts: list(chart, LIMITS.maxCharts, "Up to four charts rendered under the KPIs."),
       notes: list(text(160, "One note line."), 6, "Short notes shown under the charts."),
       source: text(120, "Where this view came from, shown as provenance."),
+      expectedUpdatedAt,
     },
     ["category", "kpis"],
   ),
@@ -233,6 +241,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
       kpis: list(kpi, 6, "Cross category KPI row, one to six cards.", 1),
       charts: list(chart, LIMITS.maxCharts, "Up to four charts for the overview."),
       highlights: list(text(160, "One highlight line."), 6, "Short lines a human should read first."),
+      expectedUpdatedAt,
     },
     ["title", "kpis"],
   ),
@@ -283,7 +292,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
     ["draftId"],
   ),
   set_policy: object(
-    { monitorId: text(60, "Id returned by register_monitor.", 1), policy },
+    { monitorId: text(60, "Id returned by register_monitor.", 1), policy, expectedUpdatedAt },
     ["monitorId", "policy"],
   ),
   add_feedback: object(
@@ -325,6 +334,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
   ),
   ...roomJsonSchemas,
   ...datasetJsonSchemas,
+  ...turnJsonSchemas,
 };
 
 /** caller is added once here so no tool can forget it. */

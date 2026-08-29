@@ -69,15 +69,15 @@ export function createRoomTransport(
  * side in one page without a network.
  */
 export function createMemoryHub(): { transport(slug: string): RoomTransport; sent: readonly RoomMessage[] } {
-  const members = new Set<(message: RoomMessage) => void>();
+  const members = new Set<(message: unknown) => void>();
   const sent: RoomMessage[] = [];
   return {
     sent,
     transport(slug: string): RoomTransport {
-      const messageListeners = new Set<(message: RoomMessage) => void>();
+      const messageListeners = new Set<(message: unknown) => void>();
       const statusListeners = new Set<(status: RoomStatus) => void>();
       let status: RoomStatus = "idle";
-      const deliver = (message: RoomMessage): void => {
+      const deliver = (message: unknown): void => {
         for (const listener of [...messageListeners]) listener(message);
       };
       return {
@@ -88,8 +88,8 @@ export function createMemoryHub(): { transport(slug: string): RoomTransport; sen
           status = "open";
           for (const listener of [...statusListeners]) listener(status);
         },
-        send(message: RoomMessage): void {
-          sent.push(message);
+        send(message: unknown): void {
+          sent.push(message as RoomMessage);
           const copy = JSON.parse(JSON.stringify(message)) as RoomMessage;
           for (const member of [...members]) {
             if (member !== deliver) member(copy);
@@ -101,7 +101,7 @@ export function createMemoryHub(): { transport(slug: string): RoomTransport; sen
           for (const listener of [...statusListeners]) listener(status);
         },
         status: () => status,
-        onMessage(listener: (message: RoomMessage) => void): () => void {
+        onMessage(listener: (message: unknown) => void): () => void {
           messageListeners.add(listener);
           return () => {
             messageListeners.delete(listener);

@@ -5,6 +5,7 @@
  */
 
 import { DashboardView, categoryIcon } from "../../../dsl";
+import { ClaimBadge } from "../../../turns/ui";
 import type { Category, Chart } from "../../../types";
 import { AskAgentButton } from "./AskAgentButton";
 import { ChartPanel } from "./ChartPanel";
@@ -78,6 +79,7 @@ function DashboardSection({ category, readOnly, pinned, edits, onPin }: Category
       headerActions={
         readOnly ? null : (
           <>
+            <ClaimBadge target={{ kind: "dashboard", id: category.name }} />
             <PinButton name={category.name} pinned={pinned} onPin={onPin} />
             <AskAgentButton prompt={dashboardPrompt(category.name)} />
           </>
@@ -111,6 +113,7 @@ function PendingSection({ category, readOnly, pinned, onPin }: CategoryPaneProps
         </div>
         {readOnly ? null : (
           <div className="mfw-pane__actions">
+            <ClaimBadge target={{ kind: "dashboard", id: category.name }} />
             <PinButton name={category.name} pinned={pinned} onPin={onPin} />
             <AskAgentButton prompt={prompt} label="Ask ChatGPT to build this dashboard" />
           </div>

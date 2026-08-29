@@ -1,4 +1,4 @@
-# Mounting the room thread and the name chip (A15, nothing here is wired yet)
+# Mounting the room thread and the name chip (A15; wired by A16 on 29 Aug 2026)
 
 Three mounts, all optional, none of them done by this module:
 
@@ -12,7 +12,12 @@ Three mounts, all optional, none of them done by this module:
    host (consumed at `src/rooms/runtime.ts:20` and `:67`, defaulted at `src/rooms/sync.ts:92`)
    and call `getRoomRuntime()?.setLabel(name)` from `onRename` (`src/rooms/sync.ts:325`).
 
-Blocker for cross-browser handover: `src/share/ops.ts:40` whitelists the four old target
-kinds and `:150` coerces anything else to "dashboard", and `coerceFeedback` (`:163`) drops
-`from`. Until A9 widens both, an addressed note survives locally but arrives in the other
-browser as a dashboard note with no signature.
+All three are done: `<RoomRequests />` hangs off the header's Requests button
+(`src/shell/RequestsButton.tsx`, badge = open addressed notes), `<NameChip />` sits next to
+the presence chip and pushes every rename into `getRoomRuntime()?.setLabel(name)`, and
+`configureRooms({ label: displayName() })` runs in `src/main.tsx`.
+
+The cross-browser blocker is fixed too: `src/share/ops.ts` now accepts all seven target
+kinds and `coerceFeedback` copies `from` (capped at `LIMITS.maxCallerChars`), so an
+addressed note keeps its target and its signature through a room patch and a share link.
+The regression test is `src/share/__tests__/addressed.test.ts`.

@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import type { Monitor, MonitorRun } from "../../types";
 import { runMonitorNow } from "../adapters/monitors";
 import { describePolicyText } from "../adapters/policy";
+import { ClaimBadge } from "../../turns/ui";
 import { useShell, useWorkspace } from "../context";
 import { formatClock, formatRelative } from "../lib/format";
 import { useToast } from "../Toasts";
@@ -66,7 +67,10 @@ export function MonitorCard({ monitor }: { readonly monitor: Monitor }): JSX.Ele
             {monitor.category} | {monitor.schedule} | runs {monitor.runner}
           </p>
         </div>
-        <span className={`mfw-chip mfw-chip-${monitor.status}`}>{monitor.status}</span>
+        <span className="mfw-monitor-flags">
+          <ClaimBadge target={{ kind: "monitor", id: monitor.id }} />
+          <span className={`mfw-chip mfw-chip-${monitor.status}`}>{monitor.status}</span>
+        </span>
       </header>
       <MonitorFacts monitor={monitor} />
       <p className="mfw-policy-summary">{describePolicyText(monitor.policy)}</p>

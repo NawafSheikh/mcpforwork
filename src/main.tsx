@@ -7,18 +7,25 @@
  *
  * A ?room= slug is the opposite: a live shared board. The fragment is checked first, so a
  * snapshot link never joins anything even when both are present.
+ *
+ * Rooms are encrypted end to end and the key rides in the same fragment (#k=). A room link
+ * that arrives without its key cannot be read at all, so this file shows the locked card
+ * and never joins: there is nothing useful a browser without the key could do in the room.
  */
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { App } from "./App";
+import { fingerprint, parseInvite } from "./crypto";
+import { displayName } from "./feedback";
 import {
   configureRooms,
-  currentRoomSlug,
+  inviteUrl,
   joinRoom,
   leaveRoom,
-  roomJoinUrl,
+  roomStorageKey,
   roomStoreKey,
 } from "./rooms";
+import { LockedRoom } from "./shell/LockedRoom";
 import { hasShareFragment, readShareFromLocation } from "./share";
 import { createStore } from "./shell/adapters/store";
 import { startScheduler } from "./shell/adapters/monitors";
@@ -66,43 +73,62 @@ function mount(
 
 /**
  * A room-scoped board persists under its own key, so two rooms and the local board never
- * overwrite each other. src/rooms never touches IndexedDB: the store owns its key, so
- * re-keying on the way into a room happens here.
+ * overwrite each other. The key fingerprint is part of it, so the same slug under a
+ * different room key never reads back a board this browser cannot decrypt anyway.
  */
-function storeFor(mode: WorkspaceMode, slug: string | null): WorkspaceStore {
-  return slug === null
-    ? createStore({ mode })
-    : createWorkspaceStore({ mode, key: roomStoreKey(slug) });
+async function storeKeyFor(slug: string, secret: string | undefined): Promise<string> {
+  const base = roomStoreKey(slug);
+  return secret === undefined ? base : `${base}:${await fingerprint(secret)}`;
+}
+
+function storeFor(mode: WorkspaceMode, key: string | null): WorkspaceStore {
+  return key === null ? createStore({ mode }) : createWorkspaceStore({ mode, key });
 }
 
 /** Rooms, for the visitor's own board only. A #share snapshot never reaches this. */
-function startRooms(store: WorkspaceStore, slug: string | null): void {
+function startRooms(store: WorkspaceStore, slug: string | null, secret?: string): void {
   configureRooms({
     store,
-    label: "Guest",
+    // The name on this browser's notes is the name other people see in presence too.
+    label: displayName(),
     agent: false, // The header flips this from the WebMCP status once tools register.
+    ...(secret === undefined ? {} : { secret }),
     onRoom: (opened: string) => {
-      window.history.replaceState(null, "", roomJoinUrl(opened));
+      // The invite URL, not the bare join URL: the key lives in the fragment, so dropping
+      // it from the address bar would lock this browser out of its own room on reload.
+      window.history.replaceState(null, "", inviteUrl(opened));
       // Move persistence to the room key rather than copying the board once: a one-shot
       // copy saves the board as it looked the instant the room opened, and every later
       // edit keeps going to the old key, so reloading the room URL reads back an empty
       // board. rekey is a no-op when the page already booted on this slug, so a
       // hydration still in flight is never clobbered.
-      void (store as { rekey?: (next: string) => Promise<void> }).rekey?.(roomStoreKey(opened));
+      void roomStorageKey(opened).then((next) =>
+        (store as { rekey?: (key: string) => Promise<void> }).rekey?.(next),
+      );
     },
   });
   if (slug !== null) joinRoom(slug);
 }
 
 /** The visitor's own board: tools registered once, demo monitors ticking. */
-function mountWorkspace(root: Root): void {
+async function mountWorkspace(root: Root): Promise<void> {
   const mode = readMode();
-  const slug = currentRoomSlug();
-  const store = storeFor(mode, slug);
+  const invite = parseInvite(window.location.href);
+  if (invite !== null && invite.locked) {
+    root.render(
+      <StrictMode>
+        <LockedRoom />
+      </StrictMode>,
+    );
+    return;
+  }
+  const slug = invite?.slug ?? null;
+  const secret = invite?.secret ?? undefined;
+  const store = storeFor(mode, slug === null ? null : await storeKeyFor(slug, secret));
   const controller = new AbortController();
   const statusStore = registerTools(store, controller.signal);
   const stopScheduler = mode === "demo" ? startScheduler(store) : (): void => undefined;
-  startRooms(store, slug);
+  startRooms(store, slug, secret);
   window.addEventListener(
     "pagehide",
     () => {
@@ -131,9 +157,9 @@ const reactRoot = createRoot(rootElement);
 
 if (hasShareFragment()) {
   void readShareFromLocation().then((workspace) => {
-    if (workspace === null) mountWorkspace(reactRoot);
+    if (workspace === null) void mountWorkspace(reactRoot);
     else mountSnapshot(reactRoot, workspace);
   });
 } else {
-  mountWorkspace(reactRoot);
+  void mountWorkspace(reactRoot);
 }

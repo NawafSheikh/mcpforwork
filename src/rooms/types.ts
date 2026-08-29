@@ -19,6 +19,8 @@ export type PatchKind =
   | "run"
   | "draft"
   | "feedback"
+  | "claim"
+  | "write"
   | "audit";
 
 export const PATCH_KINDS: readonly PatchKind[] = [
@@ -28,13 +30,18 @@ export const PATCH_KINDS: readonly PatchKind[] = [
   "run",
   "draft",
   "feedback",
+  "claim",
+  "write",
   "audit",
 ];
 
 /** One entity changed. `value` null means the entity is gone. */
 export interface RoomPatch {
   readonly kind: PatchKind;
-  /** Category name, monitor id, draft id, run id, feedback id, audit id, or "overview". */
+  /**
+   * Category name, monitor id, draft id, run id, feedback id, audit id, "overview", or
+   * the "<kind>:<id>" key a claim and a write mark share (docs/TURNS.md).
+   */
   readonly key: string;
   readonly value: unknown;
   /** ISO stamp used for last-writer-wins per (kind, key). */
@@ -51,6 +58,12 @@ export interface PeerInfo {
   readonly agent: boolean;
   /** The peer's workspace updatedAt, so the freshest board answers a snapshot request. */
   readonly updatedAt: string;
+  /**
+   * How many entities that peer is holding. A board with none is a joiner, and a joiner
+   * never answers a snapshot request: it has nothing to say and saying it empties the
+   * room. Ties on updatedAt break on this, so the richer board is the source.
+   */
+  readonly entities: number;
 }
 
 export type RoomMessage =
@@ -79,17 +92,23 @@ export type RoomTransportKind = "supabase" | "broadcast" | "none";
  * The seam a Durable Object would slot into. Implementations must be fire and forget:
  * send never throws, a dead socket reconnects on its own, and messages may be lost.
  * The sync engine is built to survive loss (heartbeats re-announce, snapshots re-request).
+ *
+ * What crosses it is `unknown`, not RoomMessage: an encrypted room puts a sealed envelope
+ * on the wire instead, and a transport must carry it without understanding it. Coercion
+ * into a RoomMessage happens once, in the sync engine, on whatever comes back out.
  */
 export interface RoomTransport {
   readonly kind: RoomTransportKind;
   /** The room this transport is bound to. */
   readonly slug: string;
   connect(): void;
-  send(message: RoomMessage): void;
+  send(message: unknown): void;
   close(): void;
   status(): RoomStatus;
-  onMessage(listener: (message: RoomMessage) => void): () => void;
+  onMessage(listener: (message: unknown) => void): () => void;
   onStatus(listener: (status: RoomStatus) => void): () => void;
+  /** Envelopes this browser could not open. Only an encrypted transport reports any. */
+  unreadable?(): number;
 }
 
 /**

@@ -22,6 +22,8 @@ function board(): Workspace {
     monitors: {},
     runs: [],
     drafts: {},
+    claims: {},
+    lastWriter: {},
     feedback: {},
     audit: [],
     updatedAt: T1,

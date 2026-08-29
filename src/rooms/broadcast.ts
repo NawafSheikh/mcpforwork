@@ -6,8 +6,7 @@
  * a demo script might wish. It is here so that a room still visibly works with no relay
  * configured at all, and so the honest label in the UI is "this browser only".
  */
-import type { RoomMessage, RoomStatus, RoomTransport } from "./types";
-import { coerceMessage } from "./wire";
+import type { RoomStatus, RoomTransport } from "./types";
 
 export function channelName(slug: string): string {
   return `mfw-room-${slug}`;
@@ -27,7 +26,7 @@ export function createBroadcastTransport(
   slug: string,
   options: BroadcastTransportOptions = {},
 ): RoomTransport {
-  const messageListeners = new Set<(message: RoomMessage) => void>();
+  const messageListeners = new Set<(message: unknown) => void>();
   const statusListeners = new Set<(status: RoomStatus) => void>();
   const factory = options.channelFactory ?? ((name: string) => new BroadcastChannel(name));
 
@@ -51,15 +50,15 @@ export function createBroadcastTransport(
         setStatus("error");
         return;
       }
+      // Raw on purpose: the payload may be a sealed envelope, which only the sync engine's
+      // transport wrapper can open. Coercion into a RoomMessage happens after that.
       channel.onmessage = (event: MessageEvent): void => {
-        const message = coerceMessage(event.data);
-        if (message === null) return;
-        for (const listener of [...messageListeners]) listener(message);
+        for (const listener of [...messageListeners]) listener(event.data);
       };
       setStatus("open");
     },
     status: () => status,
-    send(message: RoomMessage): void {
+    send(message: unknown): void {
       try {
         channel?.postMessage(JSON.parse(JSON.stringify(message)) as unknown);
       } catch {
@@ -75,7 +74,7 @@ export function createBroadcastTransport(
       channel = null;
       setStatus("closed");
     },
-    onMessage(listener: (message: RoomMessage) => void): () => void {
+    onMessage(listener: (message: unknown) => void): () => void {
       messageListeners.add(listener);
       return () => {
         messageListeners.delete(listener);

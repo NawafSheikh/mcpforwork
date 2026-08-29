@@ -9,7 +9,7 @@
 import { z } from "zod";
 import { LIMITS, type Workspace } from "../types";
 import { presenceLabel } from "./presence";
-import { getRoomRuntime, createRoom, isJoinFailure } from "./runtime";
+import { getRoomRuntime, createRoom, inviteUrl, isJoinFailure } from "./runtime";
 import { chooseTransport } from "./transport";
 import type { RoomRuntime } from "./sync";
 
@@ -39,7 +39,7 @@ export const roomToolDescriptions: Readonly<Record<RoomToolName, string>> = {
   get_room:
     "Check whether this board is a shared room and who else is on it: the room id, the join link, how many browsers are connected and how many of them have an agent attached. Call it before create_room so you join the room that is already open instead of splitting the group into two.",
   create_room:
-    "Open a shared room for this board and return the link to send to a colleague. Everyone who opens the link sees the same board, and every change either side makes shows up on the other within about a second. Anyone with the link can join and edit, there is no sign-in, and the relay forwards changes without storing the board.",
+    "Open a shared room for this board and return the link to send to a colleague. Everyone who opens the link sees the same board, and every change either side makes shows up on the other within about a second. The room is encrypted end to end and the key is in the link after the #, so send the link whole and never trim it. Anyone holding it can join and edit.",
 };
 
 const NOT_IN_ROOM =
@@ -49,7 +49,8 @@ function describe(runtime: RoomRuntime): string {
   const state = runtime.peers();
   return JSON.stringify({
     room: runtime.slug,
-    url: runtime.joinUrl(),
+    url: inviteUrl(runtime.slug),
+    encrypted: true,
     relay: runtime.kind,
     status: runtime.status(),
     people: state.people,
@@ -76,8 +77,8 @@ export const create_room: RoomHandler = () => {
   if (existing !== null) {
     return {
       result:
-        `This board is already room ${existing.slug}. Share this link: ${existing.joinUrl()} ` +
-        `Right now: ${presenceLabel(existing.peers())}.`,
+        `This board is already room ${existing.slug}. Share this link: ${inviteUrl(existing.slug)} ` +
+        `Right now: ${presenceLabel(existing.peers())}. The link carries the room key, so send it whole.`,
     };
   }
   const opened = createRoom();
@@ -85,9 +86,10 @@ export const create_room: RoomHandler = () => {
   return {
     result:
       `Room ${opened.slug} is open and this board is now the shared board. ` +
-      `Send this link: ${opened.joinUrl()} ` +
+      `Send this link whole: ${inviteUrl(opened.slug)} ` +
       "Everyone who opens it sees the same board and every change reaches the others in about a second. " +
-      "Anyone with the link can join and edit, and the relay never keeps your board.",
+      "The room is encrypted and the key is the part of the link after the #, so a trimmed link cannot open it. " +
+      "Anyone with the whole link can join and edit, and the relay never keeps your board.",
   };
 };
 

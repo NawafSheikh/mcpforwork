@@ -76,15 +76,52 @@ export function derivePatches(prev: Workspace, next: Workspace, origin: string, 
     ...recordPatches("monitor", prev.monitors, next.monitors, ctx),
     ...recordPatches("draft", prev.drafts, next.drafts, ctx),
     ...recordPatches("feedback", prev.feedback, next.feedback, ctx),
+    ...recordPatches("claim", prev.claims ?? {}, next.claims ?? {}, ctx),
+    ...recordPatches("write", prev.lastWriter ?? {}, next.lastWriter ?? {}, ctx),
     ...listPatches("run", prev.runs, next.runs, runId, ctx, true),
     ...listPatches("audit", prev.audit, next.audit, eventId, ctx, false),
   ];
 }
 
+/**
+ * How much board a browser is holding. Zero means "I am a joiner, not a source": an empty
+ * board never answers a snapshot request, because answering with nothing is how a room
+ * full of work gets emptied.
+ */
+export function boardSize(ws: Workspace): number {
+  return (
+    Object.keys(ws.categories).length +
+    Object.keys(ws.monitors).length +
+    Object.keys(ws.drafts).length +
+    Object.keys(ws.feedback ?? {}).length +
+    ws.runs.length +
+    (ws.overview === undefined ? 0 : 1)
+  );
+}
+
+/**
+ * The same board with nothing on it. This is what a browser knows the room has been told
+ * when it arrives: nothing. Starting the baseline here is what makes a peer offer its own
+ * board on join instead of sitting on it, and a diff from here can only ever add.
+ */
+export function emptyLike(ws: Workspace): Workspace {
+  return {
+    ...ws,
+    categories: {},
+    overview: undefined,
+    monitors: {},
+    drafts: {},
+    feedback: {},
+    claims: {},
+    lastWriter: {},
+    runs: [],
+    audit: [],
+  };
+}
+
 /** Every entity on the board as patches, for answering a late joiner in one message. */
 export function fullPatches(ws: Workspace, origin: string, at: string): readonly RoomPatch[] {
-  const empty: Workspace = { ...ws, categories: {}, monitors: {}, drafts: {}, feedback: {}, runs: [], audit: [] };
-  return derivePatches({ ...empty, overview: undefined }, ws, origin, at);
+  return derivePatches(emptyLike(ws), ws, origin, at);
 }
 
 /**

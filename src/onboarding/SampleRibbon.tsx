@@ -8,6 +8,7 @@ import { DEMO_MONITOR_INVOICES, DEMO_PROVENANCE } from "../demo/sampleWorkspace"
 import { useShell, useWorkspace } from "../shell/context";
 import { useToast } from "../shell/Toasts";
 import type { Workspace } from "../types";
+import { currentRoomSlug, leaveRoomUrl } from "../rooms/slug";
 import { clearBoard } from "./replay";
 import { replayController } from "./replayController";
 import "./onboarding.css";
@@ -30,10 +31,17 @@ export function SampleRibbon(): JSX.Element | null {
   const push = useToast();
   const [dismissed, setDismissed] = useState(false);
 
+  const inRoom = currentRoomSlug() !== null;
+
+  // In a room a clear would propagate to everyone; leaving the room keeps their board intact.
   const onFresh = useCallback(async () => {
+    if (inRoom) {
+      window.location.assign(leaveRoomUrl());
+      return;
+    }
     await clearBoard(store);
     push("Board cleared. It is yours to fill now.", "ok");
-  }, [store, push]);
+  }, [inRoom, store, push]);
 
   if (dismissed || !isSampleWorkspace(workspace)) return null;
 
@@ -49,7 +57,7 @@ export function SampleRibbon(): JSX.Element | null {
           Watch it build
         </button>
         <button type="button" className="mfw-btn" onClick={() => void onFresh()}>
-          Start fresh
+          {inRoom ? "Leave room and start fresh" : "Start fresh"}
         </button>
         <button
           type="button"

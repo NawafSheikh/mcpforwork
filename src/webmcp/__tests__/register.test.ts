@@ -51,7 +51,7 @@ describe("registerAllTools", () => {
     expect(findModelContext().api).toBe("none");
   });
 
-  it("registers all 25 tools on document.modelContext", async () => {
+  it("registers all 28 tools on document.modelContext", async () => {
     const context = fakeContext();
     Object.defineProperty(document, "modelContext", { value: context, configurable: true });
     const { registry, definitions } = bundle();
@@ -59,7 +59,7 @@ describe("registerAllTools", () => {
 
     expect(result.api).toBe("document");
     expect(result.available).toBe(true);
-    expect(result.registered).toHaveLength(25);
+    expect(result.registered).toHaveLength(28);
     expect(context.tools.get("get_workspace")?.annotations).toMatchObject({
       readOnlyHint: true,
       untrustedContentHint: true,
@@ -78,7 +78,7 @@ describe("registerAllTools", () => {
     });
 
     expect(result.api).toBe("navigator");
-    expect(context.tools.size).toBe(25);
+    expect(context.tools.size).toBe(28);
     context.fire();
     expect(onToolsChanged).toHaveBeenCalledWith(result.registered);
 

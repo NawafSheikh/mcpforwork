@@ -1,7 +1,7 @@
 /**
  * Tool registry: the one door between the agent and the workspace.
- * Every call is validated with zod, rate limited, run against a snapshot, audited and
- * truncated. Nothing here throws at the agent: failures come back as plain sentences
+ * Every call is validated with zod, checked against the turn model, rate limited, run
+ * against a snapshot, audited and truncated. Nothing here throws at the agent: failures come back as plain sentences
  * it can act on. The optional caller is peeled off here, so handlers never see it and
  * every audit event carries the name of the sub-agent that made the call.
  */
@@ -10,6 +10,7 @@ import type { z } from "zod";
 import { LIMITS, type Workspace, type WorkspaceStore } from "../types";
 import { appendAudit, makeAuditEvent, truncate } from "../store/audit";
 import { withFeedbackNotice } from "./feedbackTools";
+import { openTurn, settleTurn } from "../turns/gate";
 import {
   TOOL_NAMES,
   callerSchema,
@@ -160,9 +161,14 @@ export function createToolRegistry(opts: RegistryOptions): ToolRegistry {
     if (!handler) return record(name, args, notWiredText(name), false, caller);
     try {
       const before = opts.store.get();
-      const raw = await handler(args, before);
-      const outcome = withFeedbackNotice(name, args, before, raw);
-      return await record(name, args, outcome.result, true, caller, outcome.next);
+      // Turns come first. A write that lands on somebody else's recent change is merged
+      // with the board and says so; only a real collision comes back (docs/TURNS.md).
+      const turn = openTurn(before, name, args, caller);
+      if (turn.refusal !== undefined) return await record(name, args, turn.refusal, false, caller);
+      const raw = await handler(turn.input, before);
+      const noticed = withFeedbackNotice(name, turn.input, before, raw);
+      const outcome = settleTurn(name, turn.input, noticed, caller);
+      return await record(name, args, `${outcome.result}${turn.note}`, true, caller, outcome.next);
     } catch (error) {
       return record(name, args, failureText(name, error), false, caller);
     }

@@ -2,6 +2,7 @@
  * Pure read helpers over a Workspace. No state, no side effects, safe in render.
  */
 
+import { objectUpdatedAt } from "../turns/versions";
 import type {
   Category,
   DraftAction,
@@ -16,6 +17,8 @@ export interface CategoryDigest {
   readonly description?: string;
   readonly hasSummary: boolean;
   readonly hasDashboard: boolean;
+  /** The stamp to send back as expectedUpdatedAt on the next write (docs/TURNS.md). */
+  readonly updatedAt?: string;
 }
 
 export interface MonitorDigest {
@@ -69,12 +72,14 @@ export function runsForMonitor(
   return typeof limit === "number" && limit > 0 ? newestFirst.slice(0, limit) : newestFirst;
 }
 
-function categoryDigest(category: Category): CategoryDigest {
+function categoryDigest(ws: Workspace, category: Category): CategoryDigest {
+  const updatedAt = objectUpdatedAt(ws, { kind: "dashboard", id: category.name });
   return {
     name: category.name,
     description: category.description,
     hasSummary: category.summary !== undefined,
     hasDashboard: category.dashboard !== undefined,
+    ...(updatedAt === undefined ? {} : { updatedAt }),
   };
 }
 
@@ -91,7 +96,7 @@ function monitorDigest(monitor: Monitor): MonitorDigest {
 export function workspaceSummary(ws: Workspace): WorkspaceSummary {
   return {
     mode: ws.mode,
-    categories: listCategories(ws).map(categoryDigest),
+    categories: listCategories(ws).map((category) => categoryDigest(ws, category)),
     hasOverview: ws.overview !== undefined,
     monitors: listMonitors(ws).map(monitorDigest),
     pendingDrafts: pendingDrafts(ws).length,

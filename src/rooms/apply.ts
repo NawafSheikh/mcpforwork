@@ -18,18 +18,27 @@
  * only merged by event id and capped, because a trail one peer can rewrite is not a trail.
  */
 import { capAudit } from "../store/audit";
-import { coerceDraft, coerceFeedback, coerceMonitor, coerceRun } from "../share/ops";
+import {
+  coerceClaim,
+  coerceDraft,
+  coerceFeedback,
+  coerceMonitor,
+  coerceRun,
+  coerceWriteMark,
+} from "../share/ops";
 import { coerceCategory, coerceOverview } from "../share/specs";
 import { isSafeKey } from "../share/coerce";
 import type {
   AuditEvent,
   Category,
+  Claim,
   DraftAction,
   Feedback,
   Monitor,
   MonitorRun,
   OverviewSpec,
   Workspace,
+  WriteMark,
 } from "../types";
 import type { RoomPatch } from "./types";
 import { coerceAuditEvent } from "./wire";
@@ -51,6 +60,8 @@ export type NormalPatch =
   | (PatchMeta & { readonly kind: "run"; readonly value: MonitorRun | null })
   | (PatchMeta & { readonly kind: "draft"; readonly value: DraftAction | null })
   | (PatchMeta & { readonly kind: "feedback"; readonly value: Feedback | null })
+  | (PatchMeta & { readonly kind: "claim"; readonly value: Claim | null })
+  | (PatchMeta & { readonly kind: "write"; readonly value: WriteMark | null })
   | (PatchMeta & { readonly kind: "audit"; readonly value: AuditEvent });
 
 export interface NormalizeResult {
@@ -149,6 +160,14 @@ function normalizeOne(patch: RoomPatch, at: string): NormalPatch | null {
       return gone
         ? { ...meta, kind: "feedback", value: null }
         : wrap(meta, "feedback", coerceFeedback(patch.value, at));
+    case "claim":
+      return gone
+        ? { ...meta, kind: "claim", value: null }
+        : wrap(meta, "claim", coerceClaim(patch.value, at));
+    case "write":
+      return gone
+        ? { ...meta, kind: "write", value: null }
+        : wrap(meta, "write", coerceWriteMark(patch.value, at));
     case "audit": {
       const event = coerceAuditEvent(patch.value, at);
       return event === null ? null : { ...meta, kind: "audit", value: event };
@@ -173,6 +192,8 @@ function effectiveKey(patch: NormalPatch): string {
   switch (patch.kind) {
     case "category":
       return patch.value.name;
+    case "claim":
+      return `${patch.value.target.kind}:${patch.value.target.id}`;
     case "monitor":
     case "run":
     case "draft":
@@ -225,6 +246,14 @@ function place(ws: Workspace, patch: NormalPatch): Workspace {
       return patch.value === null
         ? { ...ws, feedback: dropKey(ws.feedback, patch.key) }
         : { ...ws, feedback: { ...ws.feedback, [patch.value.id]: patch.value } };
+    case "claim":
+      return patch.value === null
+        ? { ...ws, claims: dropKey(ws.claims ?? {}, patch.key) }
+        : { ...ws, claims: { ...ws.claims, [effectiveKey(patch)]: patch.value } };
+    case "write":
+      return patch.value === null
+        ? { ...ws, lastWriter: dropKey(ws.lastWriter ?? {}, patch.key) }
+        : { ...ws, lastWriter: { ...ws.lastWriter, [patch.key]: patch.value } };
     case "run":
       return patch.value === null
         ? { ...ws, runs: ws.runs.filter((run) => run.id !== patch.key) }

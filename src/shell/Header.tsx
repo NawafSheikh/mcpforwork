@@ -1,13 +1,19 @@
 /** Page header: identity, mode, theme, WebMCP status, sharing and the starter actions. */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ENCRYPTED_BADGE, inviteToast, lockBadgeLabel } from "../crypto";
+import { NameChip } from "../feedback";
 import {
   chooseTransport,
   createRoom,
   getRoomRuntime,
+  inviteUrl,
   isJoinFailure,
+  roomFingerprint,
   usePresence,
   usePresenceLabel,
 } from "../rooms";
+import { ClaimsChip, useClaimsLine } from "../turns/ui";
+import { RequestsButton } from "./RequestsButton";
 import { buildShareUrl } from "../share";
 import { seedSampleWorkspace } from "./adapters/demo";
 import type { WebmcpStatus } from "./adapters/webmcp";
@@ -21,7 +27,8 @@ import { Backup, PromptLibrary, getPrompt, STARTER_ID } from "../prompts";
 const COPIED_MS = 2000;
 
 /** The honest sentence about a room, on both the button and the chip. */
-const ROOM_TITLE = "Anyone with the link can join and edit. The relay never keeps your board.";
+const ROOM_TITLE =
+  "Anyone with the whole link can join and edit. The room is encrypted and the relay never keeps your board.";
 
 function statusText(status: WebmcpStatus): string {
   if (!status.available) return WEBMCP_UNAVAILABLE_TEXT;
@@ -139,7 +146,9 @@ function ShareButton(): JSX.Element {
 function RoomChip({ status }: { readonly status: WebmcpStatus }): JSX.Element | null {
   const presence = usePresence();
   const label = usePresenceLabel();
+  const claims = useClaimsLine();
   const agent = status.available && status.registered > 0;
+  const fingerprint = roomFingerprint();
 
   useEffect(() => {
     getRoomRuntime()?.setAgent(agent);
@@ -147,13 +156,20 @@ function RoomChip({ status }: { readonly status: WebmcpStatus }): JSX.Element | 
 
   if (presence.slug === null) return null;
   return (
-    <span
-      className={`mfw-pill mfw-pill-${presence.status === "open" ? "ok" : "warn"}`}
-      title={ROOM_TITLE}
-    >
-      <span className="mfw-dot" aria-hidden="true" />
-      {label}
-    </span>
+    <>
+      <span
+        className={`mfw-pill mfw-pill-${presence.status === "open" ? "ok" : "warn"}`}
+        title={ROOM_TITLE}
+      >
+        <span className="mfw-dot" aria-hidden="true" />
+        {claims.length > 0 ? `${label} \u00b7 ${claims}` : label}
+      </span>
+      {fingerprint === null ? null : (
+        <span className="mfw-pill mfw-pill-ok" title={ENCRYPTED_BADGE}>
+          {`\u{1F512} ${lockBadgeLabel(fingerprint)}`}
+        </span>
+      )}
+    </>
   );
 }
 
@@ -175,8 +191,8 @@ function InviteButton(): JSX.Element {
       setNote({ ok: false, text: chooseTransport().note });
       return;
     }
-    const copied = await copyText(room.joinUrl());
-    setNote({ ok: copied, text: copied ? "Link copied" : "Copy blocked by the browser" });
+    const copied = await copyText(inviteUrl(room.slug));
+    setNote({ ok: copied, text: copied ? inviteToast("write") : "Copy blocked by the browser" });
     if (copied) timer.current = setTimeout(() => setNote(null), COPIED_MS);
   }, []);
 
@@ -199,6 +215,7 @@ function HeaderActions(): JSX.Element {
   const workspace = useWorkspace();
   const status = useWebmcpStatus();
   const push = useToast();
+  const inRoom = usePresence().slug !== null;
 
   const onCopy = useCallback(async () => {
     const ok = await copyText(getPrompt(STARTER_ID));
@@ -215,8 +232,11 @@ function HeaderActions(): JSX.Element {
 
   return (
     <>
+      <NameChip onRename={(name) => getRoomRuntime()?.setLabel(name)} />
       <RoomChip status={status} />
+      <ClaimsChip hide={inRoom} />
       <StatusPill status={status} />
+      <RequestsButton />
       <ShareButton />
       <InviteButton />
       <ChatGptPopover />

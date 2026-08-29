@@ -1,6 +1,9 @@
 /**
  * Whole-board messages: what a late joiner is sent, and how it is read back.
  *
+ * A snapshot is additive: it carries what the sender holds, so adopting one merges entity
+ * by entity and never removes anything the receiver has and the sender does not.
+ *
  * A share link deliberately leaves the audit trail behind, because a snapshot goes to a
  * stranger. A room is the opposite situation: the people in it are working the same board
  * together and the point is that callers and humans from every browser land in ONE rail,
@@ -45,5 +48,8 @@ export function snapshotPatches(raw: unknown, origin: string, at: string): reado
   const ws = fromSnapshot(raw, new Date(at));
   if (ws === null) return [];
   const audit = typeof raw === "object" && raw !== null ? (raw as { audit?: unknown }).audit : undefined;
-  return [...fullPatches(ws, origin, ws.updatedAt), ...auditPatches(audit, origin, at)];
+  const patches = [...fullPatches(ws, origin, ws.updatedAt), ...auditPatches(audit, origin, at)];
+  // A snapshot says what a board has, never what it lacks. Even an empty one is only ever
+  // additive, so adopting it can add entities and can never take one away.
+  return patches.filter((patch) => patch.value !== null);
 }

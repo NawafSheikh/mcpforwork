@@ -7,6 +7,7 @@
 import { buildArgumentDigest } from "../../packages/approval-contracts/src/index";
 import { auditPreview } from "../../packages/audit/src/index";
 import { describePolicy, diffPolicy, evaluateDraft } from "../policy/engine";
+import { objectUpdatedAt } from "../turns/versions";
 import type { DraftAction, Monitor, Workspace } from "../types";
 import type { HandlerMap } from "../webmcp/registry";
 import { readNumber, readString, readStrings } from "./handlerTypes";
@@ -127,6 +128,8 @@ export const list_monitors: HandlerFn = (_input, ws) => ({
       status: monitor.status,
       lastRunAt: monitor.lastRunAt ?? null,
       nextRunAt: monitor.nextRunAt ?? null,
+      // Send this back as expectedUpdatedAt on set_policy (docs/TURNS.md).
+      updatedAt: objectUpdatedAt(ws, { kind: "monitor", id: monitor.id }) ?? monitor.createdAt,
       policy: describePolicy(monitor.policy),
     })),
   ),
