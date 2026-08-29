@@ -34,3 +34,35 @@ audit and the guardrails; the agents bring the intelligence; the humans keep the
 ## Why the name
 Model Context Protocol gave agents tools. WebMCP put those tools on web pages. MCP for Work is
 the place where that becomes a team's workday.
+
+## Roadmap after the turn model (29 Aug 2026)
+
+### Secure rooms
+- End-to-end encrypted rooms: the key lives in the invite fragment, never reaches the relay;
+  patches are AES-GCM ciphertext on the relay, which already stores nothing and then cannot read.
+- Host-approved joins with roles: viewer, editor, host. Only the host edits guardrails.
+- Trust on notes: author, membership and kind travel with every note; the agent is told what came
+  from outside the team. The page never acts on a machine: site tools touch the board only.
+
+### Capabilities and routing
+- A capabilities card per person and per agent, published on purpose: connectors, skills, MCP
+  servers, systems they know. Readable by the room through list_capabilities.
+- Requests route to capability: an agent that lacks Fabric knowledge asks the agent that has it
+  by leaving a note addressed to it; the answer lands on the board. Access never travels,
+  the request does. Opt in per capability; choose who may ask.
+
+### Projects and outputs
+- A board is a project; a person has many; rooms hold boards. Outputs are objects: dashboards
+  today, documents, decks, checklists and small tools next, all through the same tool trio.
+
+### Evolving ways of working
+- Recipes: a named prompt plus a tool sequence, shareable in the room.
+- Templates: dashboards, policies, checklists.
+- Room rules: claim timeouts, who may approve, thresholds, quiet hours.
+- Artifacts: a generic object with a user-defined schema so a team adds its own object types
+  without new code. Composition of existing tools, never arbitrary code in the page.
+
+### Multi-vendor by construction (proven 29 Aug 2026)
+- A Claude-driven browser joined a live room through document.modelContext, saw all 25 tools,
+  created a dashboard and left a note addressed to any agent, on the board a ChatGPT had built.
+  Turns are addressed requests; the model behind each turn is whatever that person runs.
