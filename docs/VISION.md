@@ -79,3 +79,16 @@ the place where that becomes a team's workday.
   person's guardrails; the result lands on the board. Access never travels, requests do.
 - Free packs for open tools, paid and private company packs later, installed through one bridge.
 - First spike: page, local bridge, one existing MCP server (fabric-mcp), one tool round trip.
+
+### Humans, agents and robots (29 Aug 2026)
+- A robot is a peer with a capabilities card and a pack of tools served by a local bridge on
+  its owner's machine. Nawaf's spider (spidey-bot: gait body, camera head with a floor ruler in
+  centimetres, voice) is the first: robot_where, robot_clearance, robot_walk, robot_look,
+  robot_say, robot_snapshot.
+- Boundaries are policies drawn on the board in the robot's own coordinates. The bridge enforces
+  them: it predicts the end position of a walk and refuses anything that would cross the line;
+  the refusal appears in the room as a held draft with the clause boundary:floor. Anyone in the
+  room can command the robot inside the square; nobody can command it out.
+- Parts requests and new robots are ordinary objects: a note to the owner, a capabilities card
+  for any robot whose bridge speaks the pack contract.
+- Snapshots land on the board so the room sees what the robot sees.
