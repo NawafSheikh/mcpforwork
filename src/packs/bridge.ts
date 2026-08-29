@@ -160,7 +160,12 @@ export class BridgeClient {
       }
       this.socket = socket;
       this.alive = true;
-      socket.onerror = () => reject(new Error(`no bridge is listening on ${this.url}`));
+      socket.onerror = () =>
+        reject(
+          new Error(
+            `Could not reach the bridge at ${this.url}. Either nothing is listening there, or the browser blocked local access: press Connect again and allow it when the browser asks.`,
+          ),
+        );
       socket.onclose = () => this.dropped();
       socket.onmessage = (event) => {
         const message = parse(event.data);

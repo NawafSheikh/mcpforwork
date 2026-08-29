@@ -65,6 +65,9 @@ where the edges are.
 - Better: the prompt library ships exact prompts per feature, and tool results state the next
   call to make.
 
+## Local bridge
+- Local bridge: Chrome guards pages that talk to 127.0.0.1 (Local Network Access). The first Connect triggers a permission prompt; headless browsers deny it silently. The page now says so in its error text.
+
 ## Operational
 - Hosted on Vercel, relay on a shared Supabase project, no paging or metrics beyond Vercel's.
 - Better: a health endpoint, relay metrics, and a status line in the About tab.
