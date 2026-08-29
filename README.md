@@ -322,3 +322,7 @@ existed.
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
+
+## Where this goes
+
+The contest build is the skeleton of a shared workspace for people and their agents: shared objects, rooms, knowledge that crosses the human and agent line, guardrails as an object. The roadmap (documents, decks, internal tools, shared system knowledge, execution under rules, identity) is in [docs/VISION.md](docs/VISION.md).
