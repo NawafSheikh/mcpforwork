@@ -15,7 +15,7 @@ export function PulseChip({ place }: { readonly place: Place }): JSX.Element | n
   const pulse = pulseFor(workspace, place);
   if (pulse === null) return null;
   return (
-    <p className="mfw-pulse" key={pulse.eventId} role="status">
+    <p className="mfw-pulse-chip" key={pulse.eventId} role="status">
       <span className={`mfw-actor mfw-actor-${pulse.agent ? "agent" : "human"}`}>
         {pulse.agent ? "AI" : "You"}
       </span>

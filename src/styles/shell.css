@@ -182,7 +182,7 @@
 
 .mfw-holder { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
-.mfw-pulse {
+.mfw-pulse-chip {
   display: flex;
   gap: 8px;
   align-items: center;
