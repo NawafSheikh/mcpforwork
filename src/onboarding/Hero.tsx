@@ -18,12 +18,12 @@ import "./onboarding.css";
 
 export const SITE_URL = "mcpforwork.com";
 export const REPLAY_LABEL = "Watch it build (50 seconds)";
-export const HERO_TITLE = "A workbench for your ChatGPT";
-export const HERO_TITLE_LIVE = "Your agent is connected";
+export const HERO_TITLE = "A workspace for people and their agents";
+export const HERO_TITLE_LIVE = "Your agent is in the room";
 
 const HERO_LEAD =
-  "You do not use this page directly. Open it inside ChatGPT desktop, and your ChatGPT " +
-  "builds live dashboards here from your mail, files and tickets, under rules you set.";
+  "You do not use this page directly. Open it inside ChatGPT desktop: your ChatGPT works here with you, and with your teammates and their agents, under rules you set. It " +
+  "builds live dashboards, monitors and notes here from your mail, files and tickets.";
 
 function useCopyAction(): (value: string, done: string) => Promise<void> {
   const push = useToast();

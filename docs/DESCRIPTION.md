@@ -1,6 +1,6 @@
 # MCP for Work
 
-Your work becomes agent-ready: your own ChatGPT is the analyst and the local runner; this
+MCP for Work is a collaborative workspace for people and their agents: your own ChatGPT is the analyst and the local runner; this
 page is the board and the guardrails.
 
 ## Why WebMCP fits this use case

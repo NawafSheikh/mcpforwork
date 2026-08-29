@@ -1,6 +1,6 @@
 # MCP for Work
 
-**Your work becomes agent-ready: your own ChatGPT is the analyst and the local runner;
+**The collaborative workspace for people and their agents. Your own ChatGPT is the analyst and the local runner;
 this page is the board and the guardrails.**
 
 An entry for the OpenAI WebMCP Challenge.
@@ -326,3 +326,5 @@ MIT. See [LICENSE](LICENSE).
 ## Where this goes
 
 The contest build is the skeleton of a shared workspace for people and their agents: shared objects, rooms, knowledge that crosses the human and agent line, guardrails as an object. The roadmap (documents, decks, internal tools, shared system knowledge, execution under rules, identity) is in [docs/VISION.md](docs/VISION.md).
+
+Honest edges and the turn model: [docs/LIMITATIONS.md](docs/LIMITATIONS.md), [docs/TURNS.md](docs/TURNS.md).
