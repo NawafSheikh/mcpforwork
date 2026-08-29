@@ -20,7 +20,7 @@ export function AboutTab(): JSX.Element {
         proposed action lands in the approval queue, sorted by the policy you wrote.
       </p>
       <p>
-        The security model is deliberately small. The tools accept aggregates only, never raw
+        The security model is deliberately small. The tools accept summaries with real names, amounts and dates, never full message bodies or
         records: counts, sums and top lists, so nothing sensitive is retyped into a web page. In a
         real run on 28 August 2026 ChatGPT stopped before writing and asked first, in its own
         words: it would not send your email address, sender names, subjects, URLs, IDs, snippets or

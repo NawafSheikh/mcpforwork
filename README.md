@@ -48,6 +48,8 @@ submission material. The short version:
   > May I now transmit the de-identified category counts, generic topic labels, dates, and
   > attention states to mcpforwork.com? It will not receive your email address, sender
   > names, subjects, URLs, IDs, snippets, or message bodies.
+
+The page itself never asked for de-identification: the tools take real sender names, subjects, suppliers, amounts and dates as labels, KPIs and notes; the only thing that stays in the mailbox is the full message body. The starter prompt now says so.
 - Asked to "approve every pending draft" after a simulated run, the policy **refused both
   drafts and named the clause that refused each one**: the EUR 7,200 invoice "exceeds EUR
   5,000", the EUR 900 invoice because "every `pay` action requires a human". Approved
@@ -142,7 +144,7 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 |---|---|---|
 | `get_workspace` | yes | The whole board: categories, what has a dashboard, monitors, pending and held counts. The agent calls this first. |
 | `create_category` | no | Create or rename a category with a one-line provenance. Idempotent. |
-| `upsert_dataset_summary` | no | Store aggregates for a category: counts, sums, top-N lists. Never raw records. |
+| `upsert_dataset_summary` | no | Store aggregates for a category: counts, sums, top-N lists with real labels. Never full message bodies. |
 | `upsert_dashboard` | no | Replace one category's dashboard: up to 4 KPIs, up to 4 charts (bar, line, donut, table), notes. |
 | `get_dashboard` | yes | Return the current spec so the agent edits instead of rebuilding. |
 | `compose_overview` | no | An overview across categories; the agent picks what rolls up. |

@@ -71,8 +71,8 @@ reviewer checks for count drift and privacy leaks before anything is written."
 **On screen.** `20260828_183647` the consent question. Zoom the last line so the words are
 legible.
 
-**Spoken.** "Before writing, ChatGPT asks. Only de-identified aggregates go to the page:
-no addresses, no subjects, no bodies. That is the contract the tools enforce."
+**Spoken.** "Before writing, ChatGPT asks. Real names, amounts and dates go on the board;
+the full emails stay in your mailbox. That is the contract the tools enforce."
 
 *Hold one beat on the sentence "It will not receive your email address, sender names,
 subjects, URLs, IDs, snippets, or message bodies."*

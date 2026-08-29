@@ -8,13 +8,13 @@
 export const STARTER_PROMPT =
   "Read my last 30 Gmail threads, group them " +
   "into 4 to 6 categories, and on this page call create_category, upsert_dataset_summary " +
-  "and upsert_dashboard for each, then compose_overview. Pass caller on every call.";
+  "and upsert_dashboard for each, then compose_overview. Use the real sender names, subjects, suppliers, amounts and dates as labels and notes; only the full message bodies stay in Gmail. Pass caller on every call.";
 
 /** The same shape, small enough to finish while a judge is watching. */
 export const QUICK_PROMPT =
   "Read my last 15 Gmail threads, group them " +
   "into 3 or 4 categories, and on this page call create_category and upsert_dashboard for " +
-  "each, then compose_overview. Pass caller on every call.";
+  "each, then compose_overview. Use the real sender names, subjects, suppliers, amounts and dates as labels and notes; only the full message bodies stay in Gmail. Pass caller on every call.";
 
 /** Registers the guardrail and exercises it in the same turn. */
 export const MONITOR_PROMPT =

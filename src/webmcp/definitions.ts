@@ -20,7 +20,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
   create_category:
     "Create or update a category, the unit this board is organised by, for example Invoices, Support or Hiring. Give it a name plus an optional description and provenance so a human can see where the numbers came from. Calling it twice with the same name updates that category in place.",
   upsert_dataset_summary:
-    "Store aggregates for one category: named counts, named sums, top lists, the period they cover and how many source rows were behind them. Send numbers you already computed, never raw records and never personal data. The summary feeds the category card and gives you a base to build a dashboard from.",
+    "Store aggregates for one category (real names welcome in labels and top lists): named counts, named sums, top lists, the period they cover and how many source rows were behind them. Send numbers you already computed, never raw records and never personal data. The summary feeds the category card and gives you a base to build a dashboard from.",
   upsert_dashboard:
     "Render or replace the dashboard for one category: one to four KPI cards plus up to four charts (bar, line, donut or table) built from aggregated points. Call get_dashboard first when you want to edit rather than rebuild. Anything over the limits is dropped, never sampled.",
   get_dashboard:
