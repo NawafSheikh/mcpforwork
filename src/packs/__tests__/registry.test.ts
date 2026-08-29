@@ -54,7 +54,7 @@ describe("pack registry", () => {
       expect(defaultEnabled(pack, false)).toBe(true);
       expect(defaultEnabled(pack, true)).toBe(true);
     }
-    const sending = { ...packById("board")!, id: "mail", risk: "send" as const };
+    const sending = { ...packById("monitors")!, risk: "send" as const };
     expect(defaultEnabled(sending, true)).toBe(false);
     expect(defaultEnabled(sending, false)).toBe(true);
   });
