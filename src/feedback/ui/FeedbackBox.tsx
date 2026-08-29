@@ -4,71 +4,18 @@
  * Mounted next to whatever it is about (a dashboard, the overview, a draft, a monitor).
  * A note left here is what the agent reads through list_feedback and closes through
  * resolve_feedback, so this small box is the whole handover between the two sides.
+ * A note signs itself with this browser's display name, so the agent can answer a person
+ * by name instead of answering "human".
  */
 import { useMemo, useState, type FormEvent } from "react";
-import type { Actor, Feedback, FeedbackTarget } from "../../types";
+import type { FeedbackTarget } from "../../types";
 import { useShell, useWorkspace } from "../../shell/context";
+import { displayName } from "../identity";
 import { addFeedback, openFeedback, resolveFeedback, resolvedFeedback } from "../store";
+import { NoteList } from "./notes";
 import "./feedback.css";
 
-const AUTHOR_LABELS: Readonly<Record<Actor, string>> = {
-  agent: "ChatGPT",
-  human: "You",
-  system: "System",
-};
-
 const RESOLVED_BY_HUMAN = "Marked done on the page";
-
-/** Coarse on purpose: a note is either fresh, from today, or old news. */
-function age(iso: string, from: number = Date.now()): string {
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const minutes = Math.round((from - then) / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
-}
-
-function NoteHead({ item }: { readonly item: Feedback }): JSX.Element {
-  return (
-    <span className="mfw-fb-head">
-      <span className={`mfw-fb-author mfw-fb-author-${item.author}`}>
-        {AUTHOR_LABELS[item.author]}
-      </span>
-      <span className="mfw-fb-age">{age(item.createdAt)}</span>
-    </span>
-  );
-}
-
-function OpenNote({
-  item,
-  onResolve,
-}: {
-  readonly item: Feedback;
-  readonly onResolve: (id: string) => void;
-}): JSX.Element {
-  return (
-    <li className="mfw-fb-note">
-      <NoteHead item={item} />
-      <p className="mfw-fb-text">{item.text}</p>
-      <button type="button" className="mfw-fb-resolve" onClick={() => onResolve(item.id)}>
-        Resolve
-      </button>
-    </li>
-  );
-}
-
-function ResolvedNote({ item }: { readonly item: Feedback }): JSX.Element {
-  return (
-    <li className="mfw-fb-note mfw-fb-note-done">
-      <NoteHead item={item} />
-      <p className="mfw-fb-text">{item.text}</p>
-      {item.resolution ? <p className="mfw-fb-resolution">{item.resolution}</p> : null}
-    </li>
-  );
-}
 
 export interface FeedbackBoxProps {
   readonly target: FeedbackTarget;
@@ -90,7 +37,9 @@ export function FeedbackBox({ target, compact }: FeedbackBoxProps): JSX.Element 
     const text = draft.trim();
     if (text.length === 0) return;
     setDraft("");
-    void store.update((ws) => addFeedback(ws, { target, text, author: "human" }));
+    void store.update((ws) =>
+      addFeedback(ws, { target, text, author: "human", from: displayName() }),
+    );
   };
 
   const resolve = (id: string): void => {
@@ -107,13 +56,7 @@ export function FeedbackBox({ target, compact }: FeedbackBoxProps): JSX.Element 
           <span className="mfw-fb-count">{open.length === 0 ? "none open" : `${open.length} open`}</span>
         </header>
       )}
-      {open.length > 0 ? (
-        <ol className="mfw-fb-list">
-          {open.map((item) => (
-            <OpenNote key={item.id} item={item} onResolve={resolve} />
-          ))}
-        </ol>
-      ) : null}
+      <NoteList items={open} onResolve={resolve} />
       <form className="mfw-fb-form" onSubmit={submit}>
         <input
           className="mfw-fb-input"
@@ -137,13 +80,7 @@ export function FeedbackBox({ target, compact }: FeedbackBoxProps): JSX.Element 
           >
             {`Resolved (${done.length})`}
           </button>
-          {showDone ? (
-            <ol className="mfw-fb-list">
-              {done.map((item) => (
-                <ResolvedNote key={item.id} item={item} />
-              ))}
-            </ol>
-          ) : null}
+          {showDone ? <NoteList items={done} /> : null}
         </div>
       ) : null}
     </section>

@@ -161,10 +161,10 @@ const feedbackTarget: JsonSchema = object(
   {
     kind: {
       type: "string",
-      enum: ["dashboard", "overview", "draft", "monitor"],
-      description: "What the note is attached to.",
+      enum: ["dashboard", "overview", "draft", "monitor", "agent", "room", "person"],
+      description: "A board object, an agent by caller name, a person by name, or the room.",
     },
-    id: text(80, "Category name for a dashboard, the word overview, or a draft or monitor id.", 1),
+    id: text(80, "Category name, the word overview, a draft or monitor id, a caller or person name, or * for anyone.", 1),
   },
   ["kind", "id"],
 );
@@ -285,6 +285,17 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
   set_policy: object(
     { monitorId: text(60, "Id returned by register_monitor.", 1), policy },
     ["monitorId", "policy"],
+  ),
+  add_feedback: object(
+    {
+      target: feedbackTarget,
+      text: text(
+        LIMITS.maxFeedbackChars,
+        "The request in plain language. Everybody on this board reads it on the page.",
+        1,
+      ),
+    },
+    ["target", "text"],
   ),
   list_feedback: object({
     target: feedbackTarget,

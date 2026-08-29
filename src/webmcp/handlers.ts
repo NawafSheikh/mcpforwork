@@ -8,9 +8,8 @@
 
 import { LIMITS, type Category, type Chart, type DashboardSpec, type DatasetSummary, type OverviewSpec, type TopItem, type Workspace } from "../types";
 import { clampDashboard, clampOverview } from "../dsl/validate";
-import { openFeedback } from "../feedback/store";
 import { workspaceSummary } from "../store/selectors";
-import { feedbackHandlers } from "./feedbackTools";
+import { feedbackHandlers, openFeedbackLine } from "./feedbackTools";
 import type { HandlerMap, ToolHandler } from "./registry";
 import type {
   ClearWorkspaceInput,
@@ -124,12 +123,6 @@ function describeSummary(summary: DatasetSummary): string {
   if (typeof summary.rowCount === "number") parts.push(`${summary.rowCount} source rows`);
   if (summary.period) parts.push(`period ${summary.period}`);
   return parts.length > 0 ? parts.join(", ") : "no aggregates";
-}
-
-/** The one line that makes an agent stop and read before it rebuilds someone's board. */
-function openFeedbackLine(ws: Workspace): string {
-  const count = openFeedback(ws).length;
-  return count === 0 ? "" : ` Open feedback: ${count}. Call list_feedback before editing.`;
 }
 
 const getWorkspace: ToolHandler<GetWorkspaceInput> = (_input, ws) => {

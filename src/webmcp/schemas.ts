@@ -62,7 +62,7 @@ export const draftInputSchema = z.object({
 });
 
 export const feedbackTargetSchema = z.object({
-  kind: z.enum(["dashboard", "overview", "draft", "monitor"]),
+  kind: z.enum(["dashboard", "overview", "draft", "monitor", "agent", "room", "person"]),
   id: z.string().min(1).max(80),
 });
 
@@ -77,6 +77,15 @@ const categoryName = z
 export const callerSchema = z.string().min(1).max(LIMITS.maxCallerChars).optional();
 
 const tool = <T extends z.ZodRawShape>(shape: T) => z.object({ ...shape, caller: callerSchema });
+
+/**
+ * The registry strips `caller` before a handler runs, which is right for every tool that
+ * only wants it in the audit trail. The two feedback tools also need to know who is
+ * asking, to sign a note and to sort the notes addressed to that name first, so they copy
+ * it into `from`. Self-reported and never trusted: it labels and orders, nothing else.
+ */
+const addressedTool = <T extends z.ZodRawShape>(shape: T) =>
+  tool(shape).transform((value) => ({ ...value, from: value.caller }));
 
 const emptyInput = tool({});
 
@@ -139,7 +148,11 @@ export const toolSchemas = {
     monitorId: z.string().min(1).max(60),
     policy: policySchema,
   }),
-  list_feedback: tool({
+  add_feedback: addressedTool({
+    target: feedbackTargetSchema,
+    text: z.string().min(1).max(LIMITS.maxFeedbackChars),
+  }),
+  list_feedback: addressedTool({
     target: feedbackTargetSchema.optional(),
     includeResolved: z.boolean().optional(),
   }),
@@ -186,6 +199,7 @@ export type GetRunLogInput = ToolInputs["get_run_log"];
 export type ApproveDraftInput = ToolInputs["approve_draft"];
 export type DeclineDraftInput = ToolInputs["decline_draft"];
 export type SetPolicyInput = ToolInputs["set_policy"];
+export type AddFeedbackInput = ToolInputs["add_feedback"];
 export type ListFeedbackInput = ToolInputs["list_feedback"];
 export type ResolveFeedbackInput = ToolInputs["resolve_feedback"];
 export type ShareBoardInput = ToolInputs["share_board"];

@@ -1,9 +1,9 @@
 # WebMCP tool contract (MCP for Work)
 
-**24 tools**, in three sections: 18 board and monitor tools, 2 room tools, 4 dataset tools.
+**25 tools**, in three sections: 19 board and monitor tools, 2 room tools, 4 dataset tools.
 They live in one registry and one name space (`src/webmcp/schemas.ts` merges
 `roomToolSchemas` and `datasetToolSchemas` into `toolSchemas`), so the header pill counts
-all 24 and the sections below are for reading, not for wiring.
+all 25 and the sections below are for reading, not for wiring.
 
 All tools register once, in the top-level page, via `document.modelContext.registerTool`
 (fallback `navigator.modelContext`). Tabs are React state, never navigation, so tools
@@ -14,7 +14,7 @@ Descriptions stay under 500 chars, parameter descriptions under 150 chars.
 Tools that echo text derived from the visitor's data (email subjects, document names)
 set `untrustedContentHint: true`. All read tools set `readOnlyHint: true`.
 
-## Board and monitors (18 tools)
+## Board and monitors (19 tools)
 
 | Tool | RO | Input (zod) | Effect | Returns |
 |---|---|---|---|---|
@@ -31,11 +31,22 @@ set `untrustedContentHint: true`. All read tools set `readOnlyHint: true`.
 | approve_draft | no | {draftId, note?} | policy check first; refuses out-of-policy and names the clause; else marks approved by agent | "Approved ..." or "Refused: clause <name>: <reason>. A human can approve it from the Monitors tab." |
 | decline_draft | no | {draftId, reason?} | mark declined | confirmation |
 | set_policy | no | {monitorId, policy: Policy} | replace policy; UI shows a diff | confirmation with diff summary |
-| list_feedback | yes | {target?: {kind, id}, includeResolved?: boolean} | none | JSON list of open feedback left by humans on dashboards, the overview, drafts and monitors, newest first. Agent calls this before editing anything. (untrustedContentHint) |
-| resolve_feedback | no | {feedbackId, resolution: string(..200)} | mark resolved by agent | confirmation |
+| add_feedback | no | {target: {kind, id}, text: string(1..500)} | append a note authored by the agent, signed `from` the caller (or ChatGPT) | "Note left for &lt;target&gt;. Agents in this room see it through list_feedback." |
+| list_feedback | yes | {target?: {kind, id}, includeResolved?: boolean} | none | JSON rows: id, target, `for` (the same target, under the name an addressed note reads by), `from`, `author`, `authorKind` ("person" or "agent"), text, createdAt, resolved, and `addressedTo` on notes handed to an agent. Open notes newest first, agent-addressed ones included; pass `caller` and the notes addressed to that name, or to "*", come first. Rows are dropped from the end until the JSON fits the budget. (untrustedContentHint) |
+| resolve_feedback | no | {feedbackId, resolution: string(..200)} | mark resolved by agent | confirmation, naming `from` when the note was signed |
 | share_board | yes | {} | none | a read-only snapshot URL of the current board (state compressed into the URL fragment, never sent to a server) |
 | seed_demo_workspace | no | {} | demo mode only: load the sample workspace | confirmation |
 | clear_workspace | no | {confirm: true} | wipe categories, overview, monitors, runs, drafts (audit kept) | confirmation |
+
+### Feedback targets: the board, and the people on it
+
+`FeedbackTarget.kind` is one of `dashboard` (id = category), `overview`, `draft`, `monitor`,
+`agent` (id = the other agent's `caller` name, or `*` for any agent in the room), `person`
+(id = a person's display name, or `*` for everyone) and `room` (id = `room`): the last three
+are how one visitor's agent hands work to another visitor's agent or asks a named human for
+something, with both humans watching the same rows in the rail. get_workspace ends with
+"Open feedback: N (M addressed to agents). Call list_feedback before editing." whenever any
+open note is addressed to an agent or to the room.
 
 ## Common optional field on EVERY tool
 `caller?: string(..40)`: the agent or sub-agent names itself ("Classify 1-25"). Stored on the audit event and shown in the Agent activity rail so parallel workers are visible. Never trusted for anything else.

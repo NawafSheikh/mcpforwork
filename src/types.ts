@@ -164,11 +164,26 @@ export interface AuditEvent {
 
 /* ---------- Feedback (humans and agents editing the same objects in turns) ---------- */
 
-export type FeedbackTargetKind = "dashboard" | "overview" | "draft" | "monitor";
+/**
+ * What a note is attached to. The first four are objects on the board; the last three
+ * are people and agents, which is how one visitor's agent hands work to another's.
+ */
+export type FeedbackTargetKind =
+  | "dashboard"
+  | "overview"
+  | "draft"
+  | "monitor"
+  | "agent"
+  | "room"
+  | "person";
 
 export interface FeedbackTarget {
   readonly kind: FeedbackTargetKind;
-  /** category name for dashboards, "overview", draft id, or monitor id */
+  /**
+   * Category name for dashboards, "overview", a draft or monitor id, the caller name of
+   * the agent or the display name of the person it is addressed to ("*" for anyone),
+   * or "room" for a request to everybody on this board.
+   */
   readonly id: string;
 }
 
@@ -177,6 +192,8 @@ export interface Feedback {
   readonly target: FeedbackTarget;
   readonly text: string;
   readonly author: Actor;
+  /** Who wrote it: a caller name for an agent, a display name for a person. */
+  readonly from?: string;
   readonly createdAt: ISODate;
   readonly resolvedAt?: ISODate;
   readonly resolvedBy?: Actor;

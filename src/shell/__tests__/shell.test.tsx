@@ -67,11 +67,11 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 24 tools", () => {
+  it("publishes all 25 tools", () => {
     const store = createWorkspaceStore({ mode: "demo", persist: false });
     const bundle = createWebmcp({ store, handlers: { ...monitorHandlers, seed_demo_workspace: seedDemoHandler } });
-    expect(bundle.definitions.length).toBe(24);
-    expect(TOOL_NAMES.length).toBe(24);
+    expect(bundle.definitions.length).toBe(25);
+    expect(TOOL_NAMES.length).toBe(25);
   });
 
   it("leaves no tool without a handler", () => {
