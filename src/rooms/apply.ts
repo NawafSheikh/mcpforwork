@@ -18,6 +18,7 @@
  * only merged by event id and capped, because a trail one peer can rewrite is not a trail.
  */
 import { coerceCapability } from "../capabilities/coerce";
+import { coerceLoop } from "../loops/coerce";
 import { coercePackState } from "../packs/coerce";
 import { capAudit } from "../store/audit";
 import {
@@ -37,6 +38,7 @@ import type {
   Claim,
   DraftAction,
   Feedback,
+  Loop,
   Monitor,
   MonitorRun,
   OverviewSpec,
@@ -68,6 +70,7 @@ export type NormalPatch =
   | (PatchMeta & { readonly kind: "write"; readonly value: WriteMark | null })
   | (PatchMeta & { readonly kind: "pack"; readonly value: PackState | null })
   | (PatchMeta & { readonly kind: "capability"; readonly value: Capability | null })
+  | (PatchMeta & { readonly kind: "loop"; readonly value: Loop | null })
   | (PatchMeta & { readonly kind: "audit"; readonly value: AuditEvent });
 
 export interface NormalizeResult {
@@ -182,6 +185,10 @@ function normalizeOne(patch: RoomPatch, at: string): NormalPatch | null {
       return gone
         ? { ...meta, kind: "capability", value: null }
         : wrap(meta, "capability", coerceCapability(patch.value, at));
+    case "loop":
+      return gone
+        ? { ...meta, kind: "loop", value: null }
+        : wrap(meta, "loop", coerceLoop(patch.value, at));
     case "audit": {
       const event = coerceAuditEvent(patch.value, at);
       return event === null ? null : { ...meta, kind: "audit", value: event };
@@ -216,6 +223,7 @@ function effectiveKey(patch: NormalPatch): string {
     case "run":
     case "draft":
     case "feedback":
+    case "loop":
     case "audit":
       return patch.value.id;
     default:
@@ -264,6 +272,10 @@ function place(ws: Workspace, patch: NormalPatch): Workspace {
       return patch.value === null
         ? { ...ws, feedback: dropKey(ws.feedback, patch.key) }
         : { ...ws, feedback: { ...ws.feedback, [patch.value.id]: patch.value } };
+    case "loop":
+      return patch.value === null
+        ? { ...ws, loops: dropKey(ws.loops ?? {}, patch.key) }
+        : { ...ws, loops: { ...(ws.loops ?? {}), [patch.value.id]: patch.value } };
     case "claim":
       return patch.value === null
         ? { ...ws, claims: dropKey(ws.claims ?? {}, patch.key) }

@@ -101,3 +101,70 @@ Three build days: today, Monday, Tuesday. Wednesday is submit.
 5. **A device beyond the robot** (Tuesday, only if 1 to 4 are done and green).
 
 If Monday night is not green, 5 goes, then 4. 1 to 3 ship regardless: they are the demo.
+
+
+## 30 Aug, later: two corrections that change the shape
+
+### The page must not be a form the agent fills in
+
+"Why are we giving fixed charts and imposing our policies? What if the users want
+something completely different, like a Gantt chart? Why do they have to put values in a
+pre-defined shape that we have set?"
+
+Right. `upsert_dashboard` takes one to four KPIs and up to four charts from a list of four
+kinds. That is a dashboard product's shape, imposed on an agent that is supposed to be
+creating.
+
+The first answer was a block grammar the agent composes: safer than HTML, still our
+vocabulary. The better answer came next.
+
+### Agents run code on their own machine and show the result here
+
+"Let agents execute code locally and show on our page."
+
+This dissolves the problem instead of negotiating with it. The page was never the right
+place to run anything. The agent's own machine already is, through its own bridge, which
+its own person switched on.
+
+- `run_code` is a bridge pack: python or node, in a scratch directory, wall-clock timeout,
+  output capped, on **the machine of the person whose agent called it** and nowhere else.
+- What comes back to the page is the result, not the code's power: text, a table, or a
+  raster image as a data URL. No HTML, no SVG, nothing that executes. A picture is data.
+- The run record carries **the code, the output and the artifact together**, so a person
+  reads what actually ran rather than trusting a summary.
+- A Gantt chart is now "matplotlib, here is a PNG". So is anything else, and we never had
+  to invent a vocabulary for it.
+- Risk is `write` or higher, so in a room it is off by default and a person turns it on.
+
+The block grammar is dropped. It was a worse answer to a question that has a better one.
+
+### Nobody types notes on a web page when their agent is right there
+
+"Why would someone write notes on our page when they could just say it to ChatGPT?"
+
+They would not, and pretending otherwise is the ceremony we said we would not build. A
+person talks to their own agent, in their own chat, where they already are.
+
+So the page stops being somewhere you type. It is where:
+
+1. **What agents did is visible**, with who did it and on whose machine.
+2. **How they chose, and why, is visible.** This is the thing the product is actually for.
+   Not a summary after the fact: the options an agent had, the one it took, the reason, the
+   clause that stopped it, who it is waiting on.
+3. **Work reaches agents your own chat cannot reach**, which is the one thing a note is
+   genuinely for: a request addressed to somebody else's agent on somebody else's machine.
+
+`add_feedback` stays, because (3) is real. It stops being sold as "leave a comment". The
+human's job on this page is to read decisions and disagree with one, which is a button and
+not a text box.
+
+### What that makes the build
+
+1. `join_as`. **Done.**
+2. `run_code` on the bridge, artifacts rendered on the page.
+3. `decide`: a first-class record of what an agent considered, what it chose and why,
+   synced like everything else and rendered as a chain a person can argue with.
+4. Tasks stay minimal: they are what gets delegated, and they render through the run and
+   decision records rather than a bespoke lane board.
+
+Cut: the block grammar, and the bespoke task board UI.

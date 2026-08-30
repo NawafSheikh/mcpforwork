@@ -14,6 +14,7 @@ import { roomHandlers } from "../../rooms";
 import { turnHandlers } from "../../turns";
 import { workspaceToolHandlers } from "../../workspaces/tools";
 import { agentHandlers } from "../../agents/tools";
+import { loopHandlers } from "../../loops/tools";
 import { createWebmcp, findModelContext, registerAllTools } from "../../webmcp";
 import type { HandlerMap } from "../../webmcp";
 import type { WorkspaceStore } from "../../types";
@@ -37,6 +38,7 @@ function handlersFor(): HandlerMap {
     ...capabilityHandlers,
     ...(workspaceToolHandlers as unknown as HandlerMap),
     ...(agentHandlers as unknown as HandlerMap),
+    ...(loopHandlers as unknown as HandlerMap),
   };
 }
 

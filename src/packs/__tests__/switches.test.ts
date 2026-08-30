@@ -15,7 +15,7 @@ import { packStateOf, packViews, setPackState } from "../state";
 import { fakeContext, installContext, removeContext } from "./fixtures";
 
 const MONITOR_TOOLS = 7;
-const ALL_TOOLS = 35;
+const ALL_TOOLS = 39;
 
 function bundle(store: PersistentWorkspaceStore) {
   const packs = createPackController(store);
@@ -121,9 +121,9 @@ describe("pack switches", () => {
     ws.dispose();
   });
 
-  it("shows seven rows with a risk and a tool count", () => {
+  it("shows eight rows with a risk and a tool count", () => {
     const views = packViews(createWorkspaceStore({ mode: "local", persist: false }).get(), false);
-    expect(views).toHaveLength(7);
+    expect(views).toHaveLength(8);
     expect(views.every((view) => view.enabled)).toBe(true);
     expect(views.every((view) => view.changedBy === undefined)).toBe(true);
     expect(views.reduce((sum, view) => sum + view.pack.tools.length, 0)).toBe(ALL_TOOLS);

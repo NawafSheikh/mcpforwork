@@ -12,6 +12,7 @@ import { roomJsonSchemas } from "../rooms/handlers";
 import { turnJsonSchemas } from "../turns/tools";
 import { workspaceJsonSchemas } from "../workspaces/tools";
 import { agentJsonSchemas } from "../agents/tools";
+import { loopJsonSchemas } from "../loops/tools";
 import type { ToolName } from "./schemas";
 
 export type JsonSchema = Record<string, unknown>;
@@ -340,6 +341,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
   ...capabilityJsonSchemas,
   ...workspaceJsonSchemas,
   ...agentJsonSchemas,
+  ...loopJsonSchemas,
 };
 
 /** caller is added once here so no tool can forget it. */

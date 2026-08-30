@@ -20,6 +20,7 @@ import { capabilityHandlers } from "../../capabilities/tools";
 import { workspaceHandlers } from "../../webmcp/handlers";
 import { workspaceToolHandlers } from "../../workspaces/tools";
 import { agentHandlers } from "../../agents/tools";
+import { loopHandlers } from "../../loops/tools";
 import { AGENT_OFF, CONTROLS_HEADING, NAME_QUESTION } from "../lib/constants";
 import { filledBoard } from "./fixture";
 
@@ -102,11 +103,11 @@ describe("shell", () => {
 });
 
 describe("shell wiring", () => {
-  it("publishes all 35 tools", () => {
+  it("publishes all 39 tools", () => {
     const store = createWorkspaceStore({ mode: "local", persist: false });
     const bundle = createWebmcp({ store, handlers: { ...monitorHandlers } });
-    expect(bundle.definitions.length).toBe(35);
-    expect(TOOL_NAMES.length).toBe(35);
+    expect(bundle.definitions.length).toBe(39);
+    expect(TOOL_NAMES.length).toBe(39);
     expect(TOOL_NAMES).not.toContain("seed_demo_workspace");
   });
 
@@ -120,6 +121,7 @@ describe("shell wiring", () => {
       ...Object.keys(capabilityHandlers),
       ...Object.keys(workspaceToolHandlers),
       ...Object.keys(agentHandlers),
+      ...Object.keys(loopHandlers),
     ]);
     expect(TOOL_NAMES.filter((name) => !wired.has(name))).toEqual([]);
   });

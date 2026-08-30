@@ -23,6 +23,7 @@ export type PatchKind =
   | "write"
   | "pack"
   | "capability"
+  | "loop"
   | "audit";
 
 export const PATCH_KINDS: readonly PatchKind[] = [
@@ -36,6 +37,7 @@ export const PATCH_KINDS: readonly PatchKind[] = [
   "write",
   "pack",
   "capability",
+  "loop",
   "audit",
 ];
 

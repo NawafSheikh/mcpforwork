@@ -83,6 +83,7 @@ describe("capability tools", () => {
     // The site packs are measured, never declared: every pack is on for a local board.
     expect(rows.capabilities[0]?.packs).toEqual([
       "board",
+      "loops",
       "workspaces",
       "datasets",
       "notes",

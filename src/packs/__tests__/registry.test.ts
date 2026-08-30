@@ -28,9 +28,9 @@ describe("pack registry", () => {
     expect(new Set(PACK_TOOL_NAMES).size).toBe(PACK_TOOL_NAMES.length);
   });
 
-  it("publishes 35 tools in seven packs", () => {
-    expect(TOOL_NAMES).toHaveLength(35);
-    expect(BUILT_IN_PACKS).toHaveLength(7);
+  it("publishes 39 tools in eight packs", () => {
+    expect(TOOL_NAMES).toHaveLength(39);
+    expect(BUILT_IN_PACKS).toHaveLength(8);
     expect(BUILT_IN_PACKS.map((pack) => pack.id)).toEqual([...PACK_IDS]);
   });
 

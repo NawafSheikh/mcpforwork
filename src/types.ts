@@ -246,6 +246,41 @@ export interface Task {
   readonly updatedAt: ISODate;
 }
 
+/* ---------- Loops (what is running, on whose machine, feeding what) ---------- */
+
+/**
+ * A loop is a thing that keeps running somewhere: a scan every ten minutes, a nightly
+ * build, a watcher. It is the process table of this OS, and the reason it is an object
+ * rather than a log line is that loops feed each other: a loop in one layer consumes what
+ * the loops below it produced, and somebody has to be able to see that and move it.
+ */
+export type LoopState = "idle" | "running" | "held" | "failed" | "off";
+
+export interface Loop {
+  readonly id: string;
+  readonly name: string;
+  /** What it does, in one line, in the words of whoever runs it. */
+  readonly does: string;
+  /**
+   * Which layer it sits in. 0 is the floor. A loop feeds upward, never sideways and
+   * never down, so the layer is what makes the picture readable at a glance.
+   */
+  readonly layer: number;
+  /** The loop this one feeds, which must be in a higher layer. Unset means it feeds nobody yet. */
+  readonly feeds?: string;
+  /** Whose machine it runs on: the caller name of the agent that owns it. */
+  readonly host: string;
+  /** "every 10 minutes", a cron string, or "on demand". Free text; nothing here schedules. */
+  readonly every?: string;
+  readonly state: LoopState;
+  readonly lastRunAt?: ISODate;
+  /** One line from the last tick, so the picture says what is happening, not just that it is. */
+  readonly lastSaid?: string;
+  readonly records: readonly TaskRecord[];
+  readonly createdAt: ISODate;
+  readonly updatedAt: ISODate;
+}
+
 /* ---------- Turns (claims and versions, docs/TURNS.md) ---------- */
 
 /**
@@ -350,6 +385,8 @@ export interface Workspace {
   readonly capabilities?: Readonly<Record<string, Capability>>;
   /** The work itself, keyed by task id. Optional: a board made before tasks has none. */
   readonly tasks?: Readonly<Record<string, Task>>;
+  /** What is running and where, keyed by loop id. The process table of this OS. */
+  readonly loops?: Readonly<Record<string, Loop>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -410,4 +447,9 @@ export const LIMITS = {
   maxTaskTitleChars: 100,
   maxTaskDetailChars: 400,
   maxTaskRecordChars: 200,
+  /** Loops on one board, and how deep the picture is allowed to get. */
+  maxLoops: 40,
+  maxLoopLayers: 6,
+  maxLoopNameChars: 60,
+  maxLoopDoesChars: 200,
 } as const;

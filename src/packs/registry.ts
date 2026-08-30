@@ -11,6 +11,7 @@ import type { PackRisk } from "../types";
 
 export const PACK_IDS = [
   "board",
+  "loops",
   "workspaces",
   "datasets",
   "notes",
@@ -52,6 +53,14 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
       "compose_overview",
       "clear_workspace",
     ],
+  },
+  {
+    id: "loops",
+    name: "Loops",
+    description:
+      "What is running and where: every loop, the layer it sits in, what it feeds, and what it last said. Registering one does not start anything.",
+    risk: "write",
+    tools: ["register_loop", "report_loop", "list_loops", "rearrange_loop"],
   },
   {
     id: "workspaces",

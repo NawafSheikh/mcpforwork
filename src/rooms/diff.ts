@@ -80,6 +80,7 @@ export function derivePatches(prev: Workspace, next: Workspace, origin: string, 
     ...recordPatches("write", prev.lastWriter ?? {}, next.lastWriter ?? {}, ctx),
     ...recordPatches("pack", prev.packs ?? {}, next.packs ?? {}, ctx),
     ...recordPatches("capability", prev.capabilities ?? {}, next.capabilities ?? {}, ctx),
+    ...recordPatches("loop", prev.loops ?? {}, next.loops ?? {}, ctx),
     ...listPatches("run", prev.runs, next.runs, runId, ctx, true),
     ...listPatches("audit", prev.audit, next.audit, eventId, ctx, false),
   ];
@@ -96,6 +97,7 @@ export function boardSize(ws: Workspace): number {
     Object.keys(ws.monitors).length +
     Object.keys(ws.drafts).length +
     Object.keys(ws.feedback ?? {}).length +
+    Object.keys(ws.loops ?? {}).length +
     ws.runs.length +
     (ws.overview === undefined ? 0 : 1)
   );
@@ -118,6 +120,7 @@ export function emptyLike(ws: Workspace): Workspace {
     lastWriter: {},
     packs: {},
     capabilities: {},
+    loops: {},
     runs: [],
     audit: [],
   };
