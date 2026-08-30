@@ -25,6 +25,7 @@ import {
 } from "./bridge";
 import { verifyHello, type IdentityVerdict } from "./bridgeIdentity";
 import { emitPackToast } from "./events";
+import { recordRun } from "./codeRuns";
 
 export type BridgeStatus = "off" | "connecting" | "on" | "error";
 
@@ -96,6 +97,12 @@ export function eventText(event: BridgeEvent): string {
   if (event.kind === "queue.finished" || event.kind === "run.recorded") {
     const says = typeof payload.says === "string" ? ` ${payload.says}` : "";
     return `Robot finished${tool}.${says}`.trim();
+  }
+  if (event.kind === "code.run") {
+    const run = payload as { caller?: unknown; ok?: unknown; artifact?: unknown };
+    const who = typeof run.caller === "string" ? run.caller : "An agent";
+    const how = run.ok === false ? "ran something that failed" : "ran something";
+    return `${who} ${how} on this machine${run.artifact ? ", with a picture" : ""}.`;
   }
   if (event.kind === "recipe.trial") return "The robot is trying a recipe.";
   return `Bridge: ${event.kind}`;
@@ -256,6 +263,9 @@ export function createBridgeSession(options: BridgeSessionOptions = {}): BridgeS
   };
 
   const onEvent = (event: BridgeEvent): void => {
+    // A run carries the code, the output and any picture, so the page can show what
+    // actually happened rather than a sentence about it.
+    if (event.kind === "code.run") recordRun(event.payload);
     if (event.kind === DISCONNECTED) {
       packs.closeAll();
       accepted = [];

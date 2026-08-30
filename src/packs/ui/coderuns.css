@@ -1,0 +1,50 @@
+/* What just ran: code, output and the picture, together. Tokens only. */
+
+.mfw-runs { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.mfw-runs__head h3 { margin: 0; font-size: 15px; }
+.mfw-runs__line { margin: 2px 0 0; font-size: 12px; color: var(--mfw-muted, #5b6b7e); max-width: 62ch; }
+
+.mfw-runs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.mfw-run {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--mfw-border, #d8e0ea);
+  border-left: 3px solid var(--mfw-ok, #1f9d55);
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: var(--mfw-surface, #fff);
+}
+
+.mfw-run--failed { border-left-color: var(--mfw-danger, #b3261e); }
+
+.mfw-run__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 12px; }
+.mfw-run__who { font-weight: 600; }
+.mfw-run__what { color: var(--mfw-text, #16202b); }
+.mfw-run__when { margin-left: auto; color: var(--mfw-muted, #5b6b7e); }
+
+.mfw-run__code,
+.mfw-run__out {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--mfw-radius-sm, 6px);
+  font-family: var(--mfw-mono, ui-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.mfw-run__code { background: var(--mfw-bg-soft, #f6f8fb); border: 1px solid var(--mfw-border-soft, #e6ebf2); }
+.mfw-run__out { background: var(--mfw-surface-2, #eef2f7); }
+.mfw-run__none { margin: 0; font-size: 12px; color: var(--mfw-muted, #5b6b7e); }
+
+.mfw-run__art {
+  max-width: 100%;
+  border: 1px solid var(--mfw-border-soft, #e6ebf2);
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: #fff;
+}

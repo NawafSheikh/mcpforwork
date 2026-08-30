@@ -97,3 +97,7 @@ export type { AskRequest, Bus, PackToast, ToastTone } from "./events";
 
 export { WORK_PACKS, catalogStatusText } from "./catalog";
 export type { CatalogEntry, CatalogStatus } from "./catalog";
+
+export { CodeRuns } from "./ui/CodeRuns";
+export { clearRuns, codeRuns, coerceRun, recordRun, subscribeRuns } from "./codeRuns";
+export type { CodeRun } from "./codeRuns";
