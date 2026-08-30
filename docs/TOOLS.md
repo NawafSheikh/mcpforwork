@@ -1,12 +1,12 @@
 # WebMCP tool contract (MCP for Work)
 
-**34 tools**, in six sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
-3 turn tools, 2 capability tools, 5 workspace tools. They live in one registry and one
-name space (`src/webmcp/schemas.ts` merges `roomToolSchemas`, `datasetToolSchemas`,
-`turnToolSchemas`, `capabilityToolSchemas` and `workspaceToolSchemas` into `toolSchemas`),
-so the header pill counts all 34 and the sections below are for reading, not for wiring.
+**39 tools**, in eight sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
+3 turn tools, 2 capability tools, 5 workspace tools, 1 identity tool, 4 loop tools. They
+live in one registry and one name space (`src/webmcp/schemas.ts` merges the leaf modules'
+schemas into `toolSchemas`), so the header pill counts all 39 and the sections below are
+for reading, not for wiring.
 
-Every one of the 34 belongs to exactly one **pack**, and a pack has a switch on the page.
+Every one of the 39 belongs to exactly one **pack**, and a pack has a switch on the page.
 A tool whose pack is off is unregistered from `document.modelContext` and refused by the
 registry; see "## Packs" below.
 
@@ -157,8 +157,9 @@ exactly `TOOL_NAMES`, each name once, so a tool can never end up with no switch 
 | notes | write | 3: add_feedback, list_feedback, resolve_feedback | requests in all four directions |
 | turns | write | 3: claim, release, list_claims | claims and versions |
 | monitors | send | 7: register_monitor, report_monitor_run, list_monitors, get_run_log, approve_draft, decline_draft, set_policy | policies, runs and the approval queue: the pack that can act on the outside |
-| rooms | write | 5: get_room, create_room, share_board, publish_capabilities, list_capabilities | invite, presence and the capability cards |
+| rooms | write | 6: get_room, create_room, join_as, share_board, publish_capabilities, list_capabilities | invite, presence, identity and the capability cards |
 | workspaces | write | 5: list_workspaces, create_workspace, switch_workspace, rename_workspace, save_workspace | more than one board in this browser, one per project |
+| loops | write | 4: register_loop, report_loop, list_loops, rearrange_loop | what is running, on whose machine, and what feeds what |
 
 `risk` is `read`, `write`, `send` or `move`, worst case first in the panel. `move` is the
 level above `send`: it is the one that can knock something over, and only a bridge pack
@@ -199,6 +200,36 @@ The wire protocol is mcpforwork-bridge/docs/CONTRACT.md; the page needs
 `connect-src ws://127.0.0.1:* ws://localhost:*` in its CSP. Bridge tool names are not in
 `TOOL_NAMES` and are not counted by the header pill.
 
+## Loops (4 tools, src/loops)
+
+A loop is something that keeps running on somebody's machine: a scan every ten minutes, a
+nightly build, a watcher. It is the process table of this OS. Each one sits in a **layer**
+and **feeds** a loop in a layer above it, so the picture reads bottom to top and
+"everything below feeds the top" is true rather than aspirational.
+
+**Nothing here schedules anything.** The loop keeps running where it already runs; this is
+the shared picture of it. That is what lets a loop on a laptop and a loop on a VPS sit in
+one drawing without either side holding the other's credentials.
+
+Two invariants are enforced in `src/loops/state.ts`, not hoped for:
+
+1. A loop feeds **strictly upward**. Sideways and downward are refused by name: "scan is in
+   layer 1 and rank is in layer 1. A loop feeds upward only, so put rank in a higher layer
+   first."
+2. **No rings.** Layers alone forbid them, but the chain is walked anyway, because a
+   hand-edited layer is not a proof.
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| register_loop | no | {name, does, every?, layer?: 0..5, feeds?, state?} | upsert a loop owned by `caller`'s machine | where it sits, what it feeds, and what to call next. A bad arrangement still registers the loop and names what was wrong, rather than losing it |
+| report_loop | no | {loop, state?, said?} | stamp the tick, keep `said` as the line the picture shows and as a record | "scan is running: 4 offers under budget." An unknown loop is told to call register_loop |
+| list_loops | yes | {} | none | JSON by layer, floor first: each loop with what it does, whose machine, what it feeds, what feeds it, its state and what it last said, plus every machine in the picture. (untrustedContentHint) |
+| rearrange_loop | no | {loop, layer?, feeds?, why?} | move a layer, repoint or detach (`feeds: ""`) | the new position, or "Not moved" and the reason. A person dragging on the page runs the identical check |
+
+The page has **no chat box**, and clicking a loop hands a person the words to say in the
+chat they are already in. When the loop runs on somebody else's machine those words become
+an `add_feedback` addressed to that agent, because that is the only way to reach it.
+
 ## Workspaces (5 tools, src/workspaces)
 
 A workspace is one piece of work and everybody in it: the people, their agents, what each
@@ -230,6 +261,27 @@ nothing about the room board is stamped into a workspace entry. Switching is sti
 allowed and is the way out: it reloads the page onto the chosen workspace, leaving the
 room. The site tool refuses that, because navigating a page out from under the people in
 a room is a person's decision, not an agent's.
+
+## Identity (1 tool, src/agents)
+
+`join_as` is an agent's first call. It claims a name for this room and hands back the exact
+string to pass as `caller` from then on, so the rail, the claims, the cards and every
+addressed note say who actually did the thing.
+
+The page decides what is granted, not the agent:
+
+- a name another agent here already holds comes back numbered ("Codex 2");
+- a repeat claim **from the same page** is the same agent keeping its name, not a second
+  one, because one page is one agent;
+- renaming leaves no card behind;
+- a bare vendor name ("Codex", "ChatGPT", "Claude") is **granted**, with the reason it
+  reads badly, since refusing it would leave the agent with no name at all.
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| join_as | no | {name, of?, doing?} | claim the name, publish the agent's card | the name actually granted, the caller string to use, and who else is already here. (untrustedContentHint: the other names were typed by other people's agents) |
+
+It grants nothing. A name is a label, exactly like the display name a person types.
 
 ## Datasets (4 tools, owner A11, src/dataset)
 
