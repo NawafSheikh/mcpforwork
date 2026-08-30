@@ -85,6 +85,7 @@ export {
   roomFingerprint,
   roomSecret,
   roomStorageKey,
+  setRoomLabel,
   subscribeRoomRuntime,
 } from "./runtime";
 export type { JoinFailure, RoomHost } from "./runtime";

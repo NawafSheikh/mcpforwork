@@ -65,6 +65,22 @@ export function configureRooms(next: RoomHost | null): void {
   loadFingerprint();
 }
 
+/**
+ * Change the name this browser is announced under, now and for any room opened later.
+ *
+ * The shell configures rooms once at bootstrap, when nobody has typed a name yet, so the
+ * label captured there is the generic fallback. A person then types their name on the
+ * landing card, and every room opened after that announced the fallback to everybody else
+ * while rendering the real name locally, which means the one browser that could see the
+ * mistake was the only one that never did. Found by running two machines against
+ * production and reading the second one's members list.
+ */
+export function setRoomLabel(label: string): void {
+  if (host === null) return;
+  host = { ...host, label };
+  runtime?.setLabel(label);
+}
+
 /** The room key this browser holds, or null on a board that is not in an encrypted room. */
 export function roomSecret(): string | null {
   return secret;
