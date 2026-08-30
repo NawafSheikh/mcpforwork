@@ -1,32 +1,70 @@
 # MCP for Work
 
-**The collaborative workspace for people and their agents. Your own ChatGPT is the analyst and the local runner;
-this page is the board and the guardrails.**
+**A collaborative AI OS.** Not an app with an agent bolted on: the layer that several
+people's agents run on at once, in a browser, with no server holding anyone's data.
 
-An entry for the OpenAI WebMCP Challenge.
+An entry for the OpenAI WebMCP Challenge. Live at **https://mcpforwork.com**.
 
 ---
 
 ## What it is
 
-Most "AI dashboard" products pay a model to read your data, categorise it and draw charts.
-That is the expensive part, and it is the part the user is already paying for somewhere
-else. MCP for Work turns the arrangement around.
+An operating system gives you processes, a scheduler, devices, permissions, a place state
+lives, identity, and a shell. This one gives all seven to a group of humans and their
+agents, and every row is a real part of the build rather than a metaphor.
 
-The page exposes a small set of typed WebMCP tools. Your own ChatGPT, which already has
-your connectors, reads your data, decides the categories, and calls the tools to build the
-board. It then registers background monitors that run as scheduled tasks on your own
-machine and report their findings back through the same tools. The page never sees a
-mailbox, never calls a model, and never spends a token. It stores aggregates, renders
-them, and enforces the policy you wrote.
+| An OS gives you | Here it is |
+|---|---|
+| **Processes** | **Loops.** Everything that keeps running, on whose machine, in which layer, what it feeds and what it last said, live on one board across several people's machines. And `run_code`, so an agent computes on its own machine and the answer lands here. |
+| **A scheduler** | Turns. Writing claims an object and releases it, two writes inside a minute merge, a person outranks an agent in the device queue. |
+| **Devices** | A local bridge brings a machine's own tools, and hardware with them. A robot appears only when the real thing answers a read-only probe and declares a stop and a boundary. |
+| **Permissions** | Every tool sits in a pack with a switch. Flip one and those tools are unregistered from `document.modelContext` within the second, for everybody in the room. |
+| **A filesystem** | Workspaces. Many boards in one browser, one per piece of work, saved and switched without losing anything. |
+| **Identity** | Agents claim their own names, so a room is not two Codexes. People, agents and robots each publish a card saying what they can reach. |
+| **A shell** | Your own ChatGPT. You drive this from the chat you are already in, not from a text box on our page. |
 
-The result is a division of labour that only WebMCP makes possible:
+The people are in a browser. The agents are their own ChatGPT and Codex, on their own
+machines, holding their own connectors and their own access.
 
-- **The agent** brings the data, the reasoning and the compute.
-- **The page** brings the typed surface, the rendering, the audit trail and the veto.
-- **You** keep the approve button.
+**Each agent stays on its own person's machine.** My ChatGPT calls tools on my copy of the
+page; yours calls tools on yours. What crosses between us is the board, not access. My
+agent can ask yours to do what it cannot, and your agent decides, and does it with your
+access, and reports back what it actually did. I never get your credentials. That is a
+property of where the tools are registered, not a promise in a privacy policy.
 
-A monitor can propose. It cannot pay an invoice you said needed a human.
+Nothing in the middle holds anything, because there is nothing in the middle: the page is
+the OS, and it runs in everyone's own browser.
+
+---
+
+## What is running, across machines
+
+The centre of the product is the process table. A loop is something that keeps going on
+somebody's machine: a scan every ten minutes, a nightly build, a watcher. Each one sits in
+a **layer** and **feeds** a loop above it, so the picture reads bottom to top.
+
+Two invariants are enforced rather than hoped for, because "everything below feeds the top"
+is only readable if it is actually true:
+
+1. A loop feeds **strictly upward**. Sideways and downward are refused **by name**:
+   > Not moved. "morning call" is in layer 2 and "price scan" is in layer 0. A loop feeds
+   > upward only, so put "price scan" in a higher layer first.
+2. **No rings.** Layers alone forbid them, but the chain is walked anyway, because a
+   hand-edited layer is not a proof.
+
+**Nothing here schedules anything.** The loop keeps running where it already runs; this is
+the shared picture of it. That is exactly why a loop on a laptop and a loop on a VPS can
+share one drawing without either side holding the other's credentials.
+
+Proven against production on 30 August, two independent headless browsers in one room:
+machine two opened the link having never seen machine one and its first call already had
+the whole picture, then registered a loop on **its own** machine pointing at machine one's.
+Both sides ended up seeing all four loops, both machine names, and each other's loops
+tagged "another machine".
+
+There is **no chat box on this page**, and there should not be: you already have a chat.
+Click a loop and it hands you the words to say. When the loop runs on somebody else's
+machine, those words become a request their agent picks up itself.
 
 ---
 
@@ -40,7 +78,7 @@ submission material. The short version:
 - One conversation read **50 unique Gmail threads** through ChatGPT's own Google Workspace
   connector and wrote **six category dashboards plus an overview** through the site tools
   on this page. The header pill read "Site tools on: 15 registered" (later waves added
-  more, so a fresh page now registers 34).
+  more, so a fresh page now registers 39).
 - The work **fanned out**: two classification sub-agents ran side by side, shown in the UI
   as `Classify 1 25` and `Classify 26 50`, while the agent had its own aggregate reviewed
   for count drift and privacy leaks before anything was written.
@@ -133,7 +171,7 @@ a policy and the human approve path do not need an agent at all.
 
 ## The tools
 
-Thirty-four tools, registered once in the top-level page, so tabs never tear them down.
+Thirty-nine tools, registered once in the top-level page, so tabs never tear them down.
 Every call is validated with zod, rate limited, audited, and returns a string under 1500
 characters. Read tools set `readOnlyHint`. Tools that echo text derived from your own data
 set `untrustedContentHint`. Full contract, including the zod shapes, is in
@@ -175,6 +213,24 @@ set `untrustedContentHint`. Full contract, including the zod shapes, is in
 | `switch_workspace` | no | Open another saved board by name. This one is saved first. Refused while the board is a shared room. |
 | `rename_workspace` | no | Rename the open workspace once you can see what the work turned out to be. |
 | `save_workspace` | no | Flush to disk now and say what is in it. Saving is automatic anyway, a moment after every change. |
+| `join_as` | no | Take a name in this room and get back the exact caller string to use. A taken name comes back numbered; a bare vendor name is granted with the reason it reads badly. |
+| `register_loop` | no | Put a loop you run on your own machine into the shared picture: what it does, how often, its layer and what it feeds. |
+| `report_loop` | no | A tick: the state it is in now and one line a person would want to read. |
+| `list_loops` | yes | The whole picture by layer, floor first, with every machine in it. |
+| `rearrange_loop` | no | Move a layer, repoint or detach. A move that would go sideways, downward or in a ring is refused with the reason and nothing changes. |
+
+One more tool arrives from a person's own machine rather than from this page, through the
+local bridge, and only when they switch it on:
+
+| Tool | Read only | What it does |
+|---|---|---|
+| `run_code` | no | Run a short python or node script **on the machine the bridge is on**, and put the answer here. Stdout comes back capped, and at most one raster image as a data URL. An SVG, an HTML file or a PDF is refused by name: a PNG is pixels, and those are things that run. The page re-refuses them on arrival, because a boundary only one side enforces is not a boundary. |
+
+Its pack risk is `send` rather than `write`, so in a room it stays off until a person turns
+it on: a script on a real machine reaches the network and the disk. The run record carries
+**the code, the output and the picture together**, so a person reads what actually ran
+instead of trusting a summary of it, and it appears in the right-hand column, which is on
+screen wherever you are.
 
 Every tool also takes an optional `caller` string, at most 40 characters, with which the
 agent names itself. When ChatGPT splits work between sub-agents, the Activity rail shows
@@ -350,7 +406,8 @@ video/            the demo film: a Remotion composition, narration and shot asse
 ## Timeline
 
 This repository was created on **28 August 2026**, inside the WebMCP Challenge submission
-period, and every commit in it falls inside that window.
+period, and every commit in it falls inside that window. The first commit is
+`65ebf93 chore: scaffold MCP for Work` at 2026-08-28 17:30 +0200.
 
 One qualification, stated plainly: the packages imported under `packages/` are a
 pre-existing foundation. They come from the author's own private control-plane work
