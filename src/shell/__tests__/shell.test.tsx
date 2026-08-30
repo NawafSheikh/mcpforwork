@@ -47,7 +47,7 @@ describe("shell", () => {
     expect(html).toContain(NAME_QUESTION);
     expect(html).toContain(AGENT_OFF);
     expect(html).toContain(CONTROLS_HEADING);
-    expect(html).toContain("group them into");
+    expect(html).toContain("register_loop");
     expect(html).toContain("WebMCP not available");
     // The rails are already there, and the empty members list explains rooms.
     expect(html).toContain("Members");

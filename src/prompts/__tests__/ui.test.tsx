@@ -42,8 +42,10 @@ describe("PromptLibrary", () => {
 
   it("shows the variable picker only for the variables a prompt uses", () => {
     const html = renderToStaticMarkup(<PromptLibrary defaultOpen />);
-    expect(html).toContain("prompt-starter-threads");
+    expect(html).toContain("prompt-mail-threads");
     expect(html).toContain("prompt-monitor-category");
+    // The starter prompt takes no variables any more, so it gets no picker at all.
+    expect(html).not.toContain("prompt-starter-threads");
     expect(html).not.toContain("prompt-starter-category");
   });
 

@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { MONITOR_PROMPT, QUICK_PROMPT, STARTER_PROMPT } from "../../shell/lib/constants";
-import { defaultPrompt, MONITOR_ID, QUICK_ID, STARTER_ID } from "../defaults";
+import { MAIL_ID, defaultPrompt, MONITOR_ID, QUICK_ID, STARTER_ID } from "../defaults";
 import { firstLine, renderTemplate, usedVars } from "../template";
 import type { PromptRecord } from "../types";
 
@@ -68,7 +68,10 @@ describe("the seeded prompts", () => {
   });
 
   it("actually carry the variables, so the picker has something to fill", () => {
-    expect(usedVars(seed(STARTER_ID).text)).toEqual(["threads"]);
+    // The starter prompt is about this page and takes no variables; the two that read a
+    // mailbox take a thread count, and the monitor prompt takes a category.
+    expect(usedVars(seed(STARTER_ID).text)).toEqual([]);
+    expect(usedVars(seed(MAIL_ID).text)).toEqual(["threads"]);
     expect(usedVars(seed(QUICK_ID).text)).toEqual(["threads"]);
     expect(usedVars(seed(MONITOR_ID).text)).toEqual(["category"]);
   });

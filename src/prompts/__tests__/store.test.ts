@@ -1,7 +1,7 @@
 /** Prompt storage: it persists, it caps, it resets, and it never throws at the caller. */
 import { describe, expect, it } from "vitest";
 import { STARTER_PROMPT } from "../../shell/lib/constants";
-import { defaultPromptState, STARTER_ID } from "../defaults";
+import { defaultPromptState, MAIL_ID, STARTER_ID } from "../defaults";
 import {
   addPrompt,
   canAddPrompt,
@@ -52,6 +52,7 @@ describe("loading", () => {
     expect(state.v).toBe(PROMPTS_VERSION);
     expect(state.prompts.map((prompt) => prompt.id)).toEqual([
       "starter",
+      "mail",
       "quick",
       "monitor",
       "projects",
@@ -82,6 +83,7 @@ describe("loading", () => {
     const state = loadPromptState(fakeStorage(saved));
     expect(state.prompts.map((prompt) => prompt.id).sort()).toEqual([
       "approve-all",
+      "mail",
       "monitor",
       "next-project",
       "projects",
@@ -193,7 +195,7 @@ describe("getPrompt", () => {
   });
 
   it("takes an override for the variables", () => {
-    const text = getPrompt(STARTER_ID, { threads: 12 });
+    const text = getPrompt(MAIL_ID, { threads: 12 });
     expect(text).toContain("last 12 Gmail threads");
     expect(text).not.toContain("{{");
   });

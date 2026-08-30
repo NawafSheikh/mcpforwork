@@ -118,7 +118,7 @@ describe("the next step card", () => {
     setDisplayName("Maria");
     const html = frame(<RightPanel />, undefined, true);
     expect(html).toContain("Start the board");
-    expect(html).toContain("group them into");
+    expect(html).toContain("register_loop");
   });
 
   it("switches to the approve-all prompt when policy is holding something", () => {

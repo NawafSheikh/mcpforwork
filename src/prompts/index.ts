@@ -32,6 +32,7 @@ export {
   defaultPromptState,
   defaultPrompts,
   APPROVE_ALL_ID,
+  MAIL_ID,
   MONITOR_ID,
   NEXT_PROJECT_ID,
   PROJECTS_ID,

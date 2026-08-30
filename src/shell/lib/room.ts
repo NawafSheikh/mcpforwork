@@ -19,6 +19,7 @@ export function roomTitle(workspace: Workspace, slug: string | null): string {
 /** Nothing on the board yet. The audit rail is ignored: a room join writes to it. */
 export function boardIsEmpty(workspace: Workspace): boolean {
   return (
+    Object.keys(workspace.loops ?? {}).length === 0 &&
     Object.keys(workspace.categories).length === 0 &&
     workspace.overview === undefined &&
     Object.keys(workspace.monitors).length === 0 &&

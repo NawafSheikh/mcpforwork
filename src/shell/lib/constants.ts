@@ -1,11 +1,21 @@
 /** Shell copy and constants. Owner A9 in wave 2. */
 
 /**
- * The starter prompt, scoped for a live demo. The 28 Aug end to end run against real
- * Gmail took about 30 minutes because it read 50 full threads; headers only over 30
- * threads gets the same board in a fraction of the time.
+ * The starter prompt: what this page actually is, in one paste.
+ *
+ * It was the Gmail one until 30 Aug, which described a different product and was the first
+ * thing a new person read. That prompt is still shipped, under its own name, because the
+ * end to end run on 28 Aug is real evidence; it is just not what this page is for.
  */
 export const STARTER_PROMPT =
+  "Call join_as with a name that says whose agent you are, so the people here can tell you " +
+  "apart from anybody else's agent. Then call register_loop for each thing you keep running " +
+  "for me: what it is called, what it does, how often, and the layer it sits in, with 0 as " +
+  "the floor so the lower ones feed the higher one. Finish with report_loop on each, one " +
+  "line I would actually want to read. Pass caller on every call.";
+
+/** The 28 Aug run that read 50 real Gmail threads, kept because it happened. */
+export const MAIL_PROMPT =
   "Read my last 30 Gmail threads, group them " +
   "into 4 to 6 categories, and on this page call create_category, upsert_dataset_summary " +
   "and upsert_dashboard for each, then compose_overview. Use the real sender names, subjects, suppliers, amounts and dates as labels and notes; only the full message bodies stay in Gmail. Pass caller on every call.";

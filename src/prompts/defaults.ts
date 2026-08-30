@@ -8,6 +8,7 @@
  */
 import {
   APPROVE_ALL_PROMPT,
+  MAIL_PROMPT,
   MONITOR_PROMPT,
   NEXT_PROJECT_PROMPT,
   PROJECTS_PROMPT,
@@ -18,6 +19,7 @@ import { PROMPTS_VERSION, type PromptRecord, type PromptState } from "./types";
 
 export const STARTER_ID = "starter";
 export const QUICK_ID = "quick";
+export const MAIL_ID = "mail";
 export const MONITOR_ID = "monitor";
 export const APPROVE_ALL_ID = "approve-all";
 export const PROJECTS_ID = "projects";
@@ -28,6 +30,13 @@ const SEEDS: readonly PromptRecord[] = [
     id: STARTER_ID,
     name: "Starter prompt",
     text: STARTER_PROMPT.replace("last 30 Gmail threads", "last {{threads}} Gmail threads"),
+    builtIn: true,
+    vars: { threads: 30 },
+  },
+  {
+    id: MAIL_ID,
+    name: "Build a board from your mail",
+    text: MAIL_PROMPT.replace("last 30 Gmail threads", "last {{threads}} Gmail threads"),
     builtIn: true,
     vars: { threads: 30 },
   },
