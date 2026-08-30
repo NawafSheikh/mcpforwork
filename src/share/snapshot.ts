@@ -1,23 +1,35 @@
 /**
  * The snapshot that travels in a share link.
  *
- * Out: everything a reader needs to look at the board (categories, overview, monitors,
- * runs, drafts, feedback) and nothing else. The audit trail is deliberately left behind:
- * it is the record of who did what on this machine, so it is not somebody else's to read.
+ * Out: everything a reader needs to look at the board: categories, overview, monitors,
+ * runs, drafts, feedback, the live turns, the loops, the capability cards and the pack
+ * switches. The audit trail is deliberately left behind: it is the record of who did what
+ * on this machine, so it is not somebody else's to read.
+ *
+ * Everything a room syncs as a patch has to be in here too. A room snapshot is built from
+ * this codec, so a field missing here is a field a late joiner silently never receives:
+ * that is exactly how loops, the capability cards and the host's pack switches went
+ * missing from a joining browser until 30 Aug.
  *
  * In: a Workspace rebuilt field by field from untrusted JSON, in demo mode, named
  * "<name> (shared)". Nothing is ever spread from the parsed object.
  */
 import type {
+  Capability,
   Category,
   Claim,
   DraftAction,
   Feedback,
+  Loop,
   Monitor,
   MonitorRun,
+  PackState,
   Workspace,
   WriteMark,
 } from "../types";
+import { coerceCapability } from "../capabilities/coerce";
+import { coerceLoop } from "../loops/coerce";
+import { coercePackState } from "../packs/coerce";
 import { CAP } from "./caps";
 import { asArray, asRecord, asString, asText, asIso, isSafeKey } from "./coerce";
 import { coerceCategory, coerceOverview } from "./specs";
@@ -39,6 +51,12 @@ export interface Snapshot {
   /** Live turns travel too, so a late joiner sees who is mid-edit (docs/TURNS.md). */
   readonly claims: Readonly<Record<string, Claim>>;
   readonly lastWriter: Readonly<Record<string, WriteMark>>;
+  /** What is running and where, so a joiner sees the picture rather than an empty one. */
+  readonly loops: Readonly<Record<string, Loop>>;
+  /** Who can reach what, so a joiner can address a request without waiting for a change. */
+  readonly capabilities: Readonly<Record<string, Capability>>;
+  /** The switches the host has moved, so a joiner inherits them instead of the defaults. */
+  readonly packs: Readonly<Record<string, PackState>>;
   readonly updatedAt: string;
 }
 
@@ -56,6 +74,9 @@ export function toSnapshot(ws: Workspace): Snapshot {
     feedback: ws.feedback,
     claims: ws.claims ?? {},
     lastWriter: ws.lastWriter ?? {},
+    loops: ws.loops ?? {},
+    capabilities: ws.capabilities ?? {},
+    packs: ws.packs ?? {},
     updatedAt: ws.updatedAt,
   };
 }
@@ -169,6 +190,14 @@ export function fromSnapshot(raw: unknown, now: Date = new Date()): Workspace | 
       (claim) => `${claim.target.kind}:${claim.target.id}`,
     ),
     lastWriter: keyedRecord(rec.lastWriter, CAP.writeMarks, (i) => coerceWriteMark(i, at)),
+    loops: mapRecord(rec.loops, CAP.loops, (i) => coerceLoop(i, at), (loop) => loop.id),
+    capabilities: mapRecord(
+      rec.capabilities,
+      CAP.capabilities,
+      (i) => coerceCapability(i, at),
+      (card) => card.owner.name,
+    ),
+    packs: mapRecord(rec.packs, CAP.packs, (i) => coercePackState(i, at), (pack) => pack.id),
     audit: [],
     updatedAt: asIso(rec.updatedAt, at),
   };

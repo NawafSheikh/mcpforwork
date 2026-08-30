@@ -22,6 +22,7 @@ import {
   putLoop,
 } from "../state";
 import { loopHandlers } from "../tools";
+import { fromSnapshot, toSnapshot } from "../../share/snapshot";
 
 const AT = "2026-08-30T10:00:00.000Z";
 
@@ -219,5 +220,48 @@ describe("a loop that arrived from somewhere we do not control", () => {
 
   it("refuses an id that would reach the prototype chain", () => {
     expect(coerceLoop({ id: "__proto__", name: "x", does: "y" }, AT)).toBeNull();
+  });
+});
+
+describe("a late joiner gets the picture", () => {
+  it("carries loops, capability cards and pack switches through the snapshot codec", () => {
+    // Regression, 30 Aug: the room snapshot is built from this codec, so a field missing
+    // here is a field a joining browser silently never receives. Two machines shared a
+    // room and the second one saw an empty picture.
+    const ws: Workspace = {
+      ...board(loop("scan", 0, { feeds: "rank" }), loop("rank", 1)),
+      capabilities: {
+        "Ana's Claude": {
+          owner: { kind: "agent", name: "Ana's Claude" },
+          packs: ["board"],
+          local: ["the android sdk"],
+          knows: ["the build"],
+          updatedAt: AT,
+        },
+      },
+      packs: { monitors: { id: "monitors", enabled: false, changedBy: "Nawaf", changedAt: AT } },
+    };
+
+    const back = fromSnapshot(JSON.parse(JSON.stringify(toSnapshot(ws))));
+
+    expect(Object.keys(back?.loops ?? {}).sort()).toEqual(["rank", "scan"]);
+    expect(back?.loops?.scan?.feeds).toBe("rank");
+    expect(back?.capabilities?.["Ana's Claude"]?.local).toEqual(["the android sdk"]);
+    expect(back?.packs?.monitors?.enabled).toBe(false);
+  });
+
+  it("still refuses anything in a snapshot that is not the shape it claims", () => {
+    const back = fromSnapshot({
+      id: "x",
+      name: "x",
+      categories: {},
+      monitors: {},
+      runs: [],
+      drafts: {},
+      feedback: {},
+      loops: { a: { id: "a" }, b: { id: "__proto__", name: "b", does: "c" } },
+    });
+
+    expect(Object.keys(back?.loops ?? {})).toEqual([]);
   });
 });

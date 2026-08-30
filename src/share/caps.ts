@@ -48,4 +48,7 @@ export const CAP = {
   feedback: LIMITS.maxFeedbackItems,
   claims: LIMITS.maxClaims,
   writeMarks: LIMITS.maxWriteMarks,
+  loops: LIMITS.maxLoops,
+  capabilities: LIMITS.maxCapabilities,
+  packs: 24,
 } as const;
