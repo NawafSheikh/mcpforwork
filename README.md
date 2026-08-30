@@ -342,6 +342,7 @@ src/prompts/      the editable prompt library and the JSON board backup
 src/live/         Supabase auth, typed API client, clawai adapter
 src/shell/        app shell, tabs, audit rail, monitors UI, theme
 docs/             tool contract, deploy notes, submission text, video script
+video/            the demo film: a Remotion composition, narration and shot assets
 ```
 
 ---

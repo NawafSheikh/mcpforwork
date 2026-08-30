@@ -1,0 +1,164 @@
+[
+  {
+    "i": 0,
+    "s": 0.0,
+    "e": 6.89,
+    "t": "MCP for Work is a workspace where a person and their own agent do the same job on the same page."
+  },
+  {
+    "i": 1,
+    "s": 7.07,
+    "e": 13.44,
+    "t": "It is live at mcpforwork dot com, open source, and it needs no login."
+  },
+  {
+    "i": 2,
+    "s": 13.62,
+    "e": 18.91,
+    "t": "Building a dashboard over your work mail is a data problem, not a rendering problem."
+  },
+  {
+    "i": 3,
+    "s": 19.09,
+    "e": 25.78,
+    "t": "The hard part is reading the threads and computing the totals, and your ChatGPT already does that."
+  },
+  {
+    "i": 4,
+    "s": 25.96,
+    "e": 29.89,
+    "t": "So this page ships no model and no mailbox integration."
+  },
+  {
+    "i": 5,
+    "s": 30.07,
+    "e": 37.41,
+    "t": "It ships thirty four tools, a policy engine and a renderer, registered through document dot modelContext."
+  },
+  {
+    "i": 6,
+    "s": 37.59,
+    "e": 44.68,
+    "t": "The tools accept counts, sums, top lists and chart points. They never accept rows."
+  },
+  {
+    "i": 7,
+    "s": 44.86,
+    "e": 48.31,
+    "t": "That is a property of the protocol, not a promise."
+  },
+  {
+    "i": 8,
+    "s": 48.49,
+    "e": 54.54,
+    "t": "Every input is validated by zod at the boundary, with hard caps on size and on rate."
+  },
+  {
+    "i": 9,
+    "s": 54.72,
+    "e": 63.17,
+    "t": "Read tools carry readOnlyHint. Anything echoing a human's own words carries untrustedContentHint."
+  },
+  {
+    "i": 10,
+    "s": 63.35,
+    "e": 68.68,
+    "t": "The thirty four tools sit in seven packs, and every pack has a switch on the page."
+  },
+  {
+    "i": 11,
+    "s": 68.86,
+    "e": 74.83,
+    "t": "On the twenty eighth of August, this ran for real inside ChatGPT desktop."
+  },
+  {
+    "i": 12,
+    "s": 75.01,
+    "e": 81.18,
+    "t": "One prompt, and GPT five point six read fifty Gmail threads through its own connector."
+  },
+  {
+    "i": 13,
+    "s": 81.36,
+    "e": 88.73,
+    "t": "It split the classification across two sub agents, and a third checked the counts before anything was written."
+  },
+  {
+    "i": 14,
+    "s": 88.91,
+    "e": 94.24,
+    "t": "Then it stopped and asked whether it could send the de-identified counts and dates to the page."
+  },
+  {
+    "i": 15,
+    "s": 94.42,
+    "e": 100.0,
+    "t": "Nothing else left the mailbox. Six dashboards and an overview were built through the site tools."
+  },
+  {
+    "i": 16,
+    "s": 100.18,
+    "e": 103.31,
+    "t": "Then the part that decides whether any of this is safe."
+  },
+  {
+    "i": 17,
+    "s": 103.49,
+    "e": 107.22,
+    "t": "Asked to approve every payment, the page held both."
+  },
+  {
+    "i": 18,
+    "s": 107.4,
+    "e": 113.73,
+    "t": "One was over the five thousand euro threshold. The other was a pay action, and pay always needs a human."
+  },
+  {
+    "i": 19,
+    "s": 113.91,
+    "e": 116.48,
+    "t": "Approved drafts, zero."
+  },
+  {
+    "i": 20,
+    "s": 116.66,
+    "e": 123.15,
+    "t": "That refusal is not advice a model may ignore. It is a function that returns false."
+  },
+  {
+    "i": 21,
+    "s": 123.33,
+    "e": 127.7,
+    "t": "The human writes the rule, and every call lands in the audit rail."
+  },
+  {
+    "i": 22,
+    "s": 127.88,
+    "e": 133.49,
+    "t": "Then invite somebody. One encrypted link puts two browsers on one live board."
+  },
+  {
+    "i": 23,
+    "s": 133.67,
+    "e": 140.52,
+    "t": "Two people, two agents, one shared trail, and requests running in four directions between them."
+  },
+  {
+    "i": 24,
+    "s": 140.7,
+    "e": 148.91,
+    "t": "Underneath: six hundred and eighty four tests across fifty eight files, all green, MIT licensed and public."
+  },
+  {
+    "i": 25,
+    "s": 149.09,
+    "e": 154.98,
+    "t": "Press share, and the whole board travels in a URL fragment with no server behind it."
+  },
+  {
+    "i": 26,
+    "s": 155.16,
+    "e": 160.26,
+    "t": "MCP for Work. Bring your own agent, and keep the veto."
+  }
+]

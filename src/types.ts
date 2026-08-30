@@ -200,6 +200,52 @@ export interface Feedback {
   readonly resolution?: string;
 }
 
+/* ---------- Tasks (the work itself, moving, docs/TASKS.md) ---------- */
+
+/**
+ * Where a task is. Deliberately five: anything finer is a project-management product,
+ * and anything coarser cannot answer "what is actually happening right now".
+ */
+export type TaskState = "open" | "taken" | "doing" | "blocked" | "done";
+
+export type OwnerKind = "person" | "agent";
+
+export interface TaskOwner {
+  readonly kind: OwnerKind;
+  /** Display name for a person, caller name for an agent. "*" means anybody here. */
+  readonly name: string;
+}
+
+/**
+ * One line of what happened. Progress and proof are the same shape on purpose: the
+ * difference is only whether somebody is claiming it finished a step.
+ */
+export interface TaskRecord {
+  readonly at: ISODate;
+  readonly by: string;
+  readonly byKind: OwnerKind;
+  readonly text: string;
+  /** Set on the line that is the proof, not the commentary. */
+  readonly evidence?: boolean;
+}
+
+export interface Task {
+  readonly id: string;
+  readonly title: string;
+  /** What doing it means, so somebody else's agent can take it without asking first. */
+  readonly detail?: string;
+  readonly state: TaskState;
+  /** Who it is for. Absent means nobody is named and anybody here may take it. */
+  readonly owner?: TaskOwner;
+  /** Who put it on the board: a caller name for an agent, a display name for a person. */
+  readonly from?: string;
+  /** Set while blocked: the person, agent or thing it is waiting on. */
+  readonly blockedOn?: string;
+  readonly records: readonly TaskRecord[];
+  readonly createdAt: ISODate;
+  readonly updatedAt: ISODate;
+}
+
 /* ---------- Turns (claims and versions, docs/TURNS.md) ---------- */
 
 /**
@@ -302,6 +348,8 @@ export interface Workspace {
   readonly packs?: Readonly<Record<string, PackState>>;
   /** Capability cards keyed by owner name. Optional for the same reason. */
   readonly capabilities?: Readonly<Record<string, Capability>>;
+  /** The work itself, keyed by task id. Optional: a board made before tasks has none. */
+  readonly tasks?: Readonly<Record<string, Task>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -356,4 +404,10 @@ export const LIMITS = {
   maxCapabilities: 40,
   maxCapabilityLines: 12,
   maxCapabilityChars: 80,
+  /** Tasks on one board, and the trail each one keeps of what happened to it. */
+  maxTasks: 60,
+  maxTaskRecords: 20,
+  maxTaskTitleChars: 100,
+  maxTaskDetailChars: 400,
+  maxTaskRecordChars: 200,
 } as const;

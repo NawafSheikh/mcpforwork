@@ -113,7 +113,14 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
     name: "Rooms",
     description: "Invite, presence, read-only snapshot links, and the capability cards of everyone here.",
     risk: "write",
-    tools: ["get_room", "create_room", "share_board", "publish_capabilities", "list_capabilities"],
+    tools: [
+      "get_room",
+      "create_room",
+      "join_as",
+      "share_board",
+      "publish_capabilities",
+      "list_capabilities",
+    ],
   },
 ];
 
