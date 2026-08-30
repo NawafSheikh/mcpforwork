@@ -50,12 +50,19 @@ describe("seal and open", () => {
     expect(JSON.stringify(envelope)).not.toContain(a.secret);
   });
 
-  it("uses a fresh iv for every message, which GCM requires", async () => {
-    const a = await room(ROOM_A);
-    const ivs = new Set<string>();
-    for (let i = 0; i < 200; i += 1) ivs.add((await seal(a.key, PATCH, a.context)).iv);
-    expect(ivs.size).toBe(200);
-  });
+  // 200 real Web Crypto seals, which is slower than the 5s default when the whole suite
+  // is running at once. The claim here is uniqueness, never speed, so it gets the room to
+  // finish; the seal that has to be fast is measured on its own under "cost" below.
+  it(
+    "uses a fresh iv for every message, which GCM requires",
+    async () => {
+      const a = await room(ROOM_A);
+      const ivs = new Set<string>();
+      for (let i = 0; i < 200; i += 1) ivs.add((await seal(a.key, PATCH, a.context)).iv);
+      expect(ivs.size).toBe(200);
+    },
+    30_000,
+  );
 });
 
 describe("open returns null instead of throwing", () => {

@@ -37,3 +37,8 @@ export {
   loopToolSchemas,
 } from "./tools";
 export type { LoopHandler, LoopHandlerResult, LoopToolName } from "./tools";
+
+export { loopRows, pictureLine, saidLine, talkPrompt, whereLine } from "./view";
+export type { LoopLayerRow, LoopRow } from "./view";
+
+export { LoopsPage } from "./ui/LoopsPage";

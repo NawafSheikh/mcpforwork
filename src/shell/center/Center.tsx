@@ -11,6 +11,7 @@ import { useWorkspace } from "../context";
 import { boardIsEmpty } from "../lib/room";
 import { REQUESTS, type Place } from "../lib/places";
 import { useNav } from "../nav";
+import { LoopsPage } from "../../loops/ui/LoopsPage";
 import { AboutTab } from "../tabs/AboutTab";
 import { ActivityTab } from "../tabs/ActivityTab";
 import { MonitorsTab } from "../tabs/MonitorsTab";
@@ -22,6 +23,7 @@ import { WrongKey } from "./WrongKey";
 import { useWrongKey } from "./useWrongKey";
 
 function Page({ place, landing }: { readonly place: Place; readonly landing: boolean }): JSX.Element {
+  if (place.kind === "loops") return <LoopsPage />;
   if (place.kind === "monitors") return <MonitorsTab />;
   if (place.kind === "datasets") return <DatasetsPage />;
   if (place.kind === "requests") return <RequestsPage />;

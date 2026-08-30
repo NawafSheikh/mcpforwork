@@ -143,14 +143,18 @@ describe("performance", () => {
     ]),
   );
 
-  it("profiles 50k rows across 8 columns inside two seconds", () => {
+  // The claim is that a big drop does not visibly block the tab: on an idle machine this
+  // runs in a couple of hundred milliseconds. The budget is deliberately far above that,
+  // because the whole suite runs in parallel and a red test that only means "the machine
+  // was busy" teaches everyone to ignore red tests.
+  it("profiles 50k rows across 8 columns without blocking the tab", () => {
     const started = Date.now();
     const profile = profileOf(big);
     const elapsed = Date.now() - started;
     expect(profile.rowCount).toBe(50_000);
     expect(columnByName(profile, "region")?.top).toHaveLength(5);
     expect(columnByName(profile, "email")?.topWithheld).toBe("emails");
-    expect(elapsed).toBeLessThan(2000);
+    expect(elapsed).toBeLessThan(5000);
   });
 });
 

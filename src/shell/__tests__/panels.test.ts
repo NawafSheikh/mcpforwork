@@ -69,7 +69,7 @@ function presence(peers: readonly RoomPeer[]): PresenceState {
 
 describe("places", () => {
   it("lists the overview, the categories and every page, with counts and share", () => {
-    const rows = placeRows(board(), ["Tickets"], { openRequests: 2, heldDrafts: 1, datasets: 0 });
+    const rows = placeRows(board(), ["Tickets"], { openRequests: 2, heldDrafts: 1, datasets: 0, loops: 0, loopsStuck: 0 });
     const ids = rows.map((row) => row.id);
 
     expect(ids[0]).toBe("overview");

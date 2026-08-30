@@ -11,6 +11,7 @@ import { argValue } from "./format";
 export type Place =
   | { readonly kind: "overview" }
   | { readonly kind: "category"; readonly name: string }
+  | { readonly kind: "loops" }
   | { readonly kind: "monitors" }
   | { readonly kind: "datasets" }
   | { readonly kind: "requests" }
@@ -31,6 +32,7 @@ export function samePlace(a: Place, b: Place): boolean {
 
 const FIXED_LABELS: Readonly<Record<string, string>> = {
   overview: "Overview",
+  loops: "Loops",
   monitors: "Monitors",
   datasets: "Datasets",
   requests: "Requests",
@@ -82,6 +84,9 @@ export interface PlaceCounts {
   readonly openRequests: number;
   readonly heldDrafts: number;
   readonly datasets: number;
+  /** Loops on the board, and how many of them want a person right now. */
+  readonly loops: number;
+  readonly loopsStuck: number;
 }
 
 function categoryRows(
@@ -114,6 +119,13 @@ export function placeRows(
       meta: `${categories.length} ${categories.length === 1 ? "category" : "categories"}`,
     },
     ...categoryRows(categories, pinned),
+    {
+      place: { kind: "loops" },
+      id: "loops",
+      label: "Loops",
+      meta: counts.loops === 0 ? "nothing running" : `${counts.loops} running`,
+      ...(counts.loopsStuck > 0 ? { badge: counts.loopsStuck } : {}),
+    },
     {
       place: { kind: "monitors" },
       id: "monitors",

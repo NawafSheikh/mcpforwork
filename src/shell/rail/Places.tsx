@@ -8,6 +8,7 @@ import { useDatasets } from "../../dataset";
 import { useWorkspace } from "../context";
 import { placeRows, samePlace, type PlaceRow } from "../lib/places";
 import { usePinned } from "../tabs/board/pinned";
+import { listLoops } from "../../loops/state";
 import { useNav } from "../nav";
 
 function Row({ row, active, onSelect }: {
@@ -45,11 +46,14 @@ export function Places(): JSX.Element {
   const { pinned } = usePinned(workspace.id);
   const datasets = useDatasets();
   const { place, goTo } = useNav();
+  const loops = listLoops(workspace);
 
   const rows = placeRows(workspace, pinned, {
     openRequests: addressedFeedback(workspace).length,
     heldDrafts: Object.values(workspace.drafts).filter((draft) => draft.status === "held").length,
     datasets: datasets.length,
+    loops: loops.length,
+    loopsStuck: loops.filter((loop) => loop.state === "failed" || loop.state === "held").length,
   });
 
   return (
