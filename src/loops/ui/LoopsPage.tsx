@@ -13,7 +13,6 @@ import { copyText } from "../../shell/lib/clipboard";
 import { formatRelative } from "../../shell/lib/format";
 import { withAudit } from "../../shell/adapters/store";
 import { heldName } from "../../agents/identity";
-import { CodeRuns } from "../../packs/ui/CodeRuns";
 import type { Loop } from "../../types";
 import { clampLayer, feedRefusal, findLoop, loopById, putLoop } from "../state";
 import { loopRows, pictureLine, saidLine, talkPrompt, whereLine, type LoopRow } from "../view";
@@ -193,14 +192,7 @@ export function LoopsPage(): JSX.Element {
   const [openId, setOpenId] = useState<string | null>(null);
   const rows = loopRows(workspace, heldName());
 
-  if (rows.every((layer) => layer.rows.length === 0)) {
-    return (
-      <>
-        <Empty />
-        <CodeRuns />
-      </>
-    );
-  }
+  if (rows.every((layer) => layer.rows.length === 0)) return <Empty />;
 
   // Top layer first on screen, so the arrows read upward on the page as well as in the model.
   const stacked = [...rows].reverse();
@@ -248,8 +240,6 @@ export function LoopsPage(): JSX.Element {
           <Detail row={openRow} onClose={() => setOpenId(null)} />
         )}
       </div>
-
-      <CodeRuns />
     </section>
   );
 }
