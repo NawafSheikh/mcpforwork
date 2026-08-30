@@ -112,3 +112,25 @@
 }
 
 .mfw-robot-safety { color: var(--mfw-ok, #1f9d6b); }
+
+/* Why an agent asked for a pack, in its own words, beside the switch it explains. */
+.mfw-pack-why {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--mfw-muted, #5b6b7e);
+}
+
+.mfw-pack-why--waiting {
+  color: var(--mfw-warn, #b7791f);
+}
+
+/* What this workspace is for, above the switches it decided. */
+.mfw-packs-purpose {
+  margin: 0 0 4px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--mfw-accent, #2f6feb);
+  background: var(--mfw-bg-soft, #f6f8fb);
+  border-radius: var(--mfw-radius-sm, 6px);
+  font-size: 12px;
+}

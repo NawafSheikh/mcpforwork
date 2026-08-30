@@ -9,6 +9,8 @@
 import { catalogStatusText, WORK_PACKS } from "../catalog";
 import { packRiskLabel } from "../registry";
 import { changedByText, type PackView } from "../state";
+import { listChoices } from "../../purpose/tools";
+import { useWorkspace } from "../../shell/context";
 import { usePacks } from "../usePacks";
 import { BridgeSection } from "./BridgeSection";
 import "./packs.css";
@@ -17,10 +19,13 @@ function PackRow({
   view,
   disabled,
   onToggle,
+  reason,
 }: {
   readonly view: PackView;
   readonly disabled: boolean;
   readonly onToggle: (id: string, enabled: boolean) => void;
+  /** Why an agent asked for this pack, in its own words, when it did. */
+  readonly reason?: { readonly why: string; readonly by: string; readonly proposed?: boolean };
 }): JSX.Element {
   const who = changedByText(view);
   return (
@@ -38,6 +43,12 @@ function PackRow({
       <span className="mfw-pack-count">{view.pack.tools.length} tools</span>
       <p className="mfw-pack-desc">{view.pack.description}</p>
       {who === "" ? null : <p className="mfw-pack-who">{who}</p>}
+      {reason === undefined ? null : (
+        <p className={`mfw-pack-why ${reason.proposed ? "mfw-pack-why--waiting" : ""}`.trim()}>
+          {reason.proposed ? `${reason.by} asked for this and it is waiting for you: ` : `${reason.by}: `}
+          {reason.why}
+        </p>
+      )}
     </li>
   );
 }
@@ -68,9 +79,22 @@ function CatalogSection(): JSX.Element {
 
 export function PacksPanel(): JSX.Element {
   const { packs, maySwitch, reason, setPack } = usePacks();
+  const workspace = useWorkspace();
+  // What an agent said when it argued for a pack, keyed by pack id.
+  const reasons = Object.fromEntries(
+    listChoices(workspace).map((item) => [
+      item.pack,
+      { why: item.why, by: item.by, ...(item.proposed === true ? { proposed: true } : {}) },
+    ]),
+  );
   const total = packs.reduce((sum, view) => (view.enabled ? sum + view.pack.tools.length : sum), 0);
   return (
     <div className="mfw-packs">
+      {workspace.purpose === undefined ? null : (
+        <p className="mfw-packs-purpose">
+          <strong>This workspace is for:</strong> {workspace.purpose}
+        </p>
+      )}
       <section className="mfw-packs-section">
         <header className="mfw-packs-head">
           <h3>Tools</h3>
@@ -83,7 +107,13 @@ export function PacksPanel(): JSX.Element {
         {reason === "" ? null : <p className="mfw-packs-warn">{reason}</p>}
         <ul className="mfw-packs-list">
           {packs.map((view) => (
-            <PackRow disabled={!maySwitch} key={view.pack.id} onToggle={setPack} view={view} />
+            <PackRow
+              disabled={!maySwitch}
+              key={view.pack.id}
+              onToggle={setPack}
+              view={view}
+              {...(reasons[view.pack.id] === undefined ? {} : { reason: reasons[view.pack.id] })}
+            />
           ))}
         </ul>
       </section>

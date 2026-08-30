@@ -19,6 +19,7 @@
  */
 import { coerceCapability } from "../capabilities/coerce";
 import { coerceLoop } from "../loops/coerce";
+import { coerceToolChoice } from "../purpose/coerce";
 import { coercePackState } from "../packs/coerce";
 import { capAudit } from "../store/audit";
 import {
@@ -43,6 +44,7 @@ import type {
   MonitorRun,
   OverviewSpec,
   PackState,
+  ToolChoice,
   Workspace,
   WriteMark,
 } from "../types";
@@ -71,6 +73,7 @@ export type NormalPatch =
   | (PatchMeta & { readonly kind: "pack"; readonly value: PackState | null })
   | (PatchMeta & { readonly kind: "capability"; readonly value: Capability | null })
   | (PatchMeta & { readonly kind: "loop"; readonly value: Loop | null })
+  | (PatchMeta & { readonly kind: "choice"; readonly value: ToolChoice | null })
   | (PatchMeta & { readonly kind: "audit"; readonly value: AuditEvent });
 
 export interface NormalizeResult {
@@ -189,6 +192,10 @@ function normalizeOne(patch: RoomPatch, at: string): NormalPatch | null {
       return gone
         ? { ...meta, kind: "loop", value: null }
         : wrap(meta, "loop", coerceLoop(patch.value, at));
+    case "choice":
+      return gone
+        ? { ...meta, kind: "choice", value: null }
+        : wrap(meta, "choice", coerceToolChoice(patch.value, at));
     case "audit": {
       const event = coerceAuditEvent(patch.value, at);
       return event === null ? null : { ...meta, kind: "audit", value: event };
@@ -217,6 +224,8 @@ function effectiveKey(patch: NormalPatch): string {
       return `${patch.value.target.kind}:${patch.value.target.id}`;
     case "pack":
       return patch.value.id;
+    case "choice":
+      return patch.value.pack;
     case "capability":
       return patch.value.owner.name;
     case "monitor":
@@ -276,6 +285,10 @@ function place(ws: Workspace, patch: NormalPatch): Workspace {
       return patch.value === null
         ? { ...ws, loops: dropKey(ws.loops ?? {}, patch.key) }
         : { ...ws, loops: { ...(ws.loops ?? {}), [patch.value.id]: patch.value } };
+    case "choice":
+      return patch.value === null
+        ? { ...ws, toolChoice: dropKey(ws.toolChoice ?? {}, patch.key) }
+        : { ...ws, toolChoice: { ...(ws.toolChoice ?? {}), [patch.value.pack]: patch.value } };
     case "claim":
       return patch.value === null
         ? { ...ws, claims: dropKey(ws.claims ?? {}, patch.key) }

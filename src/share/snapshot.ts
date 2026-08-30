@@ -24,11 +24,13 @@ import type {
   Monitor,
   MonitorRun,
   PackState,
+  ToolChoice,
   Workspace,
   WriteMark,
 } from "../types";
 import { coerceCapability } from "../capabilities/coerce";
 import { coerceLoop } from "../loops/coerce";
+import { coercePurpose, coerceToolChoice } from "../purpose/coerce";
 import { coercePackState } from "../packs/coerce";
 import { CAP } from "./caps";
 import { asArray, asRecord, asString, asText, asIso, isSafeKey } from "./coerce";
@@ -57,6 +59,9 @@ export interface Snapshot {
   readonly capabilities: Readonly<Record<string, Capability>>;
   /** The switches the host has moved, so a joiner inherits them instead of the defaults. */
   readonly packs: Readonly<Record<string, PackState>>;
+  /** What this workspace is for, and why each pack is on or off. */
+  readonly purpose?: string;
+  readonly toolChoice: Readonly<Record<string, ToolChoice>>;
   readonly updatedAt: string;
 }
 
@@ -77,6 +82,8 @@ export function toSnapshot(ws: Workspace): Snapshot {
     loops: ws.loops ?? {},
     capabilities: ws.capabilities ?? {},
     packs: ws.packs ?? {},
+    ...(ws.purpose ? { purpose: ws.purpose } : {}),
+    toolChoice: ws.toolChoice ?? {},
     updatedAt: ws.updatedAt,
   };
 }
@@ -198,6 +205,13 @@ export function fromSnapshot(raw: unknown, now: Date = new Date()): Workspace | 
       (card) => card.owner.name,
     ),
     packs: mapRecord(rec.packs, CAP.packs, (i) => coercePackState(i, at), (pack) => pack.id),
+    ...(coercePurpose(rec.purpose) ? { purpose: coercePurpose(rec.purpose) } : {}),
+    toolChoice: mapRecord(
+      rec.toolChoice,
+      CAP.packs,
+      (i) => coerceToolChoice(i, at),
+      (item) => item.pack,
+    ),
     audit: [],
     updatedAt: asIso(rec.updatedAt, at),
   };

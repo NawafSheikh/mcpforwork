@@ -13,6 +13,7 @@ import { turnToolDescriptions } from "../turns/tools";
 import { workspaceToolDescriptions } from "../workspaces/tools";
 import { agentToolDescriptions } from "../agents/tools";
 import { loopToolDescriptions } from "../loops/tools";
+import { purposeToolDescriptions } from "../purpose/tools";
 import { annotationsFor } from "./annotations";
 import { jsonSchemas } from "./jsonSchemas";
 import type { ToolRegistry } from "./registry";
@@ -63,6 +64,7 @@ const DESCRIPTIONS: Record<ToolName, string> = {
   ...workspaceToolDescriptions,
   ...agentToolDescriptions,
   ...loopToolDescriptions,
+  ...purposeToolDescriptions,
 };
 
 function definitionFor(registry: ToolRegistry, name: ToolName): ToolDefinition {

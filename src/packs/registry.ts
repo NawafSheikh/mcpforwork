@@ -106,7 +106,7 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
     id: "monitors",
     name: "Monitors",
     description: "Policies, scheduled runs and the approval queue. This is the pack that can act on the outside.",
-    risk: "write",
+    risk: "send",
     tools: [
       "register_monitor",
       "report_monitor_run",
@@ -126,6 +126,8 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
       "get_room",
       "create_room",
       "join_as",
+      "set_purpose",
+      "propose_tools",
       "share_board",
       "publish_capabilities",
       "list_capabilities",

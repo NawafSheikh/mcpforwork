@@ -246,6 +246,26 @@ export interface Task {
   readonly updatedAt: ISODate;
 }
 
+/* ---------- Purpose, and the toolset an agent argued for ---------- */
+
+/**
+ * Why one pack is on or off here, in the words of whoever decided.
+ *
+ * The point of the object is that a person can read the reason. An agent that turns six
+ * packs on without saying why has told nobody anything, and the switch panel goes back to
+ * being a settings screen.
+ */
+export interface ToolChoice {
+  readonly pack: string;
+  readonly on: boolean;
+  readonly why: string;
+  /** Caller name of the agent, or display name of the person, that decided. */
+  readonly by: string;
+  /** True when the agent asked for it but the page would not turn it on by itself. */
+  readonly proposed?: boolean;
+  readonly at: ISODate;
+}
+
 /* ---------- Loops (what is running, on whose machine, feeding what) ---------- */
 
 /**
@@ -387,6 +407,10 @@ export interface Workspace {
   readonly tasks?: Readonly<Record<string, Task>>;
   /** What is running and where, keyed by loop id. The process table of this OS. */
   readonly loops?: Readonly<Record<string, Loop>>;
+  /** One line on what this workspace is for. The input to the toolset. */
+  readonly purpose?: string;
+  /** Why each pack is on or off, keyed by pack id. */
+  readonly toolChoice?: Readonly<Record<string, ToolChoice>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -452,4 +476,6 @@ export const LIMITS = {
   maxLoopLayers: 6,
   maxLoopNameChars: 60,
   maxLoopDoesChars: 200,
+  maxPurposeChars: 240,
+  maxToolReasonChars: 160,
 } as const;

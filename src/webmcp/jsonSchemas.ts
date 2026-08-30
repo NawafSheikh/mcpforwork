@@ -13,6 +13,7 @@ import { turnJsonSchemas } from "../turns/tools";
 import { workspaceJsonSchemas } from "../workspaces/tools";
 import { agentJsonSchemas } from "../agents/tools";
 import { loopJsonSchemas } from "../loops/tools";
+import { purposeJsonSchemas } from "../purpose/tools";
 import type { ToolName } from "./schemas";
 
 export type JsonSchema = Record<string, unknown>;
@@ -342,6 +343,7 @@ const baseSchemas: Record<ToolName, JsonSchema> = {
   ...workspaceJsonSchemas,
   ...agentJsonSchemas,
   ...loopJsonSchemas,
+  ...purposeJsonSchemas,
 };
 
 /** caller is added once here so no tool can forget it. */

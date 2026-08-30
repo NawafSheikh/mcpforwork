@@ -263,8 +263,8 @@ describe("what you control", () => {
     saved: "Saved just now",
     categories: 0,
     monitors: 0,
-    toolsOn: 39,
-    toolsTotal: 39,
+    toolsOn: 41,
+    toolsTotal: 41,
     packsOn: 8,
     packsTotal: 8,
     room: null,
@@ -285,7 +285,7 @@ describe("what you control", () => {
     expect(rows[0]?.state).toBe("My workspace, saved just now");
     expect(rows[1]?.state).toBe("empty, your agent builds it");
     expect(rows[2]?.state).toBe("no monitors yet");
-    expect(rows[3]?.state).toBe("39 tools in 8 packs, all on");
+    expect(rows[3]?.state).toBe("41 tools in 8 packs, all on");
     expect(rows[4]?.state).toBe("only this browser");
     expect(rows[5]?.state).toBe("nothing dropped");
   });
@@ -307,7 +307,7 @@ describe("what you control", () => {
     expect(rows[0]?.state).toBe("Invoices, 2 more here, saved 4m ago");
     expect(rows[1]?.state).toBe("4 categories");
     expect(rows[2]?.state).toBe("1 monitor");
-    expect(rows[3]?.state).toBe("21 of 39 tools, 5 of 8 packs on");
+    expect(rows[3]?.state).toBe("21 of 41 tools, 5 of 8 packs on");
     expect(rows[4]?.state).toBe("Q3 close, 2 members");
     expect(rows[5]?.state).toBe("3 datasets");
   });
