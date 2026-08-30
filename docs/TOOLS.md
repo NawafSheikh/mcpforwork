@@ -1,12 +1,13 @@
 # WebMCP tool contract (MCP for Work)
 
-**39 tools**, in eight sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
-3 turn tools, 2 capability tools, 5 workspace tools, 1 identity tool, 4 loop tools. They
+**43 tools**, in nine sections: 18 board and monitor tools, 2 room tools, 4 dataset tools,
+3 turn tools, 2 capability tools, 5 workspace tools, 1 identity tool, 4 loop tools,
+2 purpose tools, 2 decision tools. They
 live in one registry and one name space (`src/webmcp/schemas.ts` merges the leaf modules'
-schemas into `toolSchemas`), so the header pill counts all 39 and the sections below are
+schemas into `toolSchemas`), so the header pill counts all 43 and the sections below are
 for reading, not for wiring.
 
-Every one of the 39 belongs to exactly one **pack**, and a pack has a switch on the page.
+Every one of the 43 belongs to exactly one **pack**, and a pack has a switch on the page.
 A tool whose pack is off is unregistered from `document.modelContext` and refused by the
 registry; see "## Packs" below.
 
@@ -157,9 +158,9 @@ exactly `TOOL_NAMES`, each name once, so a tool can never end up with no switch 
 | notes | write | 3: add_feedback, list_feedback, resolve_feedback | requests in all four directions |
 | turns | write | 3: claim, release, list_claims | claims and versions |
 | monitors | send | 7: register_monitor, report_monitor_run, list_monitors, get_run_log, approve_draft, decline_draft, set_policy | policies, runs and the approval queue: the pack that can act on the outside |
-| rooms | write | 6: get_room, create_room, join_as, share_board, publish_capabilities, list_capabilities | invite, presence, identity and the capability cards |
+| rooms | write | 8: get_room, create_room, join_as, set_purpose, propose_tools, share_board, publish_capabilities, list_capabilities | invite, presence, identity, what this workspace is for, and the capability cards |
 | workspaces | write | 5: list_workspaces, create_workspace, switch_workspace, rename_workspace, save_workspace | more than one board in this browser, one per project |
-| loops | write | 4: register_loop, report_loop, list_loops, rearrange_loop | what is running, on whose machine, and what feeds what |
+| loops | write | 6: register_loop, report_loop, list_loops, rearrange_loop, decide, list_decisions | what is running, on whose machine, what feeds what, and why it went that way |
 
 `risk` is `read`, `write`, `send` or `move`, worst case first in the panel. `move` is the
 level above `send`: it is the one that can knock something over, and only a bridge pack
@@ -282,6 +283,26 @@ The page decides what is granted, not the agent:
 | join_as | no | {name, of?, doing?} | claim the name, publish the agent's card | the name actually granted, the caller string to use, and who else is already here. (untrustedContentHint: the other names were typed by other people's agents) |
 
 It grants nothing. A name is a label, exactly like the display name a person types.
+
+## Purpose and decisions (4 tools, src/purpose and src/decisions)
+
+`set_purpose` records what the workspace is for, in the person's own words, asked for
+rather than invented. `propose_tools` is the agent arguing for a toolset on that basis,
+one line per pack saying why. **Packs that only touch this page are switched on and the
+reason is kept beside the switch; anything that can send, pay or move is proposed and left
+for a person.** In a room the switches remain the host's, as they are in the Tools panel.
+
+`decide` records a choice: the question, everything considered, the one taken and why.
+**What was chosen has to be one of the options considered** — an agent that lists three and
+does a fourth has made two moves and recorded one, and the refusal says so. A person
+disagreeing never edits the decision; the objection is recorded beside it.
+
+| Tool | RO | Input (zod) | Effect | Returns |
+|---|---|---|---|---|
+| set_purpose | no | {purpose: string(1..240)} | store it on the board | the purpose, and a nudge to call propose_tools |
+| propose_tools | no | {on?: [{pack, why}], off?: [{pack, why}]} | switch the safe ones, record every reason, hold the rest | what went on, what went off, and what is waiting for a person and why |
+| decide | no | {what, considered: string[1..8], chose, because} | record the choice | what was written down and how many options went with it. A `chose` that is not in `considered` is refused with the reason |
+| list_decisions | yes | {} | none | JSON newest first: what, chose, because, what was turned down instead, and any objection. (untrustedContentHint) |
 
 ## Datasets (4 tools, owner A11, src/dataset)
 
