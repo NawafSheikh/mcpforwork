@@ -25,6 +25,7 @@ export type PatchKind =
   | "capability"
   | "loop"
   | "choice"
+  | "decision"
   | "audit";
 
 export const PATCH_KINDS: readonly PatchKind[] = [
@@ -40,6 +41,7 @@ export const PATCH_KINDS: readonly PatchKind[] = [
   "capability",
   "loop",
   "choice",
+  "decision",
   "audit",
 ];
 

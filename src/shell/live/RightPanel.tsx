@@ -7,6 +7,7 @@
  * have to go hunting for is not shown to you.
  */
 import { CodeRuns } from "../../packs/ui/CodeRuns";
+import { Decisions } from "../../decisions/ui/Decisions";
 import { LiveFeed } from "./LiveFeed";
 import { NextStep } from "./NextStep";
 import { OpenForYou } from "./OpenForYou";
@@ -17,6 +18,7 @@ export function RightPanel(): JSX.Element {
       <NextStep />
       <OpenForYou />
       <CodeRuns />
+      <Decisions />
       <LiveFeed />
     </aside>
   );

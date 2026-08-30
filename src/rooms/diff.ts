@@ -82,6 +82,7 @@ export function derivePatches(prev: Workspace, next: Workspace, origin: string, 
     ...recordPatches("capability", prev.capabilities ?? {}, next.capabilities ?? {}, ctx),
     ...recordPatches("loop", prev.loops ?? {}, next.loops ?? {}, ctx),
     ...recordPatches("choice", prev.toolChoice ?? {}, next.toolChoice ?? {}, ctx),
+    ...recordPatches("decision", prev.decisions ?? {}, next.decisions ?? {}, ctx),
     ...listPatches("run", prev.runs, next.runs, runId, ctx, true),
     ...listPatches("audit", prev.audit, next.audit, eventId, ctx, false),
   ];

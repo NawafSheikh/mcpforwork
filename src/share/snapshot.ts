@@ -14,9 +14,11 @@
  * In: a Workspace rebuilt field by field from untrusted JSON, in demo mode, named
  * "<name> (shared)". Nothing is ever spread from the parsed object.
  */
+import { LIMITS } from "../types";
 import type {
   Capability,
   Category,
+  Decision,
   Claim,
   DraftAction,
   Feedback,
@@ -31,6 +33,7 @@ import type {
 import { coerceCapability } from "../capabilities/coerce";
 import { coerceLoop } from "../loops/coerce";
 import { coercePurpose, coerceToolChoice } from "../purpose/coerce";
+import { coerceDecision } from "../decisions/coerce";
 import { coercePackState } from "../packs/coerce";
 import { CAP } from "./caps";
 import { asArray, asRecord, asString, asText, asIso, isSafeKey } from "./coerce";
@@ -62,6 +65,8 @@ export interface Snapshot {
   /** What this workspace is for, and why each pack is on or off. */
   readonly purpose?: string;
   readonly toolChoice: Readonly<Record<string, ToolChoice>>;
+  /** What was chosen and why, so a joiner can see the reasoning, not just the effects. */
+  readonly decisions: Readonly<Record<string, Decision>>;
   readonly updatedAt: string;
 }
 
@@ -84,6 +89,7 @@ export function toSnapshot(ws: Workspace): Snapshot {
     packs: ws.packs ?? {},
     ...(ws.purpose ? { purpose: ws.purpose } : {}),
     toolChoice: ws.toolChoice ?? {},
+    decisions: ws.decisions ?? {},
     updatedAt: ws.updatedAt,
   };
 }
@@ -205,6 +211,12 @@ export function fromSnapshot(raw: unknown, now: Date = new Date()): Workspace | 
       (card) => card.owner.name,
     ),
     packs: mapRecord(rec.packs, CAP.packs, (i) => coercePackState(i, at), (pack) => pack.id),
+    decisions: mapRecord(
+      rec.decisions,
+      LIMITS.maxDecisions,
+      (i) => coerceDecision(i, at),
+      (item) => item.id,
+    ),
     ...(coercePurpose(rec.purpose) ? { purpose: coercePurpose(rec.purpose) } : {}),
     toolChoice: mapRecord(
       rec.toolChoice,

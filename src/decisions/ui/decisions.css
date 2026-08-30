@@ -1,0 +1,33 @@
+/* Decisions: the reason, then what was turned down, then the one button that matters. */
+
+.mfw-decs { display: flex; flex-direction: column; gap: 6px; }
+.mfw-decs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.mfw-dec {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 11px;
+  border: 1px solid var(--mfw-border-soft, #e6ebf2);
+  border-left: 3px solid var(--mfw-accent, #2f6feb);
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: var(--mfw-surface, #fff);
+  font-size: 12px;
+}
+
+.mfw-dec__what { margin: 0; color: var(--mfw-muted, #5b6b7e); }
+.mfw-dec__chose { margin: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.mfw-dec__by { color: var(--mfw-muted, #5b6b7e); font-size: 11px; flex: 0 0 auto; }
+.mfw-dec__because { margin: 0; }
+.mfw-dec__instead { margin: 0; color: var(--mfw-muted, #5b6b7e); font-size: 11px; }
+
+.mfw-dec__against {
+  margin: 3px 0 0;
+  padding: 5px 8px;
+  border-radius: var(--mfw-radius-sm, 6px);
+  background: var(--mfw-bg-soft, #f6f8fb);
+  color: var(--mfw-warn, #b7791f);
+}
+
+.mfw-dec__form { display: flex; gap: 5px; margin-top: 3px; }
+.mfw-dec__note { margin: 2px 0 0; font-size: 11px; color: var(--mfw-muted, #5b6b7e); }

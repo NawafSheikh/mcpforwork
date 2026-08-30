@@ -60,7 +60,14 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
     description:
       "What is running and where: every loop, the layer it sits in, what it feeds, and what it last said. Registering one does not start anything.",
     risk: "write",
-    tools: ["register_loop", "report_loop", "list_loops", "rearrange_loop"],
+    tools: [
+      "register_loop",
+      "report_loop",
+      "list_loops",
+      "rearrange_loop",
+      "decide",
+      "list_decisions",
+    ],
   },
   {
     id: "workspaces",

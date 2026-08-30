@@ -18,6 +18,7 @@ import { WORKSPACE_READ_ONLY_TOOLS, WORKSPACE_UNTRUSTED_TOOLS } from "../workspa
 import { AGENT_READ_ONLY_TOOLS, AGENT_UNTRUSTED_TOOLS } from "../agents/tools";
 import { LOOP_READ_ONLY_TOOLS, LOOP_UNTRUSTED_TOOLS } from "../loops/tools";
 import { PURPOSE_READ_ONLY_TOOLS, PURPOSE_UNTRUSTED_TOOLS } from "../purpose/tools";
+import { DECISION_READ_ONLY_TOOLS, DECISION_UNTRUSTED_TOOLS } from "../decisions/tools";
 import type { ToolName } from "./schemas";
 
 export const READ_ONLY_TOOLS: readonly ToolName[] = [
@@ -35,6 +36,7 @@ export const READ_ONLY_TOOLS: readonly ToolName[] = [
   ...AGENT_READ_ONLY_TOOLS,
   ...LOOP_READ_ONLY_TOOLS,
   ...PURPOSE_READ_ONLY_TOOLS,
+  ...DECISION_READ_ONLY_TOOLS,
 ];
 
 export const UNTRUSTED_CONTENT_TOOLS: readonly ToolName[] = [
@@ -50,6 +52,7 @@ export const UNTRUSTED_CONTENT_TOOLS: readonly ToolName[] = [
   ...AGENT_UNTRUSTED_TOOLS,
   ...LOOP_UNTRUSTED_TOOLS,
   ...PURPOSE_UNTRUSTED_TOOLS,
+  ...DECISION_UNTRUSTED_TOOLS,
 ];
 
 export function annotationsFor(name: string, base?: ToolAnnotations): ToolAnnotations {

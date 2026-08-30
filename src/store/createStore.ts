@@ -82,6 +82,7 @@ export function emptyWorkspace(mode: WorkspaceMode, at: string = new Date().toIS
     capabilities: {},
     loops: {},
     toolChoice: {},
+    decisions: {},
     audit: [],
     updatedAt: at,
   };
@@ -115,6 +116,7 @@ export function coerceWorkspace(raw: unknown, mode: WorkspaceMode): Workspace | 
     loops: isRecord(raw.loops) ? (raw.loops as Workspace["loops"]) : {},
     purpose: typeof raw.purpose === "string" ? raw.purpose : undefined,
     toolChoice: isRecord(raw.toolChoice) ? (raw.toolChoice as Workspace["toolChoice"]) : {},
+    decisions: isRecord(raw.decisions) ? (raw.decisions as Workspace["decisions"]) : {},
     audit: capAudit(raw.audit as readonly AuditEvent[]),
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : base.updatedAt,
   };

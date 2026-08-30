@@ -246,6 +246,31 @@ export interface Task {
   readonly updatedAt: ISODate;
 }
 
+/* ---------- Decisions: what an agent considered, what it chose, and why ---------- */
+
+/**
+ * A choice an agent made, written down where a person can argue with it.
+ *
+ * The audit rail already says what happened. This says why it happened, which is the part
+ * a person can actually disagree with. An agent that picks one of three options and says
+ * nothing has told nobody anything, and the trail becomes a list of effects with no
+ * reasoning attached to any of them.
+ */
+export interface Decision {
+  readonly id: string;
+  /** The question, in one line: "which venue to scan first". */
+  readonly what: string;
+  /** What was on the table. The chosen one is in here too. */
+  readonly considered: readonly string[];
+  readonly chose: string;
+  readonly because: string;
+  /** Caller name of the agent, or display name of the person, that decided. */
+  readonly by: string;
+  /** Set when somebody said this was wrong, with what they said. */
+  readonly disagreed?: { readonly by: string; readonly said: ISODate | string; readonly at: ISODate };
+  readonly at: ISODate;
+}
+
 /* ---------- Purpose, and the toolset an agent argued for ---------- */
 
 /**
@@ -411,6 +436,8 @@ export interface Workspace {
   readonly purpose?: string;
   /** Why each pack is on or off, keyed by pack id. */
   readonly toolChoice?: Readonly<Record<string, ToolChoice>>;
+  /** What agents considered and chose, keyed by decision id. */
+  readonly decisions?: Readonly<Record<string, Decision>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -478,4 +505,8 @@ export const LIMITS = {
   maxLoopDoesChars: 200,
   maxPurposeChars: 240,
   maxToolReasonChars: 160,
+  /** Decisions kept on one board, and the caps on one of them. */
+  maxDecisions: 60,
+  maxDecisionChars: 200,
+  maxConsidered: 8,
 } as const;
