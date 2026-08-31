@@ -24,7 +24,7 @@ import { useCallback, useEffect, useState, type JSX } from "react";
 import { useBridge } from "../../packs/useBridge";
 import { useShell, useWorkspace } from "../../shell/context";
 import { withAudit } from "../../shell/adapters/store";
-import { displayName } from "../../feedback";
+import { DEFAULT_NAME, displayName } from "../../feedback";
 import { LIMITS, type AttachedSession, type SessionKind, type Workspace } from "../../types";
 import { attach, listSessions } from "../state";
 import "./sessions.css";
@@ -122,23 +122,32 @@ export function AttachSessions(): JSX.Element | null {
     setPhase("asking");
   }, [already, phase, workspace.id]);
 
+  // Pulled out of the object useBridge returns, deliberately.
+  //
+  // useBridge spreads its state into a new object on every render, so `bridge` itself is a
+  // different value each time. Depending on it made `look` unstable, which made the effect
+  // below re-run on every render, which called setFound(null) again, which re-rendered:
+  // the dialog sat on "Asking your machine..." for ever while the bridge answered in a
+  // second. These two are useCallback'd inside the hook and do not change.
+  const { call: askMachine, status: bridgeStatus } = bridge;
+
   const look = useCallback(async () => {
     setProblem("");
     setFound(null);
-    const outcome = await bridge.call("list_sessions");
+    const outcome = await askMachine("list_sessions");
     if (!outcome.ok) {
       setProblem(outcome.result);
       setFound([]);
       return;
     }
     setFound(readFound(outcome.result));
-  }, [bridge]);
+  }, [askMachine]);
 
   // Ask the machine as soon as the bridge is on, and again if it connects while open.
   useEffect(() => {
-    if (phase !== "asking" || bridge.status !== "on") return;
+    if (phase !== "asking" || bridgeStatus !== "on") return;
     void look();
-  }, [bridge.status, look, phase]);
+  }, [bridgeStatus, look, phase]);
 
   const close = useCallback(() => {
     remember(workspace.id);
@@ -161,7 +170,11 @@ export function AttachSessions(): JSX.Element | null {
       return;
     }
     const at = new Date().toISOString();
-    const host = displayName();
+    // Whose machine this is. Somebody who has not typed a name yet is not "Unnamed" here:
+    // the host reads back inside a sentence ("the loop X on ..."), and "this machine" is
+    // both true and readable where a placeholder name is neither.
+    const typed = displayName();
+    const host = typed === DEFAULT_NAME ? "this machine" : typed;
     const rows: readonly AttachedSession[] = chosen.map((session) => ({
       id: session.id,
       kind: session.kind,
@@ -198,7 +211,7 @@ export function AttachSessions(): JSX.Element | null {
               sessions it is about. Nothing here can start or stop any of them.
             </p>
 
-            {bridge.status === "on" ? (
+            {bridgeStatus === "on" ? (
               <Listing
                 found={found}
                 onRefresh={() => void look()}
@@ -207,7 +220,7 @@ export function AttachSessions(): JSX.Element | null {
                 problem={problem}
               />
             ) : (
-              <NoBridge onConnect={bridge.connect} status={bridge.status} error={bridge.error} />
+              <NoBridge onConnect={bridge.connect} status={bridgeStatus} error={bridge.error} />
             )}
 
             <div className="mfw-attach__row">
