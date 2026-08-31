@@ -13,6 +13,7 @@ import { NavProvider, useNav } from "./shell/nav";
 import { PhoneTabs } from "./shell/PhoneTabs";
 import { TopBar } from "./shell/TopBar";
 import { PackToastBridge, ToastProvider, ToolToastBridge } from "./shell/Toasts";
+import { AttachSessions } from "./sessions/ui/AttachSessions";
 
 /**
  * A shared snapshot: the board only, read only, with no rails, no approve path, no audit
@@ -42,6 +43,9 @@ function Frame({ editable }: { readonly editable: boolean }): JSX.Element {
         <RightPanel />
       </div>
       <PhoneTabs />
+      {/* Opens once on a board nobody has been asked about, and never on a snapshot,
+          which is somebody else's board quoted and has no machine behind it. */}
+      <AttachSessions />
     </div>
   );
 }

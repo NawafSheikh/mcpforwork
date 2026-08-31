@@ -20,6 +20,7 @@ import {
   type BridgeHello,
   type BridgePack,
   type BridgeRisk,
+  type CallOutcome,
   type RobotProfile,
   type SocketFactory,
 } from "./bridge";
@@ -60,6 +61,15 @@ export interface BridgeSession {
   connect(): Promise<void>;
   disconnect(): void;
   setPack(id: string, enabled: boolean): void;
+  /**
+   * Call one bridge tool as the person at the keyboard rather than as an agent.
+   *
+   * The tools are already on the page for agents; this is for the few places the UI has to
+   * ask the machine something to show a person a choice, which is the attach dialog and
+   * nothing else so far. `who` reaches the bridge, which logs it, so a read a person asked
+   * for is never recorded as an agent acting on its own.
+   */
+  call(tool: string, params?: unknown): Promise<CallOutcome>;
 }
 
 export interface BridgeSessionOptions {
@@ -291,6 +301,20 @@ export function createBridgeSession(options: BridgeSessionOptions = {}): BridgeS
       return () => {
         listeners.delete(listener);
       };
+    },
+    async call(tool: string, params: unknown = {}): Promise<CallOutcome> {
+      const live = client;
+      if (live === null) {
+        return { ok: false, result: "The local bridge is not connected." };
+      }
+      try {
+        return await live.call(tool, params, caller(), "person");
+      } catch (error) {
+        return {
+          ok: false,
+          result: `The local bridge did not answer: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
     },
     async connect(): Promise<void> {
       if (state.status === "on" || state.status === "connecting") return;

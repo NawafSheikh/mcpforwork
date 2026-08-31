@@ -58,7 +58,7 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
     id: "loops",
     name: "Loops",
     description:
-      "What is running and where: every loop, the layer it sits in, what it feeds, and what it last said. Registering one does not start anything.",
+      "What is running and where: the sessions already going on people's machines, every loop, the layer it sits in, what it feeds, and what it last said. Nothing here starts or stops anything.",
     risk: "write",
     tools: [
       "register_loop",
@@ -67,6 +67,10 @@ export const BUILT_IN_PACKS: readonly PackDefinition[] = [
       "rearrange_loop",
       "decide",
       "list_decisions",
+      "attach_sessions",
+      "list_attached",
+      "place_session",
+      "did_outside_loop",
     ],
   },
   {

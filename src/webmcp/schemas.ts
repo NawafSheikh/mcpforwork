@@ -20,6 +20,7 @@ import { agentToolSchemas } from "../agents/tools";
 import { loopToolSchemas } from "../loops/tools";
 import { purposeToolSchemas } from "../purpose/tools";
 import { decisionToolSchemas } from "../decisions/tools";
+import { sessionToolSchemas } from "../sessions/tools";
 
 export const kpiSchema = z.object({
   label: z.string().min(1).max(40),
@@ -190,6 +191,7 @@ export const toolSchemas = {
   ...loopToolSchemas,
   ...purposeToolSchemas,
   ...decisionToolSchemas,
+  ...sessionToolSchemas,
 } as const;
 
 export type ToolName = keyof typeof toolSchemas;

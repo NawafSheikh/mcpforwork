@@ -17,6 +17,7 @@ import { agentHandlers } from "../../agents/tools";
 import { loopHandlers } from "../../loops/tools";
 import { purposeHandlers } from "../../purpose/tools";
 import { decisionHandlers } from "../../decisions/tools";
+import { sessionHandlers } from "../../sessions/tools";
 import { createWebmcp, findModelContext, registerAllTools } from "../../webmcp";
 import type { HandlerMap } from "../../webmcp";
 import type { WorkspaceStore } from "../../types";
@@ -43,6 +44,7 @@ function handlersFor(): HandlerMap {
     ...(loopHandlers as unknown as HandlerMap),
     ...(purposeHandlers as unknown as HandlerMap),
     ...(decisionHandlers as unknown as HandlerMap),
+    ...(sessionHandlers as unknown as HandlerMap),
   };
 }
 

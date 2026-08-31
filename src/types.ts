@@ -326,6 +326,63 @@ export interface Loop {
   readonly updatedAt: ISODate;
 }
 
+/* ---------- Sessions (what was already running when the board opened) ---------- */
+
+/**
+ * A session somebody attached from their own machine.
+ *
+ * Nawaf, 31 Aug: "allow the user to attach any actively running ChatGPT desktop or Codex
+ * terminal, cmd, powershell, same for Claude Code. Once the user selects them, ChatGPT
+ * goes through them; if any can be converted, or are loops, place them appropriately."
+ *
+ * The point is that a board should not start as a blank page waiting to be told what
+ * exists. Real work is already running on the machine before anybody opens a browser, and
+ * the loops picture is only worth looking at if it is a picture of that.
+ *
+ * Attaching is a person's act; placing is the agent's. That split is the whole design:
+ * the bridge lists what is running, a person ticks the ones this board is about, and the
+ * agent then has to say, for each one, whether it is a loop and why. A session it cannot
+ * justify as a loop is recorded as one-off rather than quietly dropped.
+ */
+export type SessionKind = "chatgpt-desktop" | "codex" | "claude-code" | "terminal";
+
+/** unplaced until the agent has looked at it; then a loop, or explicitly not one. */
+export type SessionPlacement = "unplaced" | "loop" | "one-off";
+
+export interface AttachedSession {
+  readonly id: string;
+  readonly kind: SessionKind;
+  /** What it is, from its own command line. Written by a machine, shown as text. */
+  readonly what: string;
+  /** The project it is working in, when its machine knew. Never a full path. */
+  readonly where?: string;
+  /** Whose machine it is on: the caller name of the agent whose bridge listed it. */
+  readonly host: string;
+  readonly attachedAt: ISODate;
+  readonly placement: SessionPlacement;
+  /** Why it is a loop, or why it is not. Required to leave "unplaced". */
+  readonly why?: string;
+  /** The loop it became, when it became one. */
+  readonly loop?: string;
+}
+
+/**
+ * Work the agent did that is deliberately not a loop.
+ *
+ * Nawaf, 31 Aug: "if the user says build me a PowerPoint presentation, that doesn't go in
+ * any loops; ChatGPT does it outside the loop."
+ *
+ * Recorded rather than merely omitted. A page that silently shows nothing for a one-off
+ * looks the same as a page where nothing happened, and the difference is the whole point.
+ */
+export interface OutsideWork {
+  readonly id: string;
+  readonly what: string;
+  readonly by: string;
+  readonly why: string;
+  readonly at: ISODate;
+}
+
 /* ---------- Turns (claims and versions, docs/TURNS.md) ---------- */
 
 /**
@@ -438,6 +495,10 @@ export interface Workspace {
   readonly toolChoice?: Readonly<Record<string, ToolChoice>>;
   /** What agents considered and chose, keyed by decision id. */
   readonly decisions?: Readonly<Record<string, Decision>>;
+  /** Sessions attached off somebody's machine, keyed by session id. */
+  readonly sessions?: Readonly<Record<string, AttachedSession>>;
+  /** One-off work done deliberately outside the loops, keyed by its id. */
+  readonly outside?: Readonly<Record<string, OutsideWork>>;
   readonly audit: readonly AuditEvent[];
   readonly updatedAt: ISODate;
 }
@@ -506,6 +567,9 @@ export const LIMITS = {
   maxPurposeChars: 240,
   maxToolReasonChars: 160,
   /** Decisions kept on one board, and the caps on one of them. */
+  maxSessions: 24,
+  maxSessionWhatChars: 120,
+  maxOutside: 20,
   maxDecisions: 60,
   maxDecisionChars: 200,
   maxConsidered: 8,

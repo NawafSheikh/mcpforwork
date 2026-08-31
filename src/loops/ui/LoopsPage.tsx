@@ -16,6 +16,7 @@ import { heldName } from "../../agents/identity";
 import type { Loop } from "../../types";
 import { clampLayer, feedRefusal, findLoop, loopById, putLoop } from "../state";
 import { loopRows, pictureLine, saidLine, talkPrompt, whereLine, type LoopRow } from "../view";
+import { LiveBand, OutsideBand, WaitingBand, hasSessionContext } from "../../sessions/ui/SessionBands";
 import "./loops.css";
 
 function Box({
@@ -192,7 +193,12 @@ export function LoopsPage(): JSX.Element {
   const [openId, setOpenId] = useState<string | null>(null);
   const rows = loopRows(workspace, heldName());
 
-  if (rows.every((layer) => layer.rows.length === 0)) return <Empty />;
+  // A board with sessions attached but nothing placed yet is not empty: the waiting list is
+  // exactly the work, and telling somebody "nothing is running" while four of their sessions
+  // sit there unruled would be the page contradicting itself.
+  if (rows.every((layer) => layer.rows.length === 0) && !hasSessionContext(workspace)) {
+    return <Empty />;
+  }
 
   // Top layer first on screen, so the arrows read upward on the page as well as in the model.
   const stacked = [...rows].reverse();
@@ -206,8 +212,11 @@ export function LoopsPage(): JSX.Element {
         <p className="mfw-loops__line">{pictureLine(workspace)}</p>
       </header>
 
+      <WaitingBand />
+
       <div className="mfw-loops__body">
         <div className="mfw-loops__stack">
+          <LiveBand />
           {stacked.map((layer) => (
             <div className="mfw-loop-layer" key={layer.layer}>
               <span className="mfw-loop-layer__tag">
@@ -240,6 +249,8 @@ export function LoopsPage(): JSX.Element {
           <Detail row={openRow} onClose={() => setOpenId(null)} />
         )}
       </div>
+
+      <OutsideBand />
     </section>
   );
 }

@@ -8,11 +8,14 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import { localBridge, type BridgeSession, type BridgeState } from "./bridgeSession";
+import type { CallOutcome } from "./bridge";
 
 export interface BridgeApi extends BridgeState {
   connect(): void;
   disconnect(): void;
   setPack(id: string, enabled: boolean): void;
+  /** Ask the machine something on a person's behalf. See BridgeSession.call. */
+  call(tool: string, params?: unknown): Promise<CallOutcome>;
 }
 
 export function useBridge(session: BridgeSession = localBridge()): BridgeApi {
@@ -31,6 +34,10 @@ export function useBridge(session: BridgeSession = localBridge()): BridgeApi {
     (id: string, enabled: boolean) => session.setPack(id, enabled),
     [session],
   );
+  const call = useCallback(
+    (tool: string, params?: unknown) => session.call(tool, params),
+    [session],
+  );
 
-  return { ...state, connect, disconnect, setPack };
+  return { ...state, connect, disconnect, setPack, call };
 }

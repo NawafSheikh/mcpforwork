@@ -1,0 +1,238 @@
+/* The attach dialog, and the sessions band on the loops page. */
+
+.mfw-attach__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(11 16 32 / 46%);
+}
+
+.mfw-attach {
+  width: min(560px, 100%);
+  max-height: min(84vh, 720px);
+  overflow: auto;
+  padding: 20px 22px;
+  border-radius: 14px;
+  background: var(--mfw-card, #fff);
+  box-shadow: 0 18px 48px rgb(11 16 32 / 26%);
+}
+
+.mfw-attach h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.mfw-attach__lead {
+  margin: 0 0 14px;
+  color: var(--mfw-muted, #55606f);
+  line-height: 1.45;
+}
+
+.mfw-attach__list {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mfw-attach__row-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: start;
+  padding: 9px 11px;
+  border: 1px solid var(--mfw-line, #e3e7ee);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.mfw-attach__row-item:hover {
+  border-color: var(--mfw-accent, #2f6df6);
+}
+
+.mfw-attach__row-item input {
+  margin-top: 3px;
+}
+
+.mfw-attach__name {
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.mfw-attach__where,
+.mfw-attach__age {
+  font-weight: 400;
+  font-size: 0.82rem;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--mfw-chip, #eef2f8);
+  color: var(--mfw-muted, #55606f);
+}
+
+/* The command line, which is the row that tells you which session it is. */
+.mfw-attach__what {
+  grid-column: 2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--mfw-muted, #55606f);
+  overflow-wrap: anywhere;
+}
+
+.mfw-attach__empty {
+  padding: 14px;
+  border: 1px dashed var(--mfw-line, #e3e7ee);
+  border-radius: 10px;
+  color: var(--mfw-muted, #55606f);
+  line-height: 1.45;
+}
+
+.mfw-attach__empty p {
+  margin: 0 0 10px;
+}
+
+.mfw-attach__cmd {
+  margin: 0 0 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--mfw-chip, #eef2f8);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.mfw-attach__warn {
+  color: var(--mfw-warn, #b23c17);
+}
+
+.mfw-attach__again {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mfw-accent, #2f6df6);
+  cursor: pointer;
+  font: inherit;
+}
+
+.mfw-attach__row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.mfw-btn--go {
+  border-color: var(--mfw-accent, #2f6df6);
+  background: var(--mfw-accent, #2f6df6);
+  color: #fff;
+}
+
+.mfw-btn--go:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- the sessions band on the loops page ---- */
+
+.mfw-sessions {
+  margin: 0 0 14px;
+}
+
+.mfw-sessions__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.mfw-sessions__head h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mfw-muted, #55606f);
+}
+
+.mfw-sessions__line {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--mfw-muted, #55606f);
+}
+
+.mfw-sessions__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mfw-session {
+  padding: 8px 11px;
+  border: 1px solid var(--mfw-line, #e3e7ee);
+  border-radius: 9px;
+  background: var(--mfw-card, #fff);
+  max-width: 320px;
+}
+
+.mfw-session--waiting {
+  border-style: dashed;
+  border-color: var(--mfw-accent, #2f6df6);
+}
+
+.mfw-session__name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mfw-session__why,
+.mfw-session__what {
+  margin: 3px 0 0;
+  font-size: 0.8rem;
+  color: var(--mfw-muted, #55606f);
+  overflow-wrap: anywhere;
+}
+
+/* Work that is deliberately not a loop. Shown, so that "looked at and ruled out" and
+   "never looked at" are not the same empty space. */
+.mfw-outside {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mfw-line, #e3e7ee);
+}
+
+.mfw-outside__item {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+}
+
+.mfw-outside__why {
+  color: var(--mfw-muted, #55606f);
+}
+
+/* The live session sits above every layer and is styled to read as a different kind of
+   thing from a loop: it is where the answers arrive, not something that runs. */
+.mfw-loop-layer--live .mfw-loop-layer__tag {
+  color: var(--mfw-accent, #2f6df6);
+}
+
+.mfw-loop--live {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 13px;
+  border: 1px solid var(--mfw-accent, #2f6df6);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--mfw-accent, #2f6df6) 7%, var(--mfw-card, #fff));
+  text-align: left;
+  max-width: 340px;
+}

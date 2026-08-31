@@ -15,7 +15,7 @@ import { packStateOf, packViews, setPackState } from "../state";
 import { fakeContext, installContext, removeContext } from "./fixtures";
 
 const MONITOR_TOOLS = 7;
-const ALL_TOOLS = 43;
+const ALL_TOOLS = 47;
 
 function bundle(store: PersistentWorkspaceStore) {
   const packs = createPackController(store);
